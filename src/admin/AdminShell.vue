@@ -36,12 +36,22 @@ const pageTitle = computed(() => {
     <AdminSidebar />
     <div class="admin-main">
       <header class="admin-header">
-        <h1 class="admin-page-title">{{ pageTitle }}</h1>
-        <div class="admin-header-actions">
+        <div class="header-left">
+          <h1 class="page-title">{{ pageTitle }}</h1>
+        </div>
+        <div class="header-right">
           <router-link to="/display" class="btn-preview" target="_blank">
-            &#9654; Display-Vorschau
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="2" width="14" height="10" rx="1.5"/>
+              <path d="M5 14h6M8 12v2"/>
+            </svg>
+            <span>Display-Vorschau</span>
           </router-link>
-          <div class="admin-user">
+          <div class="header-divider"></div>
+          <div class="user-area">
+            <div class="user-avatar">
+              {{ userStore.currentUser?.name?.charAt(0) || 'A' }}
+            </div>
             <select
               :value="userStore.currentUserId"
               @change="userStore.switchUser($event.target.value)"
@@ -73,57 +83,102 @@ const pageTitle = computed(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
 .admin-header {
-  height: 64px;
+  height: 56px;
   background: var(--blickle-white);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 28px;
   flex-shrink: 0;
 }
 
-.admin-page-title {
-  font-size: var(--font-size-xl);
+.page-title {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
   font-weight: 700;
-  color: var(--blickle-navy);
+  color: var(--gray-900);
+  letter-spacing: -0.01em;
 }
 
-.admin-header-actions {
+.header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .btn-preview {
-  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
   background: var(--blickle-green);
   color: var(--blickle-navy);
+  font-family: var(--font-body);
   font-weight: 600;
-  font-size: var(--font-size-sm);
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
+  font-size: 0.75rem;
+  border-radius: 8px;
+  transition: all 200ms ease;
+  letter-spacing: 0.005em;
 }
 
 .btn-preview:hover {
   background: var(--blickle-green-light);
+  box-shadow: 0 2px 10px rgba(181, 204, 24, 0.3);
+  transform: translateY(-1px);
+}
+
+.header-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--gray-200);
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--blickle-navy);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.6875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-select {
-  padding: 6px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
   background: var(--blickle-white);
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+
+.user-select:hover {
+  border-color: var(--gray-300);
 }
 
 .admin-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 28px;
 }
 </style>

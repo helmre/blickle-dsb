@@ -1,60 +1,90 @@
 :root {
-  /* Blickle Markenfarben */
+  /* ── Blickle Brand ── */
   --blickle-navy: #163A6C;
   --blickle-green: #B5CC18;
   --blickle-white: #FFFFFF;
 
-  /* Abgeleitete Palette */
+  /* ── Navy Scale ── */
+  --blickle-navy-50: #EEF2F7;
+  --blickle-navy-100: #D4DCEA;
+  --blickle-navy-200: #A9B9D5;
+  --blickle-navy-300: #7E96C0;
   --blickle-navy-light: #1E4D8A;
   --blickle-navy-dark: #0F2A4E;
+  --blickle-navy-950: #091B35;
+
+  /* ── Lime Scale ── */
   --blickle-green-light: #C8DD40;
   --blickle-green-dark: #96AA10;
-  --gray-50: #F8F9FA;
-  --gray-100: #F0F1F3;
-  --gray-200: #E2E4E8;
-  --gray-300: #C5C9D0;
-  --gray-400: #9CA3AF;
-  --gray-500: #6B7280;
-  --gray-600: #4B5563;
-  --gray-700: #374151;
-  --gray-800: #1F2937;
-  --gray-900: #111827;
+  --blickle-green-50: #F7FAE6;
 
-  /* Semantische Farben */
+  /* ── Neutral Scale ── */
+  --gray-25: #FCFCFD;
+  --gray-50: #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1E293B;
+  --gray-900: #0F172A;
+
+  /* ── Semantic Colors ── */
   --color-primary: var(--blickle-navy);
   --color-accent: var(--blickle-green);
-  --color-background: var(--gray-50);
+  --color-background: #F1F5F9;
   --color-surface: var(--blickle-white);
   --color-text: var(--gray-900);
   --color-text-secondary: var(--gray-500);
-  --color-border: var(--gray-200);
-  --color-danger: #DC2626;
-  --color-danger-light: #FEE2E2;
-  --color-warning: #F59E0B;
-  --color-warning-light: #FEF3C7;
-  --color-success: #16A34A;
-  --color-success-light: #DCFCE7;
-  --color-info: #2563EB;
-  --color-info-light: #DBEAFE;
+  --color-border: #E2E8F0;
 
-  /* Notfall */
+  --color-danger: #EF4444;
+  --color-danger-light: #FEF2F2;
+  --color-danger-muted: #FCA5A5;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FFFBEB;
+  --color-success: #22C55E;
+  --color-success-light: #F0FDF4;
+  --color-info: #3B82F6;
+  --color-info-light: #EFF6FF;
+
+  /* ── Notfall ── */
   --color-emergency-bg: #DC2626;
   --color-emergency-text: #FFFFFF;
 
-  /* Typografie */
-  --font-family: 'Arial', 'Helvetica Neue', 'Helvetica', sans-serif;
+  /* ── Typography ── */
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  --font-size-2xs: 0.625rem;
   --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.9375rem;
+  --font-size-lg: 1.0625rem;
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
-  --font-size-display: 3.5rem;
+  --font-size-display: 3rem;
 
-  /* Abstände */
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-widest: 0.1em;
+
+  /* ── Spacing ── */
+  --space-px: 1px;
+  --space-0: 0;
   --space-1: 0.25rem;
+  --space-1-5: 0.375rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
@@ -63,20 +93,84 @@
   --space-8: 2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
 
-  /* Radien */
-  --radius-sm: 4px;
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
 
-  /* Schatten */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+  --shadow-2xl: 0 25px 50px -12px rgba(15, 23, 42, 0.16);
+  --shadow-inner: inset 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-glow-green: 0 0 20px rgba(181, 204, 24, 0.25);
+  --shadow-glow-navy: 0 0 20px rgba(22, 58, 108, 0.2);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --shadow-card-hover: 0 10px 30px -4px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
 
-  /* Übergänge */
-  --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
-  --transition-slow: 500ms ease;
+  /* ── Transitions ── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Z-Index ── */
+  --z-base: 0;
+  --z-above: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 1000;
+  --z-toast: 2000;
+}
+
+/* ── Keyframes ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
