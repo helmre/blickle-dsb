@@ -1,0 +1,148 @@
+/* ========================================
+   Display Theme Variables
+   Applied via data-theme on .display-root
+   ======================================== */
+
+.display-root[data-theme="dark"] {
+  /* Backgrounds */
+  --d-bg: #080C18;
+  --d-header-bg: rgba(10, 16, 32, 0.85);
+  --d-nav-bg: rgba(10, 16, 32, 0.6);
+  --d-ticker-bg: rgba(10, 16, 32, 0.85);
+  --d-surface: rgba(255, 255, 255, 0.04);
+  --d-surface-hover: rgba(255, 255, 255, 0.06);
+  --d-surface-active: rgba(181, 204, 24, 0.08);
+
+  /* Borders */
+  --d-border: rgba(255, 255, 255, 0.07);
+  --d-border-subtle: rgba(255, 255, 255, 0.04);
+  --d-border-accent: rgba(181, 204, 24, 0.15);
+  --d-header-border: rgba(181, 204, 24, 0.15);
+  --d-ticker-border: rgba(181, 204, 24, 0.12);
+  --d-nav-border: rgba(255, 255, 255, 0.06);
+  --d-zone-header-border: rgba(255, 255, 255, 0.06);
+  --d-table-border: rgba(255, 255, 255, 0.04);
+  --d-table-header-border: rgba(181, 204, 24, 0.15);
+
+  /* Text */
+  --d-text: #E8ECF4;
+  --d-text-muted: rgba(232, 236, 244, 0.5);
+  --d-text-faint: rgba(232, 236, 244, 0.3);
+  --d-text-body: rgba(232, 236, 244, 0.65);
+
+  /* Accent */
+  --d-accent: #B5CC18;
+  --d-accent-muted: rgba(181, 204, 24, 0.7);
+  --d-accent-faint: rgba(181, 204, 24, 0.5);
+  --d-accent-subtle: rgba(181, 204, 24, 0.12);
+  --d-accent-glow: rgba(181, 204, 24, 0.4);
+  --d-accent-text: #080C18;
+
+  /* Nav */
+  --d-nav-text: rgba(232, 236, 244, 0.45);
+  --d-nav-text-hover: rgba(232, 236, 244, 0.8);
+  --d-nav-active-bg: rgba(181, 204, 24, 0.1);
+  --d-nav-active-border: rgba(181, 204, 24, 0.25);
+  --d-nav-active-shadow: rgba(181, 204, 24, 0.08);
+
+  /* Ticker */
+  --d-ticker-text: rgba(232, 236, 244, 0.7);
+
+  /* Gradients (dark only) */
+  --d-bg-gradient-1: rgba(181, 204, 24, 0.07);
+  --d-bg-gradient-2: rgba(22, 58, 108, 0.18);
+  --d-bg-gradient-3: rgba(22, 58, 108, 0.06);
+  --d-grid-line: rgba(255, 255, 255, 0.015);
+
+  /* Zone surface */
+  --d-zone-surface: rgba(255, 255, 255, 0.03);
+  --d-zone-surface-border: rgba(255, 255, 255, 0.06);
+
+  /* Shadows */
+  --d-shadow: none;
+  --d-zone-shadow: none;
+
+  /* Subtitle */
+  --d-subtitle: rgba(232, 236, 244, 0.5);
+  --d-divider: rgba(255, 255, 255, 0.12);
+
+  /* Clock */
+  --d-clock: #E8ECF4;
+  --d-date: rgba(181, 204, 24, 0.7);
+
+  /* Backdrop */
+  --d-backdrop-blur: blur(12px);
+  --d-nav-backdrop: blur(8px);
+}
+
+.display-root[data-theme="light"] {
+  /* Backgrounds */
+  --d-bg: #F0F2F7;
+  --d-header-bg: #163A6C;
+  --d-nav-bg: #FFFFFF;
+  --d-ticker-bg: #163A6C;
+  --d-surface: #FFFFFF;
+  --d-surface-hover: #F8F9FC;
+  --d-surface-active: rgba(181, 204, 24, 0.12);
+
+  /* Borders */
+  --d-border: rgba(22, 58, 108, 0.1);
+  --d-border-subtle: rgba(22, 58, 108, 0.06);
+  --d-border-accent: rgba(181, 204, 24, 0.3);
+  --d-header-border: rgba(22, 58, 108, 0.15);
+  --d-ticker-border: rgba(22, 58, 108, 0.12);
+  --d-nav-border: rgba(22, 58, 108, 0.08);
+  --d-zone-header-border: rgba(22, 58, 108, 0.08);
+  --d-table-border: rgba(22, 58, 108, 0.06);
+  --d-table-header-border: rgba(22, 58, 108, 0.15);
+
+  /* Text */
+  --d-text: #1A1F2E;
+  --d-text-muted: #6B7280;
+  --d-text-faint: #9CA3AF;
+  --d-text-body: #374151;
+
+  /* Accent */
+  --d-accent: #B5CC18;
+  --d-accent-muted: #8FA310;
+  --d-accent-faint: rgba(181, 204, 24, 0.6);
+  --d-accent-subtle: rgba(181, 204, 24, 0.1);
+  --d-accent-glow: transparent;
+  --d-accent-text: #163A6C;
+
+  /* Nav */
+  --d-nav-text: #6B7280;
+  --d-nav-text-hover: #163A6C;
+  --d-nav-active-bg: rgba(181, 204, 24, 0.12);
+  --d-nav-active-border: rgba(181, 204, 24, 0.35);
+  --d-nav-active-shadow: rgba(181, 204, 24, 0.06);
+
+  /* Ticker */
+  --d-ticker-text: rgba(255, 255, 255, 0.85);
+
+  /* Gradients (disabled in light) */
+  --d-bg-gradient-1: transparent;
+  --d-bg-gradient-2: transparent;
+  --d-bg-gradient-3: transparent;
+  --d-grid-line: transparent;
+
+  /* Zone surface */
+  --d-zone-surface: rgba(22, 58, 108, 0.03);
+  --d-zone-surface-border: rgba(22, 58, 108, 0.06);
+
+  /* Shadows */
+  --d-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --d-zone-shadow: 0 1px 4px rgba(22, 58, 108, 0.06);
+
+  /* Subtitle */
+  --d-subtitle: rgba(255, 255, 255, 0.7);
+  --d-divider: rgba(255, 255, 255, 0.2);
+
+  /* Clock */
+  --d-clock: #FFFFFF;
+  --d-date: #B5CC18;
+
+  /* Backdrop */
+  --d-backdrop-blur: none;
+  --d-nav-backdrop: none;
+}
