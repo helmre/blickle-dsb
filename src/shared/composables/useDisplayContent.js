@@ -166,6 +166,18 @@ export function useDisplayContent(locationId = null) {
       zones: infoZones
     })
 
+    // SOCIAL page: Facebook + LinkedIn feeds
+    pages.push({
+      id: 'social',
+      label: 'SOCIAL',
+      icon: '&#128240;',
+      layout: 'full',
+      duration: 20,
+      zones: [
+        { id: 'social-full', type: 'social-wall', title: 'Social Media' },
+      ]
+    })
+
     // PLAENE page
     pages.push({
       id: 'plaene',

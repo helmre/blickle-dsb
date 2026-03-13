@@ -8,6 +8,7 @@ import NewsFeed from './zones/NewsFeed.vue'
 import AnnouncementCard from './zones/AnnouncementCard.vue'
 import ScheduleWeekly from './zones/ScheduleWeekly.vue'
 import TemplateRenderer from './zones/TemplateRenderer.vue'
+import SocialWall from './zones/SocialWall.vue'
 
 const props = defineProps({
   page: { type: Object, required: true }
@@ -24,6 +25,7 @@ const componentMap = {
   'template': TemplateRenderer,
   'media': TemplateRenderer,
   'embed': TemplateRenderer,
+  'social-wall': SocialWall,
 }
 
 const isCustomLayout = computed(() => props.page.layout === 'custom' && props.page.customGrid)
