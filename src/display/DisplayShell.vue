@@ -27,6 +27,32 @@ const isFullscreenVideo = computed(() => {
 const scale = ref(1)
 let cycleTimer = null
 
+// Fullscreen overlay: tap to show header/nav over video/poster
+const showFullscreenOverlay = ref(false)
+let overlayTimer = null
+
+function toggleFullscreenOverlay() {
+  if (!isFullscreen.value) return
+  showFullscreenOverlay.value = !showFullscreenOverlay.value
+  if (showFullscreenOverlay.value) {
+    stopCycle()
+    clearTimeout(overlayTimer)
+    overlayTimer = setTimeout(() => {
+      showFullscreenOverlay.value = false
+      startCycle()
+    }, 5000)
+  } else {
+    clearTimeout(overlayTimer)
+    startCycle()
+  }
+}
+
+function onOverlayNavSelect(index) {
+  showFullscreenOverlay.value = false
+  clearTimeout(overlayTimer)
+  setPage(index)
+}
+
 // Called by FullscreenMedia when video ends
 function onMediaEnded() {
   nextPage()
@@ -88,22 +114,24 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', calculateScale)
   stopCycle()
+  clearTimeout(overlayTimer)
 })
 </script>
 
 <template>
   <div class="display-viewport">
-    <div class="display-root" :data-theme="theme" :style="{ transform: `scale(${scale})` }">
+    <div class="display-root" :data-theme="theme" :class="{ 'fullscreen-overlay-active': showFullscreenOverlay }" :style="{ transform: `scale(${scale})` }">
       <!-- Animated background layers -->
       <div class="bg-gradient"></div>
       <div class="bg-grid"></div>
 
       <DisplayHeader
-        v-if="!isFullscreen"
+        v-if="!isFullscreen || showFullscreenOverlay"
         :pageTitle="currentPage.label"
         @toggle-theme="toggleTheme"
         @toggle-nav="toggleNavPosition"
         :navPosition="navPosition"
+        :class="{ 'overlay-header': isFullscreen && showFullscreenOverlay }"
       />
 
       <div :class="['display-body', `display-body--${navPosition}`, { 'display-body--fullscreen': isFullscreen }]">
@@ -118,12 +146,20 @@ onUnmounted(() => {
           @select="setPage" />
       </div>
 
+      <!-- Fullscreen tap zone: click anywhere to show overlay nav -->
+      <div
+        v-if="isFullscreen && !showFullscreenOverlay"
+        class="fullscreen-tap-zone"
+        @click="toggleFullscreenOverlay"
+      />
+
       <DisplayNav
-        v-if="navPosition === 'bottom' && !isFullscreen"
+        v-if="(navPosition === 'bottom' && !isFullscreen) || showFullscreenOverlay"
         :pages="pages"
         :activeIndex="currentPageIndex"
         position="bottom"
-        @select="setPage" />
+        :class="{ 'overlay-nav': isFullscreen && showFullscreenOverlay }"
+        @select="onOverlayNavSelect" />
 
       <DisplayTicker v-if="!isFullscreen" :messages="tickerMessages" />
 
@@ -221,5 +257,42 @@ onUnmounted(() => {
 
 .display-body--fullscreen {
   flex: 1;
+}
+
+/* Fullscreen tap zone: invisible overlay to capture clicks */
+.fullscreen-tap-zone {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  cursor: pointer;
+}
+
+/* Overlay header: floats over fullscreen content */
+.overlay-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(10px);
+  animation: overlay-fade-in 0.3s ease;
+}
+
+/* Overlay nav: floats over fullscreen content */
+.overlay-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(10px);
+  animation: overlay-fade-in 0.3s ease;
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
