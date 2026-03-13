@@ -11,7 +11,7 @@ import DisplayEmergency from './DisplayEmergency.vue'
 import './display-themes.css'
 
 const emergencyStore = useEmergencyStore()
-const { theme, toggleTheme } = useDisplayTheme()
+const { theme, toggleTheme, navPosition, toggleNavPosition } = useDisplayTheme()
 const { displayPages: pages, tickerMessages, activePlaylist } = useDisplayContent()
 
 const currentPageIndex = ref(0)
@@ -83,17 +83,31 @@ onUnmounted(() => {
       <div class="bg-gradient"></div>
       <div class="bg-grid"></div>
 
-      <DisplayHeader :pageTitle="currentPage.label" @toggle-theme="toggleTheme" />
+      <DisplayHeader
+        :pageTitle="currentPage.label"
+        @toggle-theme="toggleTheme"
+        @toggle-nav="toggleNavPosition"
+        :navPosition="navPosition"
+      />
 
-      <div class="display-body">
+      <div :class="['display-body', `display-body--${navPosition}`]">
         <div :class="['display-content', { 'is-transitioning': transitioning }]">
           <DisplayGrid :page="currentPage" />
         </div>
         <DisplayNav
+          v-if="navPosition === 'sidebar'"
           :pages="pages"
           :activeIndex="currentPageIndex"
+          position="sidebar"
           @select="setPage" />
       </div>
+
+      <DisplayNav
+        v-if="navPosition === 'bottom'"
+        :pages="pages"
+        :activeIndex="currentPageIndex"
+        position="bottom"
+        @select="setPage" />
 
       <DisplayTicker :messages="tickerMessages" />
 
@@ -161,6 +175,16 @@ onUnmounted(() => {
   overflow: hidden;
   position: relative;
   z-index: 1;
+}
+
+/* Sidebar: Content + Nav nebeneinander (row) – Standard */
+.display-body--sidebar {
+  flex-direction: row;
+}
+
+/* Bottom: Content nimmt volle Breite */
+.display-body--bottom {
+  flex-direction: column;
 }
 
 .display-content {

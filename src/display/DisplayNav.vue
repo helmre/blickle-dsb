@@ -1,14 +1,15 @@
 <script setup>
 defineProps({
   pages: { type: Array, required: true },
-  activeIndex: { type: Number, default: 0 }
+  activeIndex: { type: Number, default: 0 },
+  position: { type: String, default: 'bottom' } // 'bottom' | 'sidebar'
 })
 
 const emit = defineEmits(['select'])
 </script>
 
 <template>
-  <nav class="display-nav">
+  <nav :class="['display-nav', `display-nav--${position}`]">
     <button
       v-for="(page, index) in pages"
       :key="page.id"
@@ -23,15 +24,11 @@ const emit = defineEmits(['select'])
 </template>
 
 <style scoped>
+/* ===== SHARED BASE ===== */
 .display-nav {
-  width: 140px;
   background: var(--d-nav-bg);
   backdrop-filter: var(--d-nav-backdrop);
-  border-left: 1px solid var(--d-nav-border);
   display: flex;
-  flex-direction: column;
-  padding: 12px 8px;
-  gap: 6px;
   flex-shrink: 0;
   transition: background 0.4s ease;
 }
@@ -41,11 +38,9 @@ const emit = defineEmits(['select'])
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 14px 8px;
   border-radius: 10px;
   color: var(--d-nav-text);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   transition: all 0.25s ease;
@@ -68,8 +63,7 @@ const emit = defineEmits(['select'])
 }
 
 .nav-icon {
-  font-size: 1.35rem;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   transition: transform 0.2s ease;
 }
 
@@ -78,12 +72,33 @@ const emit = defineEmits(['select'])
 }
 
 .nav-label {
-  font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.nav-active-bar {
+/* ===== SIDEBAR VARIANT (rechts, vertikal) ===== */
+.display-nav--sidebar {
+  width: 140px;
+  flex-direction: column;
+  border-left: 1px solid var(--d-nav-border);
+  padding: 12px 8px;
+  gap: 6px;
+}
+
+.display-nav--sidebar .nav-btn {
+  padding: 14px 8px;
+  font-size: 0.8rem;
+}
+
+.display-nav--sidebar .nav-icon {
+  font-size: 1.35rem;
+}
+
+.display-nav--sidebar .nav-label {
+  font-size: 0.65rem;
+}
+
+.display-nav--sidebar .nav-active-bar {
   position: absolute;
   left: 0;
   top: 50%;
@@ -92,6 +107,45 @@ const emit = defineEmits(['select'])
   height: 24px;
   background: var(--d-accent);
   border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba(181, 204, 24, 0.5);
+}
+
+/* ===== BOTTOM VARIANT (unten, horizontal) ===== */
+.display-nav--bottom {
+  height: 64px;
+  flex-direction: row;
+  border-top: 1px solid var(--d-nav-border);
+  padding: 4px 12px;
+  gap: 4px;
+  justify-content: space-evenly;
+}
+
+.display-nav--bottom .nav-btn {
+  flex: 1;
+  max-width: 180px;
+  min-width: 0;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+}
+
+.display-nav--bottom .nav-icon {
+  font-size: 1.3rem;
+}
+
+.display-nav--bottom .nav-label {
+  font-size: 0.58rem;
+}
+
+.display-nav--bottom .nav-active-bar {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 3px;
+  width: 28px;
+  background: var(--d-accent);
+  border-radius: 0 0 3px 3px;
   box-shadow: 0 0 8px rgba(181, 204, 24, 0.5);
 }
 </style>

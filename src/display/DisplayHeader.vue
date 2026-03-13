@@ -3,10 +3,11 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useDisplayTheme } from '../shared/composables/useDisplayTheme.js'
 
 defineProps({
-  pageTitle: { type: String, default: 'HOME' }
+  pageTitle: { type: String, default: 'HOME' },
+  navPosition: { type: String, default: 'bottom' }
 })
 
-const emit = defineEmits(['toggle-theme'])
+const emit = defineEmits(['toggle-theme', 'toggle-nav'])
 const { theme } = useDisplayTheme()
 
 const time = ref('')
@@ -44,7 +45,11 @@ onUnmounted(() => {
       <div class="header-clock">{{ time }}</div>
       <div class="header-date">{{ date }}</div>
     </div>
-    <button class="theme-toggle" @click="emit('toggle-theme')" :title="theme === 'dark' ? 'Light Mode' : 'Dark Mode'">
+    <button class="header-action-btn" @click="emit('toggle-nav')" :title="navPosition === 'bottom' ? 'Sidebar-Navigation' : 'Bottom-Navigation'">
+      <span v-if="navPosition === 'bottom'">&#9776;</span>
+      <span v-else>&#9866;</span>
+    </button>
+    <button class="header-action-btn" @click="emit('toggle-theme')" :title="theme === 'dark' ? 'Light Mode' : 'Dark Mode'">
       <span v-if="theme === 'dark'">&#9788;</span>
       <span v-else>&#9790;</span>
     </button>
@@ -149,7 +154,7 @@ onUnmounted(() => {
   letter-spacing: 0.02em;
 }
 
-.theme-toggle {
+.header-action-btn {
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -165,7 +170,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.theme-toggle:hover {
+.header-action-btn:hover {
   background: rgba(181, 204, 24, 0.15);
 }
 </style>

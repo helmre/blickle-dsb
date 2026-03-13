@@ -1,11 +1,17 @@
 import { ref, watch } from 'vue'
 
-const STORAGE_KEY = 'dsb_display_theme'
+const THEME_KEY = 'dsb_display_theme'
+const NAV_KEY = 'dsb_nav_position'
 
-const theme = ref(localStorage.getItem(STORAGE_KEY) || 'dark')
+const theme = ref(localStorage.getItem(THEME_KEY) || 'dark')
+const navPosition = ref(localStorage.getItem(NAV_KEY) || 'bottom')
 
 watch(theme, (val) => {
-  localStorage.setItem(STORAGE_KEY, val)
+  localStorage.setItem(THEME_KEY, val)
+})
+
+watch(navPosition, (val) => {
+  localStorage.setItem(NAV_KEY, val)
 })
 
 export function useDisplayTheme() {
@@ -17,5 +23,13 @@ export function useDisplayTheme() {
     theme.value = theme.value === 'dark' ? 'light' : 'dark'
   }
 
-  return { theme, setTheme, toggleTheme }
+  function setNavPosition(pos) {
+    navPosition.value = pos
+  }
+
+  function toggleNavPosition() {
+    navPosition.value = navPosition.value === 'bottom' ? 'sidebar' : 'bottom'
+  }
+
+  return { theme, setTheme, toggleTheme, navPosition, setNavPosition, toggleNavPosition }
 }
