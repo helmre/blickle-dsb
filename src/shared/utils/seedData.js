@@ -50,6 +50,7 @@ export function getSeedLayouts() {
 export function getSeedContent() {
   const now = new Date().toISOString()
   return [
+    // ── Bestehende Basis-Inhalte ─────────────────────
     {
       id: 'content-1', title: 'Willkommen bei Blickle', description: 'Begruessung fuer alle Mitarbeiter',
       type: 'text', tags: ['allgemein'], status: 'approved',
@@ -58,35 +59,198 @@ export function getSeedContent() {
       templateId: null, templateParams: null, metadata: {}
     },
     {
-      id: 'content-2', title: 'Sicherheitshinweis: Schutzausruestung', description: 'Persoenliche Schutzausruestung ist in allen Produktionsbereichen Pflicht.',
+      id: 'content-2', title: 'Sicherheitshinweis: Schutzausruestung', description: 'PSA ist in allen Produktionsbereichen Pflicht. Schutzbrille, Sicherheitsschuhe und Gehoerschutz tragen!',
       type: 'text', tags: ['sicherheit', 'produktion'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: null, templateParams: null, metadata: {}
+      templateId: 'tpl-safety', templateParams: { titel: 'PSA-Pflicht in der Produktion', hinweis: 'In allen Produktionsbereichen gilt: Schutzbrille, Sicherheitsschuhe und Gehoerschutz sind Pflicht. Bitte achten Sie auf Ihre Sicherheit und die Ihrer Kolleginnen und Kollegen. Bei Fragen wenden Sie sich an Ihre Fuehrungskraft.' }, metadata: {}
     },
+
+    // ── Einblickle-Magazin Inhalte ───────────────────
+
+    // 1. Vorwort David Blickle (S.3) → tpl-ceo
     {
-      id: 'content-3', title: 'Betriebsversammlung Q1', description: 'Am 28. Maerz findet die Betriebsversammlung statt.',
-      type: 'text', tags: ['events', 'allgemein'], status: 'approved',
-      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
-      validFrom: '2026-03-20T00:00:00Z', validUntil: '2026-03-29T00:00:00Z',
-      fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: null, templateParams: null, metadata: {}
+      id: 'content-ceo-vorwort', title: 'Botschaft der Geschaeftsfuehrung', description: 'David Blickle blickt auf ein erfolgreiches Jahr zurueck und gibt einen Ausblick.',
+      type: 'text', tags: ['allgemein'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-ceo', templateParams: {
+        zitat: 'Wir haben 2025 viel erreicht und sind stolz auf das, was wir gemeinsam geschafft haben. Der Zusammenhalt bei Blickle ist unsere groesste Staerke. Gemeinsam gestalten wir die Zukunft.',
+        name: 'David Blickle',
+        position: 'Geschaeftsfuehrung'
+      }, metadata: {}
     },
+
+    // 2. Produktion im Wandel (S.10-11) → tpl-production
     {
-      id: 'content-4', title: 'Neue Raeder-Serie LKX', description: 'Produktionsstart der neuen Schwerlast-Lenkrolle LKX.',
-      type: 'text', tags: ['produktion', 'neuheiten'], status: 'in_review',
+      id: 'content-produktion-wandel', title: 'Produktion im Wandel: Matrixorganisation', description: 'Ab Januar 2026 stellen wir die Produktionsorganisation um.',
+      type: 'text', tags: ['produktion'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-production', templateParams: {
+        linie: 'Matrixorganisation 2026',
+        status: 'gruen',
+        statusText: 'In Vorbereitung',
+        grund: 'Die neue Matrixorganisation in der Produktion startet ab Januar 2026. Ziel: schnellere Entscheidungen und flexiblere Teams. Weitere Infos folgen.',
+        zeitpunkt: 'Start: Januar 2026'
+      }, metadata: {}
+    },
+
+    // 3. #TeamBlickle Kleidung (S.20) → tpl-announcement
+    {
+      id: 'content-teamblickle-kleidung', title: '#TeamBlickle Kollektion', description: 'Neue Kleidungskollektion im S\'LAEDLE erhaeltlich.',
+      type: 'text', tags: ['allgemein', 'mitarbeiter'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: null, templateParams: null, metadata: {}
+      templateId: 'tpl-announcement', templateParams: {
+        titel: '#TeamBlickle Kollektion',
+        text: 'Die neue #TeamBlickle Kleidungskollektion ist da! Hoodies, T-Shirts und Caps in Blickle-Design. Erhaeltlich im S\'LAEDLE. Zeigt euren Teamgeist!',
+        datum: 'Ab sofort verfuegbar'
+      }, metadata: {}
     },
+
+    // 4. DKMS Stammzellspende (S.21) → tpl-announcement
     {
-      id: 'content-5', title: 'Sommerfest 2026', description: 'Anmeldung fuer das Blickle Sommerfest ist ab sofort moeglich!',
-      type: 'text', tags: ['events', 'soziales'], status: 'draft',
+      id: 'content-dkms', title: 'DKMS: Blickle-Mitarbeiter rettet Leben', description: 'Stammzellspende eines Kollegen.',
+      type: 'text', tags: ['allgemein', 'soziales'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
-      validFrom: '2026-06-01T00:00:00Z', validUntil: '2026-07-15T00:00:00Z',
-      fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: null, templateParams: null, metadata: {}
-    }
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-announcement', templateParams: {
+        titel: 'Held des Alltags: Stammzellspende',
+        text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende ueber die DKMS einem Menschen das Leben gerettet. Wir sind stolz und dankbar fuer so viel Engagement. Auch Du kannst Dich registrieren lassen!',
+        datum: '2025'
+      }, metadata: {}
+    },
+
+    // 5. Sommerfest & Weihnachtsfeier (S.27) → tpl-event
+    {
+      id: 'content-sommerfest', title: 'Blickle Sommerfest 2025', description: 'Save the Date: 10. Juli 2025',
+      type: 'text', tags: ['events', 'soziales'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-event', templateParams: {
+        titel: 'Blickle Sommerfest',
+        datum: '10. Juli 2025, ab 15:00 Uhr',
+        ort: 'Blickle Hauptsitz Rosenfeld',
+        beschreibung: 'Fuer alle Mitarbeiterinnen und Mitarbeiter mit Familie. Essen, Trinken, Live-Musik und gute Laune!'
+      }, metadata: {}
+    },
+
+    // 6. Firmenlauf Balingen (S.22) → tpl-event
+    {
+      id: 'content-firmenlauf', title: 'Firmenlauf Balingen: Top-Ergebnis!', description: 'Ueber 60 Blickle-Laeufer am Start.',
+      type: 'text', tags: ['events', 'soziales'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-event', templateParams: {
+        titel: 'Firmenlauf Balingen',
+        datum: '2025',
+        ort: 'Balingen',
+        beschreibung: 'Mit ueber 60 Laeuferinnen und Laeufern war Blickle stark vertreten. Highlight: HBW-Sieg in der Firmenwertung! Danke an alle Teilnehmer!'
+      }, metadata: {}
+    },
+
+    // 7. Jubilare (S.22) → tpl-jubilee
+    {
+      id: 'content-jubilare', title: 'Unsere Jubilare', description: 'Herzlichen Glueckwunsch zum Firmenjubilaeum!',
+      type: 'text', tags: ['mitarbeiter', 'soziales'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-jubilee', templateParams: {
+        name: 'Unsere Jubilare 2025',
+        jahre: '25+',
+        text: 'Herzlichen Glueckwunsch an alle Kolleginnen und Kollegen, die dieses Jahr ihr 25- oder 40-jaehriges Firmenjubilaeum bei Blickle feiern. Danke fuer Eure Treue!'
+      }, metadata: {}
+    },
+
+    // 8. Neue Mitarbeitende (S.25-27) → tpl-welcome
+    {
+      id: 'content-neue-mitarbeiter', title: 'Willkommen im Team!', description: 'Ueber 30 neue Kolleginnen und Kollegen sind bei Blickle gestartet.',
+      type: 'text', tags: ['mitarbeiter'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-welcome', templateParams: {
+        name: '30+ neue Kolleg:innen',
+        abteilung: 'Produktion, Verwaltung, IT & mehr',
+        startdatum: 'Willkommen bei Blickle!'
+      }, metadata: {}
+    },
+
+    // 9. Social Media Stats (S.9) → tpl-kpi
+    {
+      id: 'content-social-stats', title: 'Social Media Reichweite', description: 'Blickle waechst auch digital.',
+      type: 'text', tags: ['allgemein'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-kpi', templateParams: {
+        titel: 'SOCIAL MEDIA REICHWEITE',
+        wert1: '15.734',
+        label1: 'Follower',
+        wert2: '2.1 Mio',
+        label2: 'Impressionen',
+        wert3: '186',
+        label3: 'Beitraege'
+      }, metadata: {}
+    },
+
+    // 10. Mitarbeiter-Spotlight: Daniel Hirschler (S.23) → tpl-spotlight (NEU)
+    {
+      id: 'content-spotlight-pilot', title: 'Spotlight: Daniel Hirschler', description: 'Unser Pilot bei Blickle.',
+      type: 'text', tags: ['mitarbeiter'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-spotlight', templateParams: {
+        name: 'Daniel Hirschler',
+        abteilung: 'Produktion',
+        hobby: 'Hobbypilot - fliegt in seiner Freizeit ueber die Schwäbische Alb',
+        zitat: 'Ob am Boden oder in der Luft - Praezision und Teamwork sind ueberall gefragt.',
+        bild: '/content/einblickle/produktion-wandel.jpg'
+      }, metadata: {}
+    },
+
+    // 11. Kurznachrichten (S.19-21) → tpl-news-compact (NEU)
+    {
+      id: 'content-kurznachrichten', title: 'Kurznachrichten', description: 'Kompakte News aus dem Unternehmen.',
+      type: 'text', tags: ['allgemein'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-news-compact', templateParams: {
+        titel: 'KURZNACHRICHTEN',
+        news1_titel: '5 Jahre ErgoMove',
+        news1_text: 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten wurden weltweit verkauft.',
+        news2_titel: '100 Jahre Boudrant',
+        news2_text: 'Unser franzoesischer Partner Boudrant feiert 100-jaehriges Bestehen. Herzlichen Glueckwunsch!',
+        news3_titel: 'Lean-Arbeitskreis gestartet',
+        news3_text: 'Der neue Lean-Arbeitskreis trifft sich regelmaessig, um Prozesse in der Produktion zu verbessern.'
+      }, metadata: {}
+    },
+
+    // 12. Projekt Frida Hochbeet (S.18) → tpl-project (NEU)
+    {
+      id: 'content-projekt-frida', title: 'Projekt: Frida Hochbeet', description: 'Nachhaltiges Mitarbeiter-Projekt.',
+      type: 'text', tags: ['nachhaltigkeit', 'soziales'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-project', templateParams: {
+        projektname: 'Frida Hochbeet',
+        beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese und Kraeuter fuer die Kantine - nachhaltig und selbst angebaut!',
+        kategorie: 'NACHHALTIGKEIT',
+        bild: '/content/einblickle/projekte.jpg'
+      }, metadata: {}
+    },
+
+    // 13. Martin Strobel Besuch (S.8) → tpl-announcement
+    {
+      id: 'content-strobel', title: 'Martin Strobel zu Gast', description: 'Ex-Handball-Nationalspieler besucht Blickle.',
+      type: 'text', tags: ['events'], status: 'approved',
+      createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'tpl-announcement', templateParams: {
+        titel: 'Martin Strobel bei Blickle',
+        text: 'Ex-Handball-Nationalspieler Martin Strobel war zu Gast bei Blickle. In einem inspirierenden Vortrag sprach er ueber Teamgeist, Motivation und den Umgang mit Rueckschlaegen.',
+        datum: '2025'
+      }, metadata: {}
+    },
   ]
 }
 
@@ -120,7 +284,7 @@ export function getSeedTemplates() {
       category: 'kommunikation',
       icon: '&#128227;',
       htmlTemplate: '<div class="tpl tpl-announcement"><div class="tpl-accent-bar"></div><h1>{{titel}}</h1><p class="tpl-body">{{text}}</p><div class="tpl-footer"><span class="tpl-date">{{datum}}</span></div></div>',
-      cssTemplate: '.tpl-announcement { height:100%; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 3rem; position:relative; font-family:"DM Sans",sans-serif; } .tpl-announcement .tpl-accent-bar { position:absolute; top:0; left:0; right:0; height:5px; background:#B5CC18; } .tpl-announcement h1 { font-family:"Outfit",sans-serif; font-size:2.4rem; font-weight:800; color:#E8ECF4; margin:0 0 1rem; line-height:1.2; } .tpl-announcement .tpl-body { font-size:1.2rem; color:rgba(232,236,244,0.7); line-height:1.6; flex:1; } .tpl-announcement .tpl-footer { margin-top:auto; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.06); } .tpl-announcement .tpl-date { font-size:0.85rem; color:rgba(232,236,244,0.35); }',
+      cssTemplate: '.tpl-announcement { height:100%; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 3rem; position:relative; font-family:"DM Sans",sans-serif; } .tpl-announcement .tpl-accent-bar { position:absolute; top:0; left:0; right:0; height:5px; background:var(--d-accent, #B5CC18); } .tpl-announcement h1 { font-family:"Outfit",sans-serif; font-size:2.4rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 1rem; line-height:1.2; } .tpl-announcement .tpl-body { font-size:1.2rem; color:var(--d-text-body, rgba(232,236,244,0.7)); line-height:1.6; flex:1; } .tpl-announcement .tpl-footer { margin-top:auto; padding-top:1rem; border-top:1px solid var(--d-border-subtle, rgba(255,255,255,0.06)); } .tpl-announcement .tpl-date { font-size:0.85rem; color:var(--d-text-faint, rgba(232,236,244,0.35)); }',
       parameters: [
         { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Neue Ankuendigung', required: true },
         { key: 'text', label: 'Inhalt', type: 'textarea', defaultValue: '', required: true },
@@ -134,7 +298,7 @@ export function getSeedTemplates() {
       category: 'kommunikation',
       icon: '&#10071;',
       htmlTemplate: '<div class="tpl tpl-urgent"><div class="tpl-icon">&#10071;</div><h1>{{titel}}</h1><p class="tpl-body">{{text}}</p><div class="tpl-footer"><span class="tpl-badge">WICHTIG</span><span class="tpl-date">{{datum}}</span></div></div>',
-      cssTemplate: '.tpl-urgent { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem 3rem; font-family:"DM Sans",sans-serif; background:linear-gradient(135deg, rgba(239,68,68,0.12) 0%, transparent 60%); } .tpl-urgent .tpl-icon { font-size:3.5rem; margin-bottom:1rem; filter:drop-shadow(0 0 20px rgba(239,68,68,0.4)); } .tpl-urgent h1 { font-family:"Outfit",sans-serif; font-size:2.2rem; font-weight:800; color:#EF4444; margin:0 0 0.8rem; } .tpl-urgent .tpl-body { font-size:1.15rem; color:rgba(232,236,244,0.75); line-height:1.6; max-width:80%; } .tpl-urgent .tpl-footer { margin-top:auto; display:flex; align-items:center; gap:1rem; padding-top:1rem; } .tpl-urgent .tpl-badge { background:rgba(239,68,68,0.2); color:#EF4444; font-size:0.7rem; font-weight:700; padding:3px 12px; border-radius:4px; letter-spacing:0.08em; } .tpl-urgent .tpl-date { font-size:0.8rem; color:rgba(232,236,244,0.3); }',
+      cssTemplate: '.tpl-urgent { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem 3rem; font-family:"DM Sans",sans-serif; background:linear-gradient(135deg, rgba(239,68,68,0.12) 0%, transparent 60%); } .tpl-urgent .tpl-icon { font-size:3.5rem; margin-bottom:1rem; filter:drop-shadow(0 0 20px rgba(239,68,68,0.4)); } .tpl-urgent h1 { font-family:"Outfit",sans-serif; font-size:2.2rem; font-weight:800; color:#EF4444; margin:0 0 0.8rem; } .tpl-urgent .tpl-body { font-size:1.15rem; color:var(--d-text-body, rgba(232,236,244,0.75)); line-height:1.6; max-width:80%; } .tpl-urgent .tpl-footer { margin-top:auto; display:flex; align-items:center; gap:1rem; padding-top:1rem; } .tpl-urgent .tpl-badge { background:rgba(239,68,68,0.2); color:#EF4444; font-size:0.7rem; font-weight:700; padding:3px 12px; border-radius:4px; letter-spacing:0.08em; } .tpl-urgent .tpl-date { font-size:0.8rem; color:var(--d-text-faint, rgba(232,236,244,0.3)); }',
       parameters: [
         { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Wichtige Mitteilung', required: true },
         { key: 'text', label: 'Inhalt', type: 'textarea', defaultValue: '', required: true },
@@ -148,7 +312,7 @@ export function getSeedTemplates() {
       category: 'kommunikation',
       icon: '&#128100;',
       htmlTemplate: '<div class="tpl tpl-ceo"><div class="tpl-quote-mark">&#8220;</div><p class="tpl-quote">{{zitat}}</p><div class="tpl-author"><div class="tpl-author-info"><span class="tpl-name">{{name}}</span><span class="tpl-position">{{position}}</span></div></div></div>',
-      cssTemplate: '.tpl-ceo { height:100%; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 3.5rem; font-family:"DM Sans",sans-serif; } .tpl-ceo .tpl-quote-mark { font-family:Georgia,serif; font-size:6rem; line-height:0.5; color:#B5CC18; opacity:0.6; margin-bottom:0.5rem; } .tpl-ceo .tpl-quote { font-size:1.5rem; font-style:italic; color:#E8ECF4; line-height:1.6; flex:1; display:flex; align-items:center; } .tpl-ceo .tpl-author { margin-top:1.5rem; padding-top:1rem; border-top:2px solid rgba(181,204,24,0.3); display:flex; align-items:center; gap:1rem; } .tpl-ceo .tpl-name { font-weight:700; color:#E8ECF4; font-size:1.1rem; display:block; } .tpl-ceo .tpl-position { color:rgba(232,236,244,0.45); font-size:0.9rem; }',
+      cssTemplate: '.tpl-ceo { height:100%; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 3.5rem; font-family:"DM Sans",sans-serif; } .tpl-ceo .tpl-quote-mark { font-family:Georgia,serif; font-size:6rem; line-height:0.5; color:var(--d-accent, #B5CC18); opacity:0.6; margin-bottom:0.5rem; } .tpl-ceo .tpl-quote { font-size:1.5rem; font-style:italic; color:var(--d-text, #E8ECF4); line-height:1.6; flex:1; display:flex; align-items:center; } .tpl-ceo .tpl-author { margin-top:1.5rem; padding-top:1rem; border-top:2px solid var(--d-border-accent, rgba(181,204,24,0.3)); display:flex; align-items:center; gap:1rem; } .tpl-ceo .tpl-name { font-weight:700; color:var(--d-text, #E8ECF4); font-size:1.1rem; display:block; } .tpl-ceo .tpl-position { color:var(--d-text-muted, rgba(232,236,244,0.45)); font-size:0.9rem; }',
       parameters: [
         { key: 'zitat', label: 'Botschaft / Zitat', type: 'textarea', defaultValue: '', required: true },
         { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
@@ -164,7 +328,7 @@ export function getSeedTemplates() {
       category: 'sicherheit',
       icon: '&#9888;',
       htmlTemplate: '<div class="tpl tpl-safety"><div class="tpl-warning-strip"></div><div class="tpl-safety-content"><div class="tpl-icon">&#9888;</div><h1>{{titel}}</h1><p class="tpl-body">{{hinweis}}</p></div><div class="tpl-warning-strip"></div></div>',
-      cssTemplate: '.tpl-safety { height:100%; display:flex; flex-direction:column; font-family:"DM Sans",sans-serif; } .tpl-safety .tpl-warning-strip { height:8px; background:repeating-linear-gradient(45deg, #F59E0B, #F59E0B 20px, #1A1F2E 20px, #1A1F2E 40px); flex-shrink:0; } .tpl-safety .tpl-safety-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem 3rem; background:linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 60%); } .tpl-safety .tpl-icon { font-size:4rem; margin-bottom:1rem; filter:drop-shadow(0 0 15px rgba(245,158,11,0.4)); } .tpl-safety h1 { font-family:"Outfit",sans-serif; font-size:2.2rem; font-weight:800; color:#F59E0B; margin:0 0 0.8rem; } .tpl-safety .tpl-body { font-size:1.2rem; color:rgba(232,236,244,0.75); line-height:1.6; max-width:85%; }',
+      cssTemplate: '.tpl-safety { height:100%; display:flex; flex-direction:column; font-family:"DM Sans",sans-serif; } .tpl-safety .tpl-warning-strip { height:8px; background:repeating-linear-gradient(45deg, #F59E0B, #F59E0B 20px, var(--d-bg, #1A1F2E) 20px, var(--d-bg, #1A1F2E) 40px); flex-shrink:0; } .tpl-safety .tpl-safety-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem 3rem; background:linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 60%); } .tpl-safety .tpl-icon { font-size:4rem; margin-bottom:1rem; filter:drop-shadow(0 0 15px rgba(245,158,11,0.4)); } .tpl-safety h1 { font-family:"Outfit",sans-serif; font-size:2.2rem; font-weight:800; color:#F59E0B; margin:0 0 0.8rem; } .tpl-safety .tpl-body { font-size:1.2rem; color:var(--d-text-body, rgba(232,236,244,0.75)); line-height:1.6; max-width:85%; }',
       parameters: [
         { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Sicherheitshinweis', required: true },
         { key: 'hinweis', label: 'Hinweistext', type: 'textarea', defaultValue: '', required: true },
@@ -177,7 +341,7 @@ export function getSeedTemplates() {
       category: 'produktion',
       icon: '&#9881;',
       htmlTemplate: '<div class="tpl tpl-production"><h2 class="tpl-section-title">PRODUKTIONS-UPDATE</h2><div class="tpl-status-card"><div class="tpl-status-indicator tpl-status-{{status}}"></div><div class="tpl-status-info"><h1>{{linie}}</h1><p class="tpl-status-label">Status: <strong>{{statusText}}</strong></p><p class="tpl-reason">{{grund}}</p></div></div><div class="tpl-footer"><span class="tpl-date">{{zeitpunkt}}</span></div></div>',
-      cssTemplate: '.tpl-production { height:100%; display:flex; flex-direction:column; padding:2rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-production .tpl-section-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:rgba(232,236,244,0.4); letter-spacing:0.1em; margin:0 0 1.5rem; } .tpl-production .tpl-status-card { flex:1; display:flex; align-items:center; gap:2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:2rem 2.5rem; } .tpl-production .tpl-status-indicator { width:20px; height:20px; border-radius:50%; flex-shrink:0; box-shadow:0 0 20px currentColor; } .tpl-production .tpl-status-gruen { background:#10B981; color:#10B981; } .tpl-production .tpl-status-gelb { background:#F59E0B; color:#F59E0B; } .tpl-production .tpl-status-rot { background:#EF4444; color:#EF4444; } .tpl-production h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:#E8ECF4; margin:0 0 0.3rem; } .tpl-production .tpl-status-label { font-size:1.1rem; color:rgba(232,236,244,0.6); margin:0; } .tpl-production .tpl-reason { font-size:1rem; color:rgba(232,236,244,0.4); margin:0.5rem 0 0; } .tpl-production .tpl-footer { margin-top:1rem; padding-top:0.8rem; border-top:1px solid rgba(255,255,255,0.06); } .tpl-production .tpl-date { font-size:0.8rem; color:rgba(232,236,244,0.3); }',
+      cssTemplate: '.tpl-production { height:100%; display:flex; flex-direction:column; padding:2rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-production .tpl-section-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.1em; margin:0 0 1.5rem; } .tpl-production .tpl-status-card { flex:1; display:flex; align-items:center; gap:2rem; background:var(--d-surface, rgba(255,255,255,0.03)); border:1px solid var(--d-border, rgba(255,255,255,0.06)); border-radius:14px; padding:2rem 2.5rem; } .tpl-production .tpl-status-indicator { width:20px; height:20px; border-radius:50%; flex-shrink:0; box-shadow:0 0 20px currentColor; } .tpl-production .tpl-status-gruen { background:#10B981; color:#10B981; } .tpl-production .tpl-status-gelb { background:#F59E0B; color:#F59E0B; } .tpl-production .tpl-status-rot { background:#EF4444; color:#EF4444; } .tpl-production h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 0.3rem; } .tpl-production .tpl-status-label { font-size:1.1rem; color:var(--d-text-muted, rgba(232,236,244,0.6)); margin:0; } .tpl-production .tpl-reason { font-size:1rem; color:var(--d-text-faint, rgba(232,236,244,0.4)); margin:0.5rem 0 0; } .tpl-production .tpl-footer { margin-top:1rem; padding-top:0.8rem; border-top:1px solid var(--d-border-subtle, rgba(255,255,255,0.06)); } .tpl-production .tpl-date { font-size:0.8rem; color:var(--d-text-faint, rgba(232,236,244,0.3)); }',
       parameters: [
         { key: 'linie', label: 'Linienname', type: 'text', defaultValue: 'Linie 3', required: true },
         { key: 'status', label: 'Status (gruen/gelb/rot)', type: 'select', options: ['gruen','gelb','rot'], defaultValue: 'gruen', required: true },
@@ -193,7 +357,7 @@ export function getSeedTemplates() {
       category: 'produktion',
       icon: '&#128200;',
       htmlTemplate: '<div class="tpl tpl-kpi"><h2 class="tpl-section-title">{{titel}}</h2><div class="tpl-kpi-grid"><div class="tpl-kpi-item"><span class="tpl-kpi-value">{{wert1}}</span><span class="tpl-kpi-label">{{label1}}</span></div><div class="tpl-kpi-item"><span class="tpl-kpi-value tpl-kpi-accent">{{wert2}}</span><span class="tpl-kpi-label">{{label2}}</span></div><div class="tpl-kpi-item"><span class="tpl-kpi-value">{{wert3}}</span><span class="tpl-kpi-label">{{label3}}</span></div></div></div>',
-      cssTemplate: '.tpl-kpi { height:100%; display:flex; flex-direction:column; padding:2rem 2.5rem; font-family:"DM Sans",sans-serif; } .tpl-kpi .tpl-section-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:rgba(232,236,244,0.4); letter-spacing:0.1em; text-transform:uppercase; margin:0 0 1.5rem; text-align:center; } .tpl-kpi-grid { flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; align-items:center; } .tpl-kpi-item { text-align:center; padding:1.5rem 1rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; } .tpl-kpi-value { display:block; font-family:"Outfit",sans-serif; font-size:3rem; font-weight:800; color:#E8ECF4; line-height:1; margin-bottom:0.5rem; } .tpl-kpi-accent { color:#B5CC18; } .tpl-kpi-label { font-size:0.85rem; color:rgba(232,236,244,0.4); text-transform:uppercase; letter-spacing:0.05em; }',
+      cssTemplate: '.tpl-kpi { height:100%; display:flex; flex-direction:column; padding:2rem 2.5rem; font-family:"DM Sans",sans-serif; } .tpl-kpi .tpl-section-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.1em; text-transform:uppercase; margin:0 0 1.5rem; text-align:center; } .tpl-kpi-grid { flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; align-items:center; } .tpl-kpi-item { text-align:center; padding:1.5rem 1rem; background:var(--d-surface, rgba(255,255,255,0.03)); border:1px solid var(--d-border, rgba(255,255,255,0.06)); border-radius:12px; } .tpl-kpi-value { display:block; font-family:"Outfit",sans-serif; font-size:3rem; font-weight:800; color:var(--d-text, #E8ECF4); line-height:1; margin-bottom:0.5rem; } .tpl-kpi-accent { color:var(--d-accent, #B5CC18); } .tpl-kpi-label { font-size:0.85rem; color:var(--d-text-faint, rgba(232,236,244,0.4)); text-transform:uppercase; letter-spacing:0.05em; }',
       parameters: [
         { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Produktionskennzahlen', required: true },
         { key: 'wert1', label: 'Wert 1', type: 'text', defaultValue: '98.5%', required: true },
@@ -213,7 +377,7 @@ export function getSeedTemplates() {
       category: 'personal',
       icon: '&#128188;',
       htmlTemplate: '<div class="tpl tpl-job"><div class="tpl-job-header"><span class="tpl-job-badge">WIR SUCHEN</span><h1>{{jobtitel}}</h1><p class="tpl-job-meta">{{standort}} &bull; {{eintritt}}</p></div><div class="tpl-job-body"><div class="tpl-job-points">{{anforderungen}}</div></div><div class="tpl-job-footer"><span class="tpl-job-cta">Jetzt bewerben: karriere.blickle.com</span></div></div>',
-      cssTemplate: '.tpl-job { height:100%; display:flex; flex-direction:column; font-family:"DM Sans",sans-serif; } .tpl-job-header { padding:2rem 3rem 1.5rem; background:linear-gradient(135deg, rgba(181,204,24,0.1) 0%, transparent 60%); } .tpl-job .tpl-job-badge { display:inline-block; background:#B5CC18; color:#163A6C; font-size:0.7rem; font-weight:800; padding:4px 14px; border-radius:4px; letter-spacing:0.1em; margin-bottom:0.8rem; } .tpl-job h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:#E8ECF4; margin:0 0 0.5rem; } .tpl-job-meta { font-size:1rem; color:rgba(232,236,244,0.5); margin:0; } .tpl-job-body { flex:1; padding:1.5rem 3rem; } .tpl-job-points { font-size:1.1rem; color:rgba(232,236,244,0.7); line-height:2; white-space:pre-line; } .tpl-job-footer { padding:1.2rem 3rem; border-top:1px solid rgba(255,255,255,0.06); background:rgba(181,204,24,0.05); } .tpl-job-cta { font-size:0.9rem; font-weight:600; color:#B5CC18; }',
+      cssTemplate: '.tpl-job { height:100%; display:flex; flex-direction:column; font-family:"DM Sans",sans-serif; } .tpl-job-header { padding:2rem 3rem 1.5rem; background:linear-gradient(135deg, rgba(181,204,24,0.1) 0%, transparent 60%); } .tpl-job .tpl-job-badge { display:inline-block; background:var(--d-accent, #B5CC18); color:#163A6C; font-size:0.7rem; font-weight:800; padding:4px 14px; border-radius:4px; letter-spacing:0.1em; margin-bottom:0.8rem; } .tpl-job h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 0.5rem; } .tpl-job-meta { font-size:1rem; color:var(--d-text-muted, rgba(232,236,244,0.5)); margin:0; } .tpl-job-body { flex:1; padding:1.5rem 3rem; } .tpl-job-points { font-size:1.1rem; color:var(--d-text-body, rgba(232,236,244,0.7)); line-height:2; white-space:pre-line; } .tpl-job-footer { padding:1.2rem 3rem; border-top:1px solid var(--d-border-subtle, rgba(255,255,255,0.06)); background:var(--d-accent-subtle, rgba(181,204,24,0.05)); } .tpl-job-cta { font-size:0.9rem; font-weight:600; color:var(--d-accent, #B5CC18); }',
       parameters: [
         { key: 'jobtitel', label: 'Jobtitel', type: 'text', defaultValue: '', required: true },
         { key: 'standort', label: 'Standort', type: 'text', defaultValue: 'Rosenfeld', required: true },
@@ -228,7 +392,7 @@ export function getSeedTemplates() {
       category: 'personal',
       icon: '&#128075;',
       htmlTemplate: '<div class="tpl tpl-welcome"><div class="tpl-welcome-icon">&#128075;</div><p class="tpl-welcome-label">HERZLICH WILLKOMMEN</p><h1>{{name}}</h1><div class="tpl-welcome-details"><p>{{abteilung}}</p><p class="tpl-welcome-date">{{startdatum}}</p></div></div>',
-      cssTemplate: '.tpl-welcome { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem; font-family:"DM Sans",sans-serif; background:linear-gradient(180deg, rgba(181,204,24,0.06) 0%, transparent 50%); } .tpl-welcome-icon { font-size:4rem; margin-bottom:0.5rem; } .tpl-welcome-label { font-size:0.85rem; font-weight:700; color:#B5CC18; letter-spacing:0.15em; margin:0 0 0.5rem; } .tpl-welcome h1 { font-family:"Outfit",sans-serif; font-size:2.8rem; font-weight:800; color:#E8ECF4; margin:0 0 1rem; } .tpl-welcome-details p { font-size:1.2rem; color:rgba(232,236,244,0.6); margin:0.2rem 0; } .tpl-welcome-date { font-size:1rem; color:rgba(232,236,244,0.35); }',
+      cssTemplate: '.tpl-welcome { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem; font-family:"DM Sans",sans-serif; background:linear-gradient(180deg, rgba(181,204,24,0.06) 0%, transparent 50%); } .tpl-welcome-icon { font-size:4rem; margin-bottom:0.5rem; } .tpl-welcome-label { font-size:0.85rem; font-weight:700; color:var(--d-accent, #B5CC18); letter-spacing:0.15em; margin:0 0 0.5rem; } .tpl-welcome h1 { font-family:"Outfit",sans-serif; font-size:2.8rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 1rem; } .tpl-welcome-details p { font-size:1.2rem; color:var(--d-text-muted, rgba(232,236,244,0.6)); margin:0.2rem 0; } .tpl-welcome-date { font-size:1rem; color:var(--d-text-faint, rgba(232,236,244,0.35)); }',
       parameters: [
         { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
         { key: 'abteilung', label: 'Abteilung / Bereich', type: 'text', defaultValue: '', required: false },
@@ -242,7 +406,7 @@ export function getSeedTemplates() {
       category: 'personal',
       icon: '&#127881;',
       htmlTemplate: '<div class="tpl tpl-jubilee"><div class="tpl-confetti">&#127881;</div><p class="tpl-jubilee-label">HERZLICHEN GLUECKWUNSCH</p><h1>{{name}}</h1><div class="tpl-jubilee-years"><span class="tpl-years-number">{{jahre}}</span><span class="tpl-years-label">Jahre bei Blickle</span></div><p class="tpl-jubilee-text">{{text}}</p></div>',
-      cssTemplate: '.tpl-jubilee { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem; font-family:"DM Sans",sans-serif; background:linear-gradient(135deg, rgba(181,204,24,0.08) 0%, rgba(245,158,11,0.06) 100%); } .tpl-confetti { font-size:3rem; margin-bottom:0.5rem; } .tpl-jubilee-label { font-size:0.8rem; font-weight:700; color:#F59E0B; letter-spacing:0.12em; margin:0 0 0.3rem; } .tpl-jubilee h1 { font-family:"Outfit",sans-serif; font-size:2.5rem; font-weight:800; color:#E8ECF4; margin:0 0 1rem; } .tpl-jubilee-years { background:rgba(181,204,24,0.15); border:2px solid rgba(181,204,24,0.3); border-radius:16px; padding:1rem 2.5rem; display:inline-flex; flex-direction:column; align-items:center; margin-bottom:1rem; } .tpl-years-number { font-family:"Outfit",sans-serif; font-size:3.5rem; font-weight:800; color:#B5CC18; line-height:1; } .tpl-years-label { font-size:0.85rem; color:rgba(232,236,244,0.5); margin-top:0.2rem; } .tpl-jubilee-text { font-size:1.1rem; color:rgba(232,236,244,0.6); margin-top:0.5rem; }',
+      cssTemplate: '.tpl-jubilee { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem; font-family:"DM Sans",sans-serif; background:linear-gradient(135deg, rgba(181,204,24,0.08) 0%, rgba(245,158,11,0.06) 100%); } .tpl-confetti { font-size:3rem; margin-bottom:0.5rem; } .tpl-jubilee-label { font-size:0.8rem; font-weight:700; color:#F59E0B; letter-spacing:0.12em; margin:0 0 0.3rem; } .tpl-jubilee h1 { font-family:"Outfit",sans-serif; font-size:2.5rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 1rem; } .tpl-jubilee-years { background:var(--d-accent-subtle, rgba(181,204,24,0.15)); border:2px solid var(--d-border-accent, rgba(181,204,24,0.3)); border-radius:16px; padding:1rem 2.5rem; display:inline-flex; flex-direction:column; align-items:center; margin-bottom:1rem; } .tpl-years-number { font-family:"Outfit",sans-serif; font-size:3.5rem; font-weight:800; color:var(--d-accent, #B5CC18); line-height:1; } .tpl-years-label { font-size:0.85rem; color:var(--d-text-muted, rgba(232,236,244,0.5)); margin-top:0.2rem; } .tpl-jubilee-text { font-size:1.1rem; color:var(--d-text-muted, rgba(232,236,244,0.6)); margin-top:0.5rem; }',
       parameters: [
         { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
         { key: 'jahre', label: 'Anzahl Jahre', type: 'text', defaultValue: '25', required: true },
@@ -258,7 +422,7 @@ export function getSeedTemplates() {
       category: 'events',
       icon: '&#127880;',
       htmlTemplate: '<div class="tpl tpl-event"><span class="tpl-event-badge">SAVE THE DATE</span><h1>{{titel}}</h1><div class="tpl-event-details"><div class="tpl-event-detail"><span class="tpl-event-icon">&#128197;</span><span>{{datum}}</span></div><div class="tpl-event-detail"><span class="tpl-event-icon">&#128205;</span><span>{{ort}}</span></div></div><p class="tpl-event-desc">{{beschreibung}}</p></div>',
-      cssTemplate: '.tpl-event { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-event-badge { display:inline-block; background:#B5CC18; color:#163A6C; font-size:0.75rem; font-weight:800; padding:5px 18px; border-radius:4px; letter-spacing:0.12em; margin-bottom:1rem; } .tpl-event h1 { font-family:"Outfit",sans-serif; font-size:2.5rem; font-weight:800; color:#E8ECF4; margin:0 0 1.2rem; } .tpl-event-details { display:flex; gap:2rem; margin-bottom:1.2rem; } .tpl-event-detail { display:flex; align-items:center; gap:0.5rem; font-size:1.15rem; color:rgba(232,236,244,0.7); } .tpl-event-icon { font-size:1.3rem; } .tpl-event-desc { font-size:1.05rem; color:rgba(232,236,244,0.5); line-height:1.5; max-width:80%; }',
+      cssTemplate: '.tpl-event { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-event-badge { display:inline-block; background:var(--d-accent, #B5CC18); color:#163A6C; font-size:0.75rem; font-weight:800; padding:5px 18px; border-radius:4px; letter-spacing:0.12em; margin-bottom:1rem; } .tpl-event h1 { font-family:"Outfit",sans-serif; font-size:2.5rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 1.2rem; } .tpl-event-details { display:flex; gap:2rem; margin-bottom:1.2rem; } .tpl-event-detail { display:flex; align-items:center; gap:0.5rem; font-size:1.15rem; color:var(--d-text-body, rgba(232,236,244,0.7)); } .tpl-event-icon { font-size:1.3rem; } .tpl-event-desc { font-size:1.05rem; color:var(--d-text-muted, rgba(232,236,244,0.5)); line-height:1.5; max-width:80%; }',
       parameters: [
         { key: 'titel', label: 'Veranstaltung', type: 'text', defaultValue: '', required: true },
         { key: 'datum', label: 'Datum & Uhrzeit', type: 'text', defaultValue: '', required: true },
@@ -273,7 +437,7 @@ export function getSeedTemplates() {
       category: 'events',
       icon: '&#9200;',
       htmlTemplate: '<div class="tpl tpl-countdown"><p class="tpl-countdown-label">{{label}}</p><div class="tpl-countdown-number">{{tage}}</div><p class="tpl-countdown-unit">TAGE</p><h2>{{event}}</h2><p class="tpl-countdown-date">{{datum}}</p></div>',
-      cssTemplate: '.tpl-countdown { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; font-family:"DM Sans",sans-serif; } .tpl-countdown-label { font-size:0.85rem; font-weight:700; color:rgba(232,236,244,0.4); letter-spacing:0.1em; margin:0 0 1rem; } .tpl-countdown-number { font-family:"Outfit",sans-serif; font-size:8rem; font-weight:900; color:#B5CC18; line-height:1; text-shadow:0 0 40px rgba(181,204,24,0.3); } .tpl-countdown-unit { font-size:1.2rem; font-weight:700; color:rgba(232,236,244,0.4); letter-spacing:0.2em; margin:0.2rem 0 1.5rem; } .tpl-countdown h2 { font-family:"Outfit",sans-serif; font-size:1.8rem; font-weight:700; color:#E8ECF4; margin:0 0 0.3rem; } .tpl-countdown-date { font-size:1rem; color:rgba(232,236,244,0.4); margin:0; }',
+      cssTemplate: '.tpl-countdown { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; font-family:"DM Sans",sans-serif; } .tpl-countdown-label { font-size:0.85rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.1em; margin:0 0 1rem; } .tpl-countdown-number { font-family:"Outfit",sans-serif; font-size:8rem; font-weight:900; color:var(--d-accent, #B5CC18); line-height:1; text-shadow:0 0 40px rgba(181,204,24,0.3); } .tpl-countdown-unit { font-size:1.2rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.2em; margin:0.2rem 0 1.5rem; } .tpl-countdown h2 { font-family:"Outfit",sans-serif; font-size:1.8rem; font-weight:700; color:var(--d-text, #E8ECF4); margin:0 0 0.3rem; } .tpl-countdown-date { font-size:1rem; color:var(--d-text-faint, rgba(232,236,244,0.4)); margin:0; }',
       parameters: [
         { key: 'label', label: 'Label oben', type: 'text', defaultValue: 'NOCH', required: false },
         { key: 'tage', label: 'Anzahl Tage', type: 'text', defaultValue: '14', required: true },
@@ -290,7 +454,7 @@ export function getSeedTemplates() {
       category: 'information',
       icon: '&#127891;',
       htmlTemplate: '<div class="tpl tpl-training"><div class="tpl-training-header"><span class="tpl-training-badge">{{pflicht}}</span><h1>{{titel}}</h1></div><div class="tpl-training-details"><div class="tpl-training-row"><span class="tpl-training-icon">&#128197;</span><span class="tpl-training-label">Datum</span><span class="tpl-training-value">{{datum}}</span></div><div class="tpl-training-row"><span class="tpl-training-icon">&#128205;</span><span class="tpl-training-label">Ort</span><span class="tpl-training-value">{{ort}}</span></div><div class="tpl-training-row"><span class="tpl-training-icon">&#128100;</span><span class="tpl-training-label">Teilnehmer</span><span class="tpl-training-value">{{teilnehmer}}</span></div></div><p class="tpl-training-note">{{hinweis}}</p></div>',
-      cssTemplate: '.tpl-training { height:100%; display:flex; flex-direction:column; padding:2rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-training-header { margin-bottom:1.5rem; } .tpl-training-badge { display:inline-block; font-size:0.65rem; font-weight:800; padding:3px 12px; border-radius:4px; letter-spacing:0.1em; background:rgba(239,68,68,0.15); color:#EF4444; margin-bottom:0.8rem; } .tpl-training h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:#E8ECF4; margin:0; } .tpl-training-details { flex:1; display:flex; flex-direction:column; gap:0.8rem; } .tpl-training-row { display:flex; align-items:center; gap:1rem; padding:0.8rem 1.2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; } .tpl-training-icon { font-size:1.3rem; width:2rem; text-align:center; flex-shrink:0; } .tpl-training-label { font-size:0.8rem; color:rgba(232,236,244,0.4); width:6rem; flex-shrink:0; } .tpl-training-value { font-size:1.05rem; color:#E8ECF4; font-weight:500; } .tpl-training-note { font-size:0.95rem; color:rgba(232,236,244,0.5); margin-top:1rem; padding-top:0.8rem; border-top:1px solid rgba(255,255,255,0.06); line-height:1.5; }',
+      cssTemplate: '.tpl-training { height:100%; display:flex; flex-direction:column; padding:2rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-training-header { margin-bottom:1.5rem; } .tpl-training-badge { display:inline-block; font-size:0.65rem; font-weight:800; padding:3px 12px; border-radius:4px; letter-spacing:0.1em; background:rgba(239,68,68,0.15); color:#EF4444; margin-bottom:0.8rem; } .tpl-training h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0; } .tpl-training-details { flex:1; display:flex; flex-direction:column; gap:0.8rem; } .tpl-training-row { display:flex; align-items:center; gap:1rem; padding:0.8rem 1.2rem; background:var(--d-surface, rgba(255,255,255,0.03)); border:1px solid var(--d-border, rgba(255,255,255,0.06)); border-radius:10px; } .tpl-training-icon { font-size:1.3rem; width:2rem; text-align:center; flex-shrink:0; } .tpl-training-label { font-size:0.8rem; color:var(--d-text-faint, rgba(232,236,244,0.4)); width:6rem; flex-shrink:0; } .tpl-training-value { font-size:1.05rem; color:var(--d-text, #E8ECF4); font-weight:500; } .tpl-training-note { font-size:0.95rem; color:var(--d-text-muted, rgba(232,236,244,0.5)); margin-top:1rem; padding-top:0.8rem; border-top:1px solid var(--d-border-subtle, rgba(255,255,255,0.06)); line-height:1.5; }',
       parameters: [
         { key: 'titel', label: 'Schulungsname', type: 'text', defaultValue: '', required: true },
         { key: 'pflicht', label: 'Pflicht/Freiwillig', type: 'text', defaultValue: 'PFLICHTSCHULUNG', required: false },
@@ -310,6 +474,57 @@ export function getSeedTemplates() {
       cssTemplate: '.tpl-embed { height:100%; display:flex; align-items:center; justify-content:center; padding:0; overflow:hidden; } .tpl-embed .tpl-embed-content { width:100%; height:100%; display:flex; align-items:center; justify-content:center; } .tpl-embed .tpl-embed-content iframe { width:100%; height:100%; border:none; } .tpl-embed .tpl-embed-content video { width:100%; height:100%; object-fit:contain; } .tpl-embed .tpl-embed-content img { width:100%; height:100%; object-fit:contain; }',
       parameters: [
         { key: 'embedCode', label: 'HTML / Embed Code', type: 'code', defaultValue: '<iframe src="" width="100%" height="100%"></iframe>', required: true },
+      ]
+    },
+
+    // ── NEUE TEMPLATES (Einblickle-Magazin) ──────────
+    {
+      id: 'tpl-spotlight',
+      name: 'Mitarbeiter-Spotlight',
+      description: 'Persoenliches Portrait eines Mitarbeiters mit Hobby/Zitat',
+      category: 'personal',
+      icon: '&#11088;',
+      htmlTemplate: '<div class="tpl tpl-spotlight"><div class="tpl-spotlight-photo"><img src="{{bild}}" alt="{{name}}" /></div><div class="tpl-spotlight-info"><span class="tpl-spotlight-badge">MITARBEITER-SPOTLIGHT</span><h1>{{name}}</h1><p class="tpl-spotlight-dept">{{abteilung}}</p><div class="tpl-spotlight-quote"><span class="tpl-spotlight-qmark">&#8220;</span><p>{{zitat}}</p></div><p class="tpl-spotlight-hobby"><strong>Hobby:</strong> {{hobby}}</p></div></div>',
+      cssTemplate: '.tpl-spotlight { height:100%; display:flex; font-family:"DM Sans",sans-serif; overflow:hidden; } .tpl-spotlight-photo { width:40%; min-width:200px; flex-shrink:0; overflow:hidden; position:relative; } .tpl-spotlight-photo img { width:100%; height:100%; object-fit:cover; } .tpl-spotlight-photo::after { content:""; position:absolute; top:0; right:0; bottom:0; width:60px; background:linear-gradient(to right, transparent, var(--d-bg, rgba(8,12,24,0.95))); } .tpl-spotlight-info { flex:1; display:flex; flex-direction:column; justify-content:center; padding:2rem 2.5rem; } .tpl-spotlight-badge { display:inline-block; font-size:0.65rem; font-weight:800; color:var(--d-accent, #B5CC18); letter-spacing:0.12em; margin-bottom:0.5rem; } .tpl-spotlight h1 { font-family:"Outfit",sans-serif; font-size:2.2rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 0.2rem; } .tpl-spotlight-dept { font-size:1rem; color:var(--d-text-muted, rgba(232,236,244,0.45)); margin:0 0 1.2rem; } .tpl-spotlight-quote { border-left:3px solid var(--d-accent, #B5CC18); padding-left:1rem; margin-bottom:1rem; position:relative; } .tpl-spotlight-qmark { font-family:Georgia,serif; font-size:3rem; color:var(--d-accent-faint, rgba(181,204,24,0.4)); line-height:0.5; position:absolute; top:0.3rem; left:-0.3rem; } .tpl-spotlight-quote p { font-size:1.1rem; font-style:italic; color:var(--d-text-body, rgba(232,236,244,0.75)); line-height:1.5; margin:0; padding-left:1rem; } .tpl-spotlight-hobby { font-size:0.95rem; color:var(--d-text-muted, rgba(232,236,244,0.55)); margin:0; } .tpl-spotlight-hobby strong { color:var(--d-text-body, rgba(232,236,244,0.7)); }',
+      parameters: [
+        { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
+        { key: 'abteilung', label: 'Abteilung', type: 'text', defaultValue: '', required: false },
+        { key: 'hobby', label: 'Hobby / Besonderheit', type: 'text', defaultValue: '', required: true },
+        { key: 'zitat', label: 'Zitat / persoenlicher Satz', type: 'textarea', defaultValue: '', required: true },
+        { key: 'bild', label: 'Bild-URL', type: 'text', defaultValue: '/content/einblickle/placeholder.jpg', required: false },
+      ]
+    },
+    {
+      id: 'tpl-news-compact',
+      name: 'Kurznachrichten',
+      description: 'Mehrere kurze News kompakt auf einer Karte',
+      category: 'kommunikation',
+      icon: '&#128220;',
+      htmlTemplate: '<div class="tpl tpl-newscompact"><h2 class="tpl-nc-title">{{titel}}</h2><div class="tpl-nc-list"><div class="tpl-nc-item"><div class="tpl-nc-dot"></div><div class="tpl-nc-content"><h3>{{news1_titel}}</h3><p>{{news1_text}}</p></div></div><div class="tpl-nc-item"><div class="tpl-nc-dot"></div><div class="tpl-nc-content"><h3>{{news2_titel}}</h3><p>{{news2_text}}</p></div></div><div class="tpl-nc-item"><div class="tpl-nc-dot"></div><div class="tpl-nc-content"><h3>{{news3_titel}}</h3><p>{{news3_text}}</p></div></div></div></div>',
+      cssTemplate: '.tpl-newscompact { height:100%; display:flex; flex-direction:column; padding:2rem 2.5rem; font-family:"DM Sans",sans-serif; } .tpl-nc-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.1em; text-transform:uppercase; margin:0 0 1.5rem; } .tpl-nc-list { flex:1; display:flex; flex-direction:column; gap:0.8rem; } .tpl-nc-item { display:flex; gap:1rem; padding:1rem 1.2rem; background:var(--d-surface, rgba(255,255,255,0.03)); border:1px solid var(--d-border, rgba(255,255,255,0.06)); border-radius:10px; flex:1; align-items:flex-start; transition:border-color 0.2s ease; } .tpl-nc-item:hover { border-color:var(--d-border-accent, rgba(181,204,24,0.2)); } .tpl-nc-dot { width:10px; height:10px; border-radius:50%; background:var(--d-accent, #B5CC18); flex-shrink:0; margin-top:0.35rem; box-shadow:0 0 8px rgba(181,204,24,0.3); } .tpl-nc-content h3 { font-family:"Outfit",sans-serif; font-size:1.05rem; font-weight:700; color:var(--d-text, #E8ECF4); margin:0 0 0.3rem; } .tpl-nc-content p { font-size:0.9rem; color:var(--d-text-muted, rgba(232,236,244,0.55)); line-height:1.45; margin:0; }',
+      parameters: [
+        { key: 'titel', label: 'Ueberschrift', type: 'text', defaultValue: 'KURZNACHRICHTEN', required: true },
+        { key: 'news1_titel', label: 'News 1 Titel', type: 'text', defaultValue: '', required: true },
+        { key: 'news1_text', label: 'News 1 Text', type: 'text', defaultValue: '', required: true },
+        { key: 'news2_titel', label: 'News 2 Titel', type: 'text', defaultValue: '', required: true },
+        { key: 'news2_text', label: 'News 2 Text', type: 'text', defaultValue: '', required: true },
+        { key: 'news3_titel', label: 'News 3 Titel', type: 'text', defaultValue: '', required: true },
+        { key: 'news3_text', label: 'News 3 Text', type: 'text', defaultValue: '', required: true },
+      ]
+    },
+    {
+      id: 'tpl-project',
+      name: 'Projekt-Showcase',
+      description: 'Projekt oder Success-Story mit Bild und Beschreibung',
+      category: 'kommunikation',
+      icon: '&#128640;',
+      htmlTemplate: '<div class="tpl tpl-project"><div class="tpl-project-image"><img src="{{bild}}" alt="{{projektname}}" /></div><div class="tpl-project-overlay"><span class="tpl-project-badge">{{kategorie}}</span><h1>{{projektname}}</h1><p class="tpl-project-desc">{{beschreibung}}</p></div></div>',
+      cssTemplate: '.tpl-project { height:100%; position:relative; font-family:"DM Sans",sans-serif; overflow:hidden; } .tpl-project-image { position:absolute; inset:0; } .tpl-project-image img { width:100%; height:100%; object-fit:cover; } .tpl-project-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(8,12,24,0.92) 0%, rgba(8,12,24,0.5) 50%, transparent 100%); display:flex; flex-direction:column; justify-content:flex-end; padding:2.5rem 3rem; } .tpl-project-badge { display:inline-block; align-self:flex-start; font-size:0.65rem; font-weight:800; color:#B5CC18; letter-spacing:0.12em; text-transform:uppercase; background:rgba(181,204,24,0.15); padding:4px 14px; border-radius:4px; margin-bottom:0.8rem; } .tpl-project h1 { font-family:"Outfit",sans-serif; font-size:2.4rem; font-weight:800; color:#E8ECF4; margin:0 0 0.6rem; line-height:1.2; } .tpl-project-desc { font-size:1.1rem; color:rgba(232,236,244,0.7); line-height:1.5; margin:0; max-width:85%; }',
+      parameters: [
+        { key: 'projektname', label: 'Projektname', type: 'text', defaultValue: '', required: true },
+        { key: 'beschreibung', label: 'Beschreibung', type: 'textarea', defaultValue: '', required: true },
+        { key: 'kategorie', label: 'Kategorie-Badge', type: 'text', defaultValue: 'PROJEKT', required: false },
+        { key: 'bild', label: 'Bild-URL', type: 'text', defaultValue: '/content/einblickle/projekte.jpg', required: false },
       ]
     },
   ]
@@ -397,22 +612,24 @@ export function getSeedCanteenData() {
 
 export function getSeedNewsData() {
   return [
-    { id: 'news-1', title: 'Blickle auf der LogiMAT 2026', text: 'Besuchen Sie uns auf der LogiMAT in Stuttgart, Halle 7, Stand D45.', datum: '15.03.2026', kategorie: 'Messen' },
-    { id: 'news-2', title: '25 Jahre Jubilaeum: K. Weber', text: 'Herzlichen Glueckwunsch an Klaus Weber zum 25-jaehrigen Firmenjubilaeum!', datum: '12.03.2026', kategorie: 'Mitarbeiter' },
-    { id: 'news-3', title: 'Neue Parkplatzregelung', text: 'Ab 01.04. gelten neue Parkplatzregeln. Bitte beachten Sie die Ausschilderung.', datum: '10.03.2026', kategorie: 'Organisation' },
-    { id: 'news-4', title: 'Energiespar-Initiative', text: 'Gemeinsam Energie sparen: Bitte Licht und Maschinen bei Nichtgebrauch ausschalten.', datum: '08.03.2026', kategorie: 'Nachhaltigkeit' },
-    { id: 'news-5', title: 'CNC-Bediener (m/w/d) gesucht', text: 'Fuer unsere Fertigung suchen wir ab sofort einen erfahrenen CNC-Bediener. Empfehlungspraemie: 1.500 EUR!', datum: '11.03.2026', kategorie: 'Stellenanzeige' },
-    { id: 'news-6', title: 'Sicherheitsunterweisung Maerz', text: 'Pflichtschulung Brandschutz: 25.03. um 10:00 Uhr in der Kantine. Teilnahme fuer alle Produktionsmitarbeiter verpflichtend.', datum: '09.03.2026', kategorie: 'Sicherheit' },
+    { id: 'news-1', title: '#TeamBlickle Kollektion im S\'LAEDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '15.03.2026', kategorie: 'Mitarbeiter' },
+    { id: 'news-2', title: 'Firmenlauf Balingen: 60+ Laeufer!', text: 'Blickle war mit ueber 60 Laeuferinnen und Laeufern stark vertreten. Highlight: HBW-Sieg!', datum: '12.03.2026', kategorie: 'Events' },
+    { id: 'news-3', title: 'Matrixorganisation ab 2026', text: 'Die Produktion stellt auf Matrixorganisation um. Ziel: schnellere Entscheidungen und flexiblere Teams.', datum: '10.03.2026', kategorie: 'Produktion' },
+    { id: 'news-4', title: 'Projekt Frida: Hochbeete gebaut', text: 'Mitarbeiter haben Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese fuer die Kantine!', datum: '08.03.2026', kategorie: 'Nachhaltigkeit' },
+    { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende ueber die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter' },
+    { id: 'news-6', title: '5 Jahre ErgoMove', text: 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten weltweit verkauft.', datum: '09.03.2026', kategorie: 'Neuheiten' },
   ]
 }
 
 export function getSeedTickerMessages() {
   return [
-    'Herzlich Willkommen! Erfahren Sie mehr ueber das neue Digitale Schwarze Brett.',
-    'Betriebsversammlung am 28. Maerz um 14:00 Uhr in der Kantine.',
-    'Neue Parkplatzregelung ab 01. April - bitte Ausschilderung beachten.',
-    'Blickle auf der LogiMAT 2026: Halle 7, Stand D45 - Besuchen Sie uns!',
-    'Unfallfreie Tage: 127 - Weiter so!',
+    'Willkommen bei Blickle! Alle Neuigkeiten auf einen Blick.',
+    '#TeamBlickle Kollektion - Hoodies, T-Shirts und Caps jetzt im S\'LAEDLE erhaeltlich!',
+    'Matrixorganisation in der Produktion startet ab Januar 2026.',
+    'Firmenlauf Balingen: Ueber 60 Blickle-Laeufer am Start - HBW-Sieg!',
+    'Projekt Frida: Hochbeete fuer die Kantine - nachhaltig und selbst angebaut.',
+    '5 Jahre ErgoMove - ueber 10.000 Einheiten weltweit!',
+    'DKMS: Ein Blickle-Kollege hat einem Menschen das Leben gerettet. Danke!',
   ]
 }
 
