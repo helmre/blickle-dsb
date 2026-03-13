@@ -56,7 +56,7 @@ onUnmounted(() => {
   height: 72px;
   background: var(--d-header-bg);
   backdrop-filter: var(--d-backdrop-blur);
-  border-bottom: 1px solid var(--d-header-border);
+  border-bottom: 3px solid var(--d-header-border);
   display: flex;
   align-items: center;
   padding: 0 28px;
@@ -76,7 +76,7 @@ onUnmounted(() => {
 .header-logo {
   height: 34px;
   width: auto;
-  filter: brightness(1.1);
+  filter: none;
 }
 
 .header-divider {
@@ -153,8 +153,8 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--d-header-btn-bg);
+  border: 1px solid var(--d-header-btn-border);
   color: var(--d-clock);
   font-size: 1.2rem;
   cursor: pointer;
@@ -166,6 +166,6 @@ onUnmounted(() => {
 }
 
 .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(181, 204, 24, 0.15);
 }
 </style>

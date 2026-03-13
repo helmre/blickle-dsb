@@ -73,34 +73,38 @@
   /* Backdrop */
   --d-backdrop-blur: blur(12px);
   --d-nav-backdrop: blur(8px);
+
+  /* Header button */
+  --d-header-btn-bg: rgba(255, 255, 255, 0.1);
+  --d-header-btn-border: rgba(255, 255, 255, 0.15);
 }
 
 .display-root[data-theme="light"] {
-  /* Backgrounds */
-  --d-bg: #F0F2F7;
-  --d-header-bg: #163A6C;
+  /* Backgrounds – Blickle Website CI */
+  --d-bg: #F5F5F3;
+  --d-header-bg: #FFFFFF;
   --d-nav-bg: #FFFFFF;
-  --d-ticker-bg: #163A6C;
+  --d-ticker-bg: #B5CC18;
   --d-surface: #FFFFFF;
-  --d-surface-hover: #F8F9FC;
+  --d-surface-hover: #F9F9F7;
   --d-surface-active: rgba(181, 204, 24, 0.12);
 
   /* Borders */
-  --d-border: rgba(22, 58, 108, 0.1);
-  --d-border-subtle: rgba(22, 58, 108, 0.06);
-  --d-border-accent: rgba(181, 204, 24, 0.3);
-  --d-header-border: rgba(22, 58, 108, 0.15);
-  --d-ticker-border: rgba(22, 58, 108, 0.12);
-  --d-nav-border: rgba(22, 58, 108, 0.08);
-  --d-zone-header-border: rgba(22, 58, 108, 0.08);
-  --d-table-border: rgba(22, 58, 108, 0.06);
-  --d-table-header-border: rgba(22, 58, 108, 0.15);
+  --d-border: rgba(75, 76, 72, 0.10);
+  --d-border-subtle: rgba(75, 76, 72, 0.06);
+  --d-border-accent: rgba(181, 204, 24, 0.35);
+  --d-header-border: rgba(181, 204, 24, 0.6);
+  --d-ticker-border: rgba(181, 204, 24, 0.3);
+  --d-nav-border: rgba(75, 76, 72, 0.08);
+  --d-zone-header-border: rgba(75, 76, 72, 0.08);
+  --d-table-border: rgba(75, 76, 72, 0.06);
+  --d-table-header-border: rgba(181, 204, 24, 0.25);
 
-  /* Text */
-  --d-text: #1A1F2E;
-  --d-text-muted: #6B7280;
-  --d-text-faint: #9CA3AF;
-  --d-text-body: #374151;
+  /* Text – Blickle CI #4B4C48 */
+  --d-text: #4B4C48;
+  --d-text-muted: #6B6C68;
+  --d-text-faint: #9B9C98;
+  --d-text-body: #4B4C48;
 
   /* Accent */
   --d-accent: #B5CC18;
@@ -108,17 +112,17 @@
   --d-accent-faint: rgba(181, 204, 24, 0.6);
   --d-accent-subtle: rgba(181, 204, 24, 0.1);
   --d-accent-glow: transparent;
-  --d-accent-text: #163A6C;
+  --d-accent-text: #4B4C48;
 
   /* Nav */
-  --d-nav-text: #6B7280;
-  --d-nav-text-hover: #163A6C;
+  --d-nav-text: #6B6C68;
+  --d-nav-text-hover: #4B4C48;
   --d-nav-active-bg: rgba(181, 204, 24, 0.12);
   --d-nav-active-border: rgba(181, 204, 24, 0.35);
   --d-nav-active-shadow: rgba(181, 204, 24, 0.06);
 
-  /* Ticker */
-  --d-ticker-text: rgba(255, 255, 255, 0.85);
+  /* Ticker – dark text on green bg */
+  --d-ticker-text: #4B4C48;
 
   /* Gradients (disabled in light) */
   --d-bg-gradient-1: transparent;
@@ -126,23 +130,27 @@
   --d-bg-gradient-3: transparent;
   --d-grid-line: transparent;
 
-  /* Zone surface */
-  --d-zone-surface: rgba(22, 58, 108, 0.03);
-  --d-zone-surface-border: rgba(22, 58, 108, 0.06);
+  /* Zone surface – white cards with subtle shadow */
+  --d-zone-surface: #FFFFFF;
+  --d-zone-surface-border: rgba(75, 76, 72, 0.08);
 
   /* Shadows */
   --d-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --d-zone-shadow: 0 1px 4px rgba(22, 58, 108, 0.06);
+  --d-zone-shadow: 0 2px 8px rgba(75, 76, 72, 0.08);
 
-  /* Subtitle */
-  --d-subtitle: rgba(255, 255, 255, 0.7);
-  --d-divider: rgba(255, 255, 255, 0.2);
+  /* Subtitle – on white header */
+  --d-subtitle: #6B6C68;
+  --d-divider: rgba(75, 76, 72, 0.2);
 
-  /* Clock */
-  --d-clock: #FFFFFF;
+  /* Clock – on white header */
+  --d-clock: #4B4C48;
   --d-date: #B5CC18;
 
   /* Backdrop */
   --d-backdrop-blur: none;
   --d-nav-backdrop: none;
+
+  /* Header button */
+  --d-header-btn-bg: rgba(75, 76, 72, 0.06);
+  --d-header-btn-border: rgba(75, 76, 72, 0.12);
 }
