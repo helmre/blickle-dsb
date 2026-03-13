@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, unref } from 'vue'
 import { useContentStore } from '../stores/contentStore.js'
 import { useScheduleStore } from '../stores/scheduleStore.js'
 import { useLocationStore } from '../stores/locationStore.js'
@@ -35,8 +35,20 @@ export function useDisplayContent(locationId = null) {
 
   // --- Content filtered by location (global + location-specific) ---
   const locationContent = computed(() => {
-    if (!locationId) return visibleContent.value
-    return visibleContent.value
+    const locId = unref(locationId)
+    if (!locId) return visibleContent.value
+    // Show content that is global (no locationIds or empty array) + content assigned to this location
+    const location = locationStore.items.find(l => l.id === locId)
+    const parentId = location?.parentId || null
+    return visibleContent.value.filter(c => {
+      // No locationIds = global content → show everywhere
+      if (!c.locationIds || c.locationIds.length === 0) return true
+      // Content assigned to this specific location
+      if (c.locationIds.includes(locId)) return true
+      // Content assigned to parent location (inheritance)
+      if (parentId && c.locationIds.includes(parentId)) return true
+      return false
+    })
   })
 
   // --- Build news items from approved content ---

@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTemplateStore } from '../../shared/stores/templateStore.js'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
 
+const router = useRouter()
 const templateStore = useTemplateStore()
 const contentStore = useContentStore()
 const auditStore = useAuditStore()
@@ -82,6 +84,7 @@ function renderPreview(tmpl, params) {
   <div class="template-page">
     <div class="page-toolbar">
       <h2 class="page-title">Templates</h2>
+      <button class="btn-new-template" @click="router.push('/admin/templates/new/edit')">+ Neues Template</button>
     </div>
 
     <div class="template-grid">
@@ -153,6 +156,7 @@ function renderPreview(tmpl, params) {
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="closePreview">Schliessen</button>
+          <button class="btn-secondary" @click="router.push(`/admin/templates/${selectedTemplate.id}/edit`); closePreview()">&#9998; Bearbeiten</button>
           <button class="btn-primary" @click="createContentFromTemplate">Inhalt aus Template erstellen</button>
         </div>
       </div>
@@ -168,6 +172,23 @@ function renderPreview(tmpl, params) {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+}
+
+.btn-new-template {
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-new-template:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 .page-title {
   font-size: var(--font-size-xl, 1.25rem);

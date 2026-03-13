@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useEmergencyStore } from '../shared/stores/emergencyStore.js'
 import { useDisplayTheme } from '../shared/composables/useDisplayTheme.js'
 import { useDisplayContent } from '../shared/composables/useDisplayContent.js'
@@ -10,9 +11,12 @@ import DisplayGrid from './DisplayGrid.vue'
 import DisplayEmergency from './DisplayEmergency.vue'
 import './display-themes.css'
 
+const route = useRoute()
+const locationId = computed(() => route.params.locationId || route.query.location || null)
+
 const emergencyStore = useEmergencyStore()
 const { theme, toggleTheme, navPosition, toggleNavPosition } = useDisplayTheme()
-const { displayPages: pages, tickerMessages, activePlaylist } = useDisplayContent()
+const { displayPages: pages, tickerMessages, activePlaylist } = useDisplayContent(locationId)
 
 const currentPageIndex = ref(0)
 const currentPage = computed(() => pages.value[currentPageIndex.value] || pages.value[0])
@@ -25,11 +29,67 @@ const isFullscreenVideo = computed(() => {
 })
 
 const scale = ref(1)
+const progressDuration = ref(15) // seconds for progress bar animation
+const progressActive = ref(false)
+const progressKey = ref(0) // increment to restart animation
 let cycleTimer = null
+
+// Offline detection
+const isOffline = ref(!navigator.onLine)
+function onOnline() { isOffline.value = false }
+function onOffline() { isOffline.value = true }
 
 // Fullscreen overlay: tap to show header/nav over video/poster
 const showFullscreenOverlay = ref(false)
 let overlayTimer = null
+
+// Swipe gesture tracking
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const swipeOffset = ref(0)
+const isSwiping = ref(false)
+
+function onTouchStart(e) {
+  if (showFullscreenOverlay.value) return
+  const touch = e.touches[0]
+  touchStartX.value = touch.clientX
+  touchStartY.value = touch.clientY
+  isSwiping.value = false
+  swipeOffset.value = 0
+}
+
+function onTouchMove(e) {
+  if (showFullscreenOverlay.value) return
+  const touch = e.touches[0]
+  const dx = touch.clientX - touchStartX.value
+  const dy = touch.clientY - touchStartY.value
+  // Only horizontal swipe (ignore vertical scroll)
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 20) {
+    isSwiping.value = true
+    swipeOffset.value = dx * 0.3 // Damped offset for visual feedback
+  }
+}
+
+function onTouchEnd(e) {
+  if (showFullscreenOverlay.value) return
+  const touch = e.changedTouches[0]
+  const dx = touch.clientX - touchStartX.value
+  const dy = touch.clientY - touchStartY.value
+  swipeOffset.value = 0
+
+  // Minimum 80px horizontal swipe, mostly horizontal
+  if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0) {
+      // Swipe left → next page
+      nextPage()
+    } else {
+      // Swipe right → previous page
+      const prev = (currentPageIndex.value - 1 + pages.value.length) % pages.value.length
+      setPage(prev)
+    }
+  }
+  isSwiping.value = false
+}
 
 function toggleFullscreenOverlay() {
   if (!isFullscreen.value) return
@@ -92,10 +152,18 @@ function calculateScale() {
 
 function startCycle() {
   stopCycle()
-  // Use per-page duration from playlist/page config
+  const duration = getPageDuration()
+  // Start progress bar (not for fullscreen video – those end on video-ended)
+  if (!isFullscreenVideo.value) {
+    progressDuration.value = duration / 1000
+    progressKey.value++
+    progressActive.value = true
+  } else {
+    progressActive.value = false
+  }
   cycleTimer = setTimeout(() => {
     nextPage()
-  }, getPageDuration())
+  }, duration)
 }
 
 function stopCycle() {
@@ -108,11 +176,15 @@ function stopCycle() {
 onMounted(() => {
   calculateScale()
   window.addEventListener('resize', calculateScale)
+  window.addEventListener('online', onOnline)
+  window.addEventListener('offline', onOffline)
   startCycle()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', calculateScale)
+  window.removeEventListener('online', onOnline)
+  window.removeEventListener('offline', onOffline)
   stopCycle()
   clearTimeout(overlayTimer)
 })
@@ -121,6 +193,16 @@ onUnmounted(() => {
 <template>
   <div class="display-viewport">
     <div class="display-root" :data-theme="theme" :class="{ 'fullscreen-overlay-active': showFullscreenOverlay }" :style="{ transform: `scale(${scale})` }">
+      <!-- Offline Banner -->
+      <transition name="offline-banner">
+        <div v-if="isOffline" class="offline-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+          </svg>
+          <span>Offline-Modus &ndash; Letzte gespeicherte Inhalte</span>
+        </div>
+      </transition>
+
       <!-- Animated background layers -->
       <div class="bg-gradient"></div>
       <div class="bg-grid"></div>
@@ -134,9 +216,24 @@ onUnmounted(() => {
         :class="{ 'overlay-header': isFullscreen && showFullscreenOverlay }"
       />
 
+      <!-- Page progress bar -->
+      <div v-if="progressActive && !isFullscreen" class="page-progress-track">
+        <div
+          :key="progressKey"
+          class="page-progress-bar"
+          :style="{ animationDuration: `${progressDuration}s` }"
+        />
+      </div>
+
       <div :class="['display-body', `display-body--${navPosition}`, { 'display-body--fullscreen': isFullscreen }]">
-        <div :class="['display-content', { 'is-transitioning': transitioning, 'is-fullscreen': isFullscreen }]">
-          <DisplayGrid :page="currentPage" @media-ended="onMediaEnded" />
+        <div
+          :class="['display-content', { 'is-transitioning': transitioning, 'is-fullscreen': isFullscreen }]"
+          :style="swipeOffset ? { transform: `translateX(${swipeOffset}px)` } : null"
+          @touchstart.passive="onTouchStart"
+          @touchmove.passive="onTouchMove"
+          @touchend.passive="onTouchEnd"
+        >
+          <DisplayGrid :page="currentPage" :mediaPaused="showFullscreenOverlay" @media-ended="onMediaEnded" />
         </div>
         <DisplayNav
           v-if="navPosition === 'sidebar' && !isFullscreen"
@@ -294,5 +391,64 @@ onUnmounted(() => {
 @keyframes overlay-fade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page progress bar */
+.page-progress-track {
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.page-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--d-accent), var(--d-accent-light, var(--d-accent)));
+  border-radius: 0 2px 2px 0;
+  animation: progress-fill linear forwards;
+  box-shadow: 0 0 8px rgba(181, 204, 24, 0.4);
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Offline banner */
+.offline-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.offline-banner-enter-active {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+}
+.offline-banner-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.offline-banner-enter-from {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+.offline-banner-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
 }
 </style>

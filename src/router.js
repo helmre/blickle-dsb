@@ -24,6 +24,7 @@ const routes = [
       { path: 'locations', name: 'admin-locations', component: () => import('./admin/pages/LocationListPage.vue') },
       { path: 'layouts', name: 'admin-layouts', component: () => import('./admin/pages/LayoutEditorPage.vue') },
       { path: 'templates', name: 'admin-templates', component: () => import('./admin/pages/TemplateListPage.vue') },
+      { path: 'templates/:id/edit', name: 'admin-template-editor', component: () => import('./admin/pages/TemplateEditorPage.vue') },
       { path: 'approvals', name: 'admin-approvals', component: () => import('./admin/pages/ApprovalQueuePage.vue') },
       { path: 'users', name: 'admin-users', component: () => import('./admin/pages/UserManagementPage.vue') },
       { path: 'audit-log', name: 'admin-audit-log', component: () => import('./admin/pages/AuditLogPage.vue') },

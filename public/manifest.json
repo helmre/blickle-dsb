@@ -1,0 +1,23 @@
+{
+  "name": "Digitales Schwarzes Brett - Blickle",
+  "short_name": "DSB",
+  "description": "Digitales Schwarzes Brett fuer Blickle Raeder+Rollen",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/Blicklelogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

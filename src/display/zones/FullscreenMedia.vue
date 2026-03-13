@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   title: { type: String, default: '' },
   zoneId: { type: String, default: '' },
   mediaUrl: { type: String, default: '' },
   mediaType: { type: String, default: 'image' },
+  paused: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['media-ended'])
@@ -16,8 +17,18 @@ function onVideoEnded() {
   emit('media-ended')
 }
 
+// Pause/resume video when overlay is toggled
+watch(() => props.paused, (isPaused) => {
+  if (!videoRef.value) return
+  if (isPaused) {
+    videoRef.value.pause()
+  } else {
+    videoRef.value.play().catch(() => {})
+  }
+})
+
 onMounted(() => {
-  if (videoRef.value) {
+  if (videoRef.value && !props.paused) {
     videoRef.value.play().catch(() => {})
   }
 })

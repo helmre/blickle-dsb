@@ -5,6 +5,7 @@ import { useUserStore } from '../shared/stores/userStore.js'
 import { useContentStore } from '../shared/stores/contentStore.js'
 import { useEmergencyStore } from '../shared/stores/emergencyStore.js'
 import AdminSidebar from './AdminSidebar.vue'
+import AdminToast from './components/AdminToast.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -65,9 +66,14 @@ const pageTitle = computed(() => {
         </div>
       </header>
       <main class="admin-content">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="admin-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
+    <AdminToast />
   </div>
 </template>
 
@@ -180,5 +186,16 @@ const pageTitle = computed(() => {
   flex: 1;
   overflow-y: auto;
   padding: 28px;
+}
+
+/* Page transitions */
+.admin-fade-enter-active,
+.admin-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.admin-fade-enter-from,
+.admin-fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -14,7 +14,8 @@ import ProduktionNews from './zones/ProduktionNews.vue'
 import FullscreenMedia from './zones/FullscreenMedia.vue'
 
 const props = defineProps({
-  page: { type: Object, required: true }
+  page: { type: Object, required: true },
+  mediaPaused: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['media-ended'])
@@ -64,10 +65,10 @@ function getZoneStyle(zone) {
 <template>
   <div :class="['display-grid', gridClass]" :style="customGridStyle">
     <div
-      v-for="zone in page.zones"
+      v-for="(zone, index) in page.zones"
       :key="zone.id"
       class="grid-zone"
-      :style="getZoneStyle(zone)"
+      :style="{ ...getZoneStyle(zone), '--zone-index': index }"
     >
       <component
         :is="componentMap[zone.type]"
@@ -77,6 +78,7 @@ function getZoneStyle(zone) {
         :contentIndex="zone.contentIndex ?? null"
         :mediaUrl="zone.mediaUrl || null"
         :mediaType="zone.mediaType || null"
+        :paused="mediaPaused"
         @media-ended="emit('media-ended')"
       />
     </div>
@@ -137,10 +139,26 @@ function getZoneStyle(zone) {
   overflow: hidden;
   backdrop-filter: blur(6px);
   box-shadow: var(--d-zone-shadow);
-  transition: background 0.4s ease, border-color 0.3s ease, box-shadow 0.4s ease;
+  transition: background 0.4s ease, border-color 0.3s ease, box-shadow 0.4s ease, transform 0.25s ease;
+  /* Staggered entry animation */
+  animation: zone-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--zone-index, 0) * 80ms);
 }
 
 .grid-zone:hover {
   border-color: var(--d-border-accent);
+  transform: scale(1.005);
+  box-shadow: var(--d-zone-shadow), 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes zone-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

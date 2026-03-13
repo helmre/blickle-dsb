@@ -4,12 +4,16 @@ import { useRoute, useRouter } from 'vue-router'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useLocationStore } from '../../shared/stores/locationStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
 
 const route = useRoute()
 const router = useRouter()
 const contentStore = useContentStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const locationStore = useLocationStore()
+const toastStore = useToastStore()
 
 const content = computed(() => contentStore.getById(route.params.id))
 const editForm = ref(null)
@@ -17,6 +21,12 @@ const uploadedFile = ref(null)
 const filePreview = ref(null)
 const isDragging = ref(false)
 const showPreview = ref(false)
+const uploadProgress = ref(0)
+const uploadError = ref('')
+const uploadSuccess = ref(false)
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50 MB
+const ALLOWED_TYPES = ['image/', 'video/', 'application/pdf', 'text/html']
 
 function initForm() {
   if (content.value) {
@@ -24,6 +34,7 @@ function initForm() {
       ...content.value,
       tags: content.value.tags?.join(', ') || '',
       embedCode: content.value.metadata?.embedCode || '',
+      locationIds: content.value.locationIds || [],
     }
     // Restore file preview from existing content
     if (content.value.thumbnailUrl) {
@@ -71,7 +82,29 @@ function handleFileSelect(e) {
 }
 
 function processFile(file) {
+  uploadError.value = ''
+  uploadSuccess.value = false
+  uploadProgress.value = 0
+
+  // Validate file size
+  if (file.size > MAX_FILE_SIZE) {
+    uploadError.value = `Datei zu gross: ${(file.size / 1024 / 1024).toFixed(1)} MB (max. ${MAX_FILE_SIZE / 1024 / 1024} MB)`
+    return
+  }
+
+  // Validate file type
+  const isAllowed = ALLOWED_TYPES.some(t => file.type.startsWith(t))
+  if (!isAllowed) {
+    uploadError.value = `Dateityp nicht unterstuetzt: ${file.type || 'unbekannt'}. Erlaubt: Bilder, Videos, PDF, HTML`
+    return
+  }
+
   const reader = new FileReader()
+  reader.onprogress = (e) => {
+    if (e.lengthComputable) {
+      uploadProgress.value = Math.round((e.loaded / e.total) * 100)
+    }
+  }
   reader.onload = () => {
     uploadedFile.value = {
       name: file.name,
@@ -85,6 +118,13 @@ function processFile(file) {
     } else {
       filePreview.value = null
     }
+    uploadProgress.value = 100
+    uploadSuccess.value = true
+    setTimeout(() => { uploadSuccess.value = false; uploadProgress.value = 0 }, 2500)
+  }
+  reader.onerror = () => {
+    uploadError.value = 'Fehler beim Lesen der Datei'
+    uploadProgress.value = 0
   }
   reader.readAsDataURL(file)
 }
@@ -113,6 +153,7 @@ function save() {
     fileSizeBytes: uploadedFile.value?.size || editForm.value.fileSizeBytes || 0,
     fileName: uploadedFile.value?.name || editForm.value.fileName || null,
     thumbnailUrl: filePreview.value || editForm.value.thumbnailUrl || null,
+    locationIds: editForm.value.locationIds || [],
     metadata: {
       ...(editForm.value.metadata || {}),
       embedCode: editForm.value.embedCode || null,
@@ -120,24 +161,28 @@ function save() {
   }
   contentStore.update(content.value.id, changes)
   auditStore.log('content.updated', 'content', content.value.id, userStore.currentUser.id, { title: changes.title })
+  toastStore.success('Inhalt erfolgreich gespeichert')
   router.push('/admin/content')
 }
 
 function submitForReview() {
   contentStore.setStatus(content.value.id, 'in_review')
   auditStore.log('content.submitted_for_review', 'content', content.value.id, userStore.currentUser.id)
+  toastStore.info('Inhalt zur Pruefung eingereicht')
   initForm()
 }
 
 function approve() {
   contentStore.setStatus(content.value.id, 'approved')
   auditStore.log('content.approved', 'content', content.value.id, userStore.currentUser.id)
+  toastStore.success('Inhalt freigegeben')
   initForm()
 }
 
 function reject() {
   contentStore.setStatus(content.value.id, 'rejected')
   auditStore.log('content.rejected', 'content', content.value.id, userStore.currentUser.id)
+  toastStore.warning('Inhalt abgelehnt')
   initForm()
 }
 
@@ -282,6 +327,23 @@ const canApprove = computed(() => {
               <input ref="fileInput" type="file" accept="image/*,video/*,.pdf,.html" hidden @change="handleFileSelect" />
             </div>
 
+            <!-- Upload progress bar -->
+            <div v-if="uploadProgress > 0 && uploadProgress < 100" class="upload-progress-container">
+              <div class="upload-progress-bar" :style="{ width: uploadProgress + '%' }"></div>
+              <span class="upload-progress-text">{{ uploadProgress }}%</span>
+            </div>
+
+            <!-- Upload success toast -->
+            <div v-if="uploadSuccess" class="upload-toast upload-toast-success">
+              &#9989; Datei erfolgreich hochgeladen
+            </div>
+
+            <!-- Upload error -->
+            <div v-if="uploadError" class="upload-toast upload-toast-error">
+              &#9888; {{ uploadError }}
+              <button class="upload-error-dismiss" @click="uploadError = ''">&times;</button>
+            </div>
+
             <div v-if="uploadedFile" class="file-preview-card">
               <div class="file-preview-visual">
                 <img v-if="filePreview" :src="filePreview" class="file-preview-img" alt="" />
@@ -352,6 +414,33 @@ const canApprove = computed(() => {
                 <input v-model="editForm.tags" class="form-input" placeholder="z.B. produktion, sicherheit" />
               </div>
             </div>
+          </div>
+
+          <!-- Standort-Zuweisung -->
+          <div class="editor-card">
+            <h4 class="card-section-title">STANDORTE</h4>
+            <p class="scheduling-hint" style="margin-bottom: 10px">
+              Waehlen Sie die Standorte, an denen dieser Inhalt angezeigt werden soll. Ohne Auswahl wird der Inhalt ueberall angezeigt.
+            </p>
+            <div class="location-checkboxes">
+              <label
+                v-for="loc in locationStore.items"
+                :key="loc.id"
+                class="location-checkbox-label"
+              >
+                <input
+                  type="checkbox"
+                  :value="loc.id"
+                  v-model="editForm.locationIds"
+                  class="location-checkbox"
+                />
+                <span class="location-name">{{ loc.name }}</span>
+                <span v-if="loc.parentId" class="location-child-badge">Unterstandort</span>
+              </label>
+            </div>
+            <p v-if="!editForm.locationIds?.length" class="scheduling-hint" style="margin-top: 6px; color: var(--accent-primary)">
+              &#9432; Ueberall sichtbar (global)
+            </p>
           </div>
 
           <!-- HTML / Embed Code -->
@@ -1174,5 +1263,116 @@ const canApprove = computed(() => {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   margin-bottom: 24px;
+}
+
+/* Upload feedback */
+.upload-progress-container {
+  position: relative;
+  height: 28px;
+  background: var(--gray-100);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.upload-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), #a3c41a);
+  border-radius: 8px;
+  transition: width 0.2s ease;
+}
+
+.upload-progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.upload-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-top: 10px;
+  animation: toast-in 0.3s ease;
+}
+
+.upload-toast-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.upload-toast-error {
+  background: #fce4ec;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+.upload-error-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 4px;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Location checkboxes */
+.location-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.location-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-size: var(--font-size-sm);
+}
+
+.location-checkbox-label:hover {
+  background: var(--gray-50);
+}
+
+.location-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary);
+}
+
+.location-name {
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.location-child-badge {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-400);
+  background: var(--gray-100);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
 }
 </style>
