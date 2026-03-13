@@ -633,6 +633,91 @@ export function getSeedTickerMessages() {
   ]
 }
 
+export function getSeedKarriereData() {
+  return {
+    jobs: [
+      { id: 'job-1', title: 'Sachbearbeiter Export / Aussenhandel (m/w/d)', abteilung: 'Aussendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-2', title: 'Inhouse Consultant SAP SD (m/w/d)', abteilung: 'Controlling/Rechnungswesen', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-3', title: 'Assistenz im Key Account Management (m/w/d)', abteilung: 'Aussendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-4', title: 'Mitarbeiter Werkzeugbau (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-5', title: 'Controller (m/w/d)', abteilung: 'Controlling/Rechnungswesen', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-6', title: 'Assistenz der Konstruktionsleitung (m/w/d)', abteilung: 'Konstruktion/Entwicklung', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-7', title: 'Fertigungsbereichsleiter Kunststofffertigung (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-8', title: 'Monteur elektrische Antriebssysteme (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-9', title: 'IT-Systembetreuer (m/w/d)', abteilung: 'IT', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-10', title: 'SAP Application Developer ABAP (m/w/d)', abteilung: 'IT', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-11', title: 'Verfahrensmechaniker Kunststofftechnik (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-12', title: 'Mitglied der Exportleitung Vertrieb International (m/w/d)', abteilung: 'Aussendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-13', title: 'Mitarbeiter Fertigung / Produktion / Montage (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-14', title: 'Schweisser MAG (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-15', title: 'Mitarbeiter Instandhaltung (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-16', title: 'Personalreferent / HR-Spezialist (m/w/d)', abteilung: 'Personal', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-17', title: 'Sachbearbeiter Einkauf (m/w/d)', abteilung: 'Einkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-18', title: 'Service-Techniker Elektrische Antriebssysteme (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-19', title: 'Fertigungsplaner / Industrial Engineer (m/w/d)', abteilung: 'Operational Excellence', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-20', title: 'Entwicklungsingenieur mechanische Baugruppen (m/w/d)', abteilung: 'Konstruktion/Entwicklung', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-21', title: 'Qualitaetstechniker Fertigungs-QS (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-22', title: 'Produktionscontroller (m/w/d)', abteilung: 'Controlling/Rechnungswesen', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-23', title: 'Mitarbeiter im Winterdienst (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Minijob' },
+      { id: 'job-24', title: 'Initiativbewerbung Fertigung (m/w/d)', abteilung: 'alle Funktionsbereiche', standort: 'Rosenfeld', typ: 'Vollzeit' },
+    ],
+    referral: {
+      title: 'Mitarbeiter werben Mitarbeiter',
+      bonus: 500,
+      beschreibung: 'Empfehlen Sie qualifizierte Kandidaten und erhalten Sie eine Praemie von 500 EUR bei erfolgreicher Einstellung!'
+    }
+  }
+}
+
+export function getSeedProduktionNews() {
+  return [
+    {
+      id: 'pn-1',
+      title: 'Vision Produktion 2030',
+      text: 'Strategische Neuausrichtung der Fertigung: Digitalisierung, Automatisierung und nachhaltige Prozesse stehen im Fokus unserer Produktionsstrategie.',
+      datum: '26.11.2025',
+      kategorie: 'Strategie',
+      wichtig: true
+    },
+    {
+      id: 'pn-2',
+      title: 'Neues CNC-Bearbeitungszentrum',
+      text: 'Investition in ein 5-Achs-CNC-Bearbeitungszentrum fuer die Werkzeugfertigung. Inbetriebnahme geplant fuer Q1 2026.',
+      datum: '15.01.2026',
+      kategorie: 'Investition'
+    },
+    {
+      id: 'pn-3',
+      title: 'Lean-Arbeitskreis gestartet',
+      text: 'Start des bereichsuebergreifenden Lean-Arbeitskreises zur kontinuierlichen Verbesserung in der Kunststofffertigung.',
+      datum: '03.02.2026',
+      kategorie: 'Optimierung'
+    },
+    {
+      id: 'pn-4',
+      title: 'Automatisierung Montagelinie 3',
+      text: 'Erfolgreiche Umruestung der Montagelinie 3 auf teilautomatisierten Betrieb. Kapazitaetssteigerung um 20%.',
+      datum: '20.02.2026',
+      kategorie: 'Automatisierung'
+    },
+    {
+      id: 'pn-5',
+      title: 'Energieeffizienz-Projekt',
+      text: 'Neue LED-Hallenbeleuchtung und optimierte Druckluftversorgung reduzieren den Energieverbrauch um 15%.',
+      datum: '10.03.2026',
+      kategorie: 'Nachhaltigkeit'
+    },
+  ]
+}
+
+export function getSeedFullscreenMedia() {
+  return [
+    { id: 'fs-1', title: 'Vision Produktion 2030', mediaUrl: '/media/Meistersitzung.mp4', mediaType: 'video', duration: 60 },
+    { id: 'fs-2', title: 'Plakat Produktion 2030', mediaUrl: '/media/Plakat_Produktion2030_V1.jpg', mediaType: 'image', duration: 15 },
+    { id: 'fs-3', title: 'Plakat Produktion 2030 V2', mediaUrl: '/media/Plakat_Produktion2030_V2.jpg', mediaType: 'image', duration: 15 },
+  ]
+}
+
 export function getSeedEmergencies() {
   return []
 }

@@ -9,10 +9,15 @@ import AnnouncementCard from './zones/AnnouncementCard.vue'
 import ScheduleWeekly from './zones/ScheduleWeekly.vue'
 import TemplateRenderer from './zones/TemplateRenderer.vue'
 import SocialWall from './zones/SocialWall.vue'
+import KarriereZone from './zones/KarriereZone.vue'
+import ProduktionNews from './zones/ProduktionNews.vue'
+import FullscreenMedia from './zones/FullscreenMedia.vue'
 
 const props = defineProps({
   page: { type: Object, required: true }
 })
+
+const emit = defineEmits(['media-ended'])
 
 const componentMap = {
   'schedule-table': ScheduleTable,
@@ -26,6 +31,9 @@ const componentMap = {
   'media': TemplateRenderer,
   'embed': TemplateRenderer,
   'social-wall': SocialWall,
+  'karriere': KarriereZone,
+  'produktion-news': ProduktionNews,
+  'fullscreen-media': FullscreenMedia,
 }
 
 const isCustomLayout = computed(() => props.page.layout === 'custom' && props.page.customGrid)
@@ -67,6 +75,9 @@ function getZoneStyle(zone) {
         :zoneId="zone.id"
         :contentId="zone.contentId || null"
         :contentIndex="zone.contentIndex ?? null"
+        :mediaUrl="zone.mediaUrl || null"
+        :mediaType="zone.mediaType || null"
+        @media-ended="emit('media-ended')"
       />
     </div>
   </div>
@@ -98,6 +109,20 @@ function getZoneStyle(zone) {
 .grid-full {
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
+}
+
+.grid-fullscreen {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  gap: 0;
+}
+
+.grid-fullscreen .grid-zone {
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 /* Custom grid: columns/rows set via inline style */

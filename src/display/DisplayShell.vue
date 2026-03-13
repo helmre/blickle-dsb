@@ -17,13 +17,28 @@ const { displayPages: pages, tickerMessages, activePlaylist } = useDisplayConten
 const currentPageIndex = ref(0)
 const currentPage = computed(() => pages.value[currentPageIndex.value] || pages.value[0])
 const transitioning = ref(false)
+const isFullscreen = computed(() => currentPage.value?.layout === 'fullscreen')
+const isFullscreenVideo = computed(() => {
+  if (!isFullscreen.value) return false
+  const zone = currentPage.value?.zones?.[0]
+  return zone?.mediaType === 'video'
+})
 
 const scale = ref(1)
 let cycleTimer = null
 
+// Called by FullscreenMedia when video ends
+function onMediaEnded() {
+  nextPage()
+}
+
 // Get duration for current page: from playlist or page default or global fallback
 function getPageDuration() {
   const page = currentPage.value
+  // For fullscreen video pages, use a long safety timeout (video ended event triggers nextPage)
+  if (isFullscreenVideo.value) {
+    return 300 * 1000 // 5 min safety timeout
+  }
   return (page?.duration || 15) * 1000
 }
 
@@ -84,18 +99,19 @@ onUnmounted(() => {
       <div class="bg-grid"></div>
 
       <DisplayHeader
+        v-if="!isFullscreen"
         :pageTitle="currentPage.label"
         @toggle-theme="toggleTheme"
         @toggle-nav="toggleNavPosition"
         :navPosition="navPosition"
       />
 
-      <div :class="['display-body', `display-body--${navPosition}`]">
-        <div :class="['display-content', { 'is-transitioning': transitioning }]">
-          <DisplayGrid :page="currentPage" />
+      <div :class="['display-body', `display-body--${navPosition}`, { 'display-body--fullscreen': isFullscreen }]">
+        <div :class="['display-content', { 'is-transitioning': transitioning, 'is-fullscreen': isFullscreen }]">
+          <DisplayGrid :page="currentPage" @media-ended="onMediaEnded" />
         </div>
         <DisplayNav
-          v-if="navPosition === 'sidebar'"
+          v-if="navPosition === 'sidebar' && !isFullscreen"
           :pages="pages"
           :activeIndex="currentPageIndex"
           position="sidebar"
@@ -103,13 +119,13 @@ onUnmounted(() => {
       </div>
 
       <DisplayNav
-        v-if="navPosition === 'bottom'"
+        v-if="navPosition === 'bottom' && !isFullscreen"
         :pages="pages"
         :activeIndex="currentPageIndex"
         position="bottom"
         @select="setPage" />
 
-      <DisplayTicker :messages="tickerMessages" />
+      <DisplayTicker v-if="!isFullscreen" :messages="tickerMessages" />
 
       <DisplayEmergency
         v-if="emergencyStore.activeEmergency"
@@ -197,5 +213,13 @@ onUnmounted(() => {
 .display-content.is-transitioning {
   opacity: 0;
   transform: translateY(10px);
+}
+
+.display-content.is-fullscreen {
+  padding: 0;
+}
+
+.display-body--fullscreen {
+  flex: 1;
 }
 </style>

@@ -4,7 +4,7 @@ import { useScheduleStore } from '../stores/scheduleStore.js'
 import { useLocationStore } from '../stores/locationStore.js'
 import { useLayoutStore } from '../stores/layoutStore.js'
 import { usePlaylistStore } from '../stores/playlistStore.js'
-import { getSeedScheduleData, getSeedCanteenData, getSeedTickerMessages as getSeedTicker } from '../utils/seedData.js'
+import { getSeedScheduleData, getSeedCanteenData, getSeedTickerMessages as getSeedTicker, getSeedFullscreenMedia } from '../utils/seedData.js'
 
 /**
  * Composable that builds dynamic display pages from store data.
@@ -122,7 +122,7 @@ export function useDisplayContent(locationId = null) {
         layout: '2x2',
         duration: 15,
         zones: [
-          { id: 'home-tl', type: 'schedule-table', title: 'Schichtplan' },
+          { id: 'home-tl', type: 'karriere', title: 'Karriere bei Blickle' },
           { id: 'home-tr', type: 'canteen-menu', title: 'Heute in der Kantine' },
           { id: 'home-bl', type: 'weather', title: 'Wetter' },
           { id: 'home-br', type: 'news-feed', title: 'News' },
@@ -140,30 +140,55 @@ export function useDisplayContent(locationId = null) {
       },
     ]
 
-    // INFOS page: dynamically from approved content
+    // INFOS pages: paginate through all approved content
     const announcements = announcementItems.value
-    const infoZones = []
     const count = announcements.length
-    let infoLayout, maxZones
-    if (count >= 5) { infoLayout = '3x2'; maxZones = 6 }
-    else if (count >= 3) { infoLayout = '2x2'; maxZones = 4 }
-    else if (count === 2) { infoLayout = '2x1'; maxZones = 2 }
-    else { infoLayout = 'full'; maxZones = 1 }
-    for (let i = 0; i < Math.max(Math.min(count, maxZones), 1); i++) {
-      infoZones.push({
-        id: `info-${i}`,
-        type: 'announcement',
-        title: '',
-        contentIndex: i
+    const zonesPerPage = 6 // max 3x2 grid
+    const totalInfoPages = Math.max(Math.ceil(count / zonesPerPage), 1)
+
+    for (let pageIdx = 0; pageIdx < totalInfoPages; pageIdx++) {
+      const startIdx = pageIdx * zonesPerPage
+      const endIdx = Math.min(startIdx + zonesPerPage, count)
+      const pageCount = endIdx - startIdx
+
+      let infoLayout
+      if (pageCount >= 5) { infoLayout = '3x2' }
+      else if (pageCount >= 3) { infoLayout = '2x2' }
+      else if (pageCount === 2) { infoLayout = '2x1' }
+      else { infoLayout = 'full' }
+
+      const infoZones = []
+      for (let i = startIdx; i < endIdx; i++) {
+        infoZones.push({
+          id: `info-${i}`,
+          type: 'announcement',
+          title: '',
+          contentIndex: i
+        })
+      }
+
+      const pageNum = totalInfoPages > 1 ? ` ${pageIdx + 1}/${totalInfoPages}` : ''
+      pages.push({
+        id: `infos-${pageIdx}`,
+        label: `INFOS${pageNum}`,
+        icon: '&#9432;',
+        layout: infoLayout,
+        duration: 15,
+        zones: infoZones
       })
     }
+
+    // PRODUKTION page: production news + poster
     pages.push({
-      id: 'infos',
-      label: 'INFOS',
-      icon: '&#9432;',
-      layout: infoLayout,
-      duration: 15,
-      zones: infoZones
+      id: 'produktion',
+      label: 'PRODUKTION',
+      icon: '&#9881;',
+      layout: '2x1',
+      duration: 20,
+      zones: [
+        { id: 'prod-left', type: 'produktion-news', title: 'Produktionsnews' },
+        { id: 'prod-right', type: 'fullscreen-media', title: 'Vision 2030', mediaUrl: '/media/Plakat_Produktion2030_V1.jpg', mediaType: 'image' },
+      ]
     })
 
     // SOCIAL page: Facebook + LinkedIn feeds
@@ -188,6 +213,21 @@ export function useDisplayContent(locationId = null) {
       zones: [
         { id: 'plaene-full', type: 'schedule-weekly', title: 'Schichtplan naechste Woche' },
       ]
+    })
+
+    // --- Fullscreen media pages (video + posters) ---
+    const fullscreenMedia = getSeedFullscreenMedia()
+    fullscreenMedia.forEach((media) => {
+      pages.push({
+        id: `media-${media.id}`,
+        label: media.mediaType === 'video' ? 'VIDEO' : 'POSTER',
+        icon: media.mediaType === 'video' ? '&#127909;' : '&#128444;',
+        layout: 'fullscreen',
+        duration: media.duration || 15,
+        zones: [
+          { id: `fs-${media.id}`, type: 'fullscreen-media', title: media.title, mediaUrl: media.mediaUrl, mediaType: media.mediaType }
+        ]
+      })
     })
 
     // --- Custom layout pages from Layout Editor ---
