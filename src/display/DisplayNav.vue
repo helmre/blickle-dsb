@@ -1,4 +1,9 @@
 <script setup>
+import {
+  Home, UtensilsCrossed, Info, Factory, Share2,
+  CalendarDays, Video, Image, LayoutGrid, Briefcase
+} from 'lucide-vue-next'
+
 defineProps({
   pages: { type: Array, required: true },
   activeIndex: { type: Number, default: 0 },
@@ -6,6 +11,26 @@ defineProps({
 })
 
 const emit = defineEmits(['select'])
+
+const iconMap = {
+  'home': Home,
+  'utensils': UtensilsCrossed,
+  'info': Info,
+  'factory': Factory,
+  'share': Share2,
+  'calendar': CalendarDays,
+  'video': Video,
+  'image': Image,
+  'layout': LayoutGrid,
+  'briefcase': Briefcase,
+}
+
+function getIcon(page) {
+  if (page.iconName && iconMap[page.iconName]) {
+    return iconMap[page.iconName]
+  }
+  return null
+}
 </script>
 
 <template>
@@ -16,7 +41,15 @@ const emit = defineEmits(['select'])
       :class="['nav-btn', { active: index === activeIndex }]"
       @click="emit('select', index)"
     >
-      <span class="nav-icon" v-html="page.icon"></span>
+      <span class="nav-icon">
+        <component
+          v-if="getIcon(page)"
+          :is="getIcon(page)"
+          :size="position === 'sidebar' ? 22 : 20"
+          :stroke-width="1.75"
+        />
+        <span v-else v-html="page.icon"></span>
+      </span>
       <span class="nav-label">{{ page.label }}</span>
       <span class="nav-active-bar" v-if="index === activeIndex"></span>
     </button>
@@ -63,6 +96,9 @@ const emit = defineEmits(['select'])
 }
 
 .nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 3px;
   transition: transform 0.2s ease;
 }

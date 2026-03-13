@@ -119,6 +119,7 @@ export function useDisplayContent(locationId = null) {
         id: 'home',
         label: 'HOME',
         icon: '&#9750;',
+        iconName: 'home',
         layout: '2x2',
         duration: 15,
         zones: [
@@ -132,6 +133,7 @@ export function useDisplayContent(locationId = null) {
         id: 'kantine',
         label: 'KANTINE',
         icon: '&#127860;',
+        iconName: 'utensils',
         layout: 'full',
         duration: 12,
         zones: [
@@ -172,6 +174,7 @@ export function useDisplayContent(locationId = null) {
         id: `infos-${pageIdx}`,
         label: `INFOS${pageNum}`,
         icon: '&#9432;',
+        iconName: 'info',
         layout: infoLayout,
         duration: 15,
         zones: infoZones
@@ -183,6 +186,7 @@ export function useDisplayContent(locationId = null) {
       id: 'produktion',
       label: 'PRODUKTION',
       icon: '&#9881;',
+      iconName: 'factory',
       layout: '2x1',
       duration: 20,
       zones: [
@@ -196,6 +200,7 @@ export function useDisplayContent(locationId = null) {
       id: 'social',
       label: 'SOCIAL',
       icon: '&#128240;',
+      iconName: 'share',
       layout: 'full',
       duration: 20,
       zones: [
@@ -208,6 +213,7 @@ export function useDisplayContent(locationId = null) {
       id: 'plaene',
       label: 'PLAENE',
       icon: '&#128197;',
+      iconName: 'calendar',
       layout: 'full',
       duration: 12,
       zones: [
@@ -222,6 +228,7 @@ export function useDisplayContent(locationId = null) {
         id: `media-${media.id}`,
         label: media.mediaType === 'video' ? 'VIDEO' : 'POSTER',
         icon: media.mediaType === 'video' ? '&#127909;' : '&#128444;',
+        iconName: media.mediaType === 'video' ? 'video' : 'image',
         layout: 'fullscreen',
         duration: media.duration || 15,
         zones: [
@@ -257,6 +264,7 @@ export function useDisplayContent(locationId = null) {
         id: `layout-${layout.id}`,
         label: (layout.name || 'Layout').toUpperCase().slice(0, 12),
         icon: '&#9638;',
+        iconName: 'layout',
         layout: 'custom',
         duration: 15,
         customGrid: {
