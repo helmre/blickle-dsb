@@ -539,7 +539,7 @@ export function getSeedDisplayPages() {
       layout: '2x2',
       zones: [
         { id: 'home-tl', type: 'schedule-table', title: 'Schichtplan' },
-        { id: 'home-tr', type: 'canteen-menu', title: 'Heute im s\'Raedle' },
+        { id: 'home-tr', type: 'canteen-menu', title: 'Heute im s\'Rädle' },
         { id: 'home-bl', type: 'weather', title: 'Wetter' },
         { id: 'home-br', type: 'news-feed', title: 'News' },
       ]
@@ -614,7 +614,7 @@ export function getSeedNewsData() {
   return [
     { id: 'news-1', title: 'Unterweisung Arbeitssicherheit 2024', text: 'Bitte denken Sie an den fristgerechten Abschluss der jährlichen Sicherheitsunterweisung im E-Learning Portal bis zum 30.06.', datum: '15.03.2026', kategorie: 'Sicherheit', imageUrl: '/content/karriere/blickle-fertigung.jpg', imageAlt: 'Arbeitssicherheit Unterweisung' },
     { id: 'news-2', title: 'Wartungsarbeiten in Halle 4', text: 'Am kommenden Wochenende werden planmäßige Instandsetzungsarbeiten an der Hauptmontagelinie durchgeführt. Zugang nur für befugtes Personal.', datum: '12.03.2026', kategorie: 'Produktion', imageUrl: '/content/karriere/blickle-produktion.jpg', imageAlt: 'Wartungsarbeiten Halle 4' },
-    { id: 'news-3', title: '#TeamBlickle Kollektion im S\'LAEDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '10.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/teamwear/400/240', imageAlt: 'TeamBlickle Kollektion' },
+    { id: 'news-3', title: '#TeamBlickle Kollektion im S\'LÄDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '10.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/teamwear/400/240', imageAlt: 'TeamBlickle Kollektion' },
     { id: 'news-4', title: 'Firmenlauf Balingen: 60+ Läufer!', text: 'Blickle war mit über 60 Läuferinnen und Läufern stark vertreten. Highlight: HBW-Sieg!', datum: '08.03.2026', kategorie: 'Events', imageUrl: 'https://picsum.photos/seed/running/400/240', imageAlt: 'Firmenlauf Balingen' },
     { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/health/400/240', imageAlt: 'DKMS Stammzellspende' },
     { id: 'news-6', title: '5 Jahre ErgoMove', text: 'Unser ergonomischer Antrieb feiert 5-jähriges Jubiläum. Über 10.000 Einheiten weltweit verkauft.', datum: '09.03.2026', kategorie: 'Neuheiten', imageUrl: 'https://picsum.photos/seed/innovation/400/240', imageAlt: 'ErgoMove Jubiläum' },
@@ -624,10 +624,10 @@ export function getSeedNewsData() {
 export function getSeedTickerMessages() {
   return [
     'Willkommen bei Blickle! Alle Neuigkeiten auf einen Blick.',
-    '#TeamBlickle Kollektion - Hoodies, T-Shirts und Caps jetzt im S\'LAEDLE erhältlich!',
+    '#TeamBlickle Kollektion - Hoodies, T-Shirts und Caps jetzt im S\'LÄDLE erhältlich!',
     'Matrixorganisation in der Produktion startet ab Januar 2026.',
     'Firmenlauf Balingen: Über 60 Blickle-Läufer am Start - HBW-Sieg!',
-    'Projekt Frida: Hochbeete fürs s\'Raedle - nachhaltig und selbst angebaut.',
+    'Projekt Frida: Hochbeete fürs s\'Rädle - nachhaltig und selbst angebaut.',
     '5 Jahre ErgoMove - über 10.000 Einheiten weltweit!',
     'DKMS: Ein Blickle-Kollege hat einem Menschen das Leben gerettet. Danke!',
   ]
