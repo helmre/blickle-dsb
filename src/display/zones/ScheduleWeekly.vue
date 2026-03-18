@@ -2,7 +2,7 @@
 import { getSeedScheduleData } from '../../shared/utils/seedData.js'
 
 defineProps({
-  title: { type: String, default: 'Schichtplan naechste Woche' },
+  title: { type: String, default: 'Schichtplan nächste Woche' },
   zoneId: String
 })
 

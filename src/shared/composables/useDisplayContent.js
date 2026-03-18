@@ -138,14 +138,14 @@ export function useDisplayContent(locationId = null) {
         customGrid: { columns: 12, rows: 2 },
         zones: [
           { id: 'home-karriere', type: 'karriere', title: 'Karriere bei Blickle', gridColumn: '1 / 8', gridRow: '1 / 2' },
-          { id: 'home-kantine', type: 'canteen-menu', title: 'Heute im s\'Raedle', gridColumn: '8 / 13', gridRow: '1 / 2' },
+          { id: 'home-kantine', type: 'canteen-menu', title: 'Heute im s\'Rädle', gridColumn: '8 / 13', gridRow: '1 / 2' },
           { id: 'home-wetter', type: 'weather', title: 'Wetter', gridColumn: '1 / 5', gridRow: '2 / 3' },
           { id: 'home-news', type: 'news-feed', title: 'News', gridColumn: '5 / 13', gridRow: '2 / 3' },
         ]
       },
       {
         id: 'kantine',
-        label: 'S\'RAEDLE',
+        label: 'S\'RÄDLE',
         icon: '&#127860;',
         iconName: 'utensils',
         layout: 'full',
@@ -225,13 +225,13 @@ export function useDisplayContent(locationId = null) {
     // PLAENE page
     pages.push({
       id: 'plaene',
-      label: 'PLAENE',
+      label: 'PLÄNE',
       icon: '&#128197;',
       iconName: 'calendar',
       layout: 'full',
       duration: 12,
       zones: [
-        { id: 'plaene-full', type: 'schedule-weekly', title: 'Schichtplan naechste Woche' },
+        { id: 'plaene-full', type: 'schedule-weekly', title: 'Schichtplan nächste Woche' },
       ]
     })
 

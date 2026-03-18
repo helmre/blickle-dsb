@@ -4,7 +4,7 @@ import { getSeedCanteenData } from '../../shared/utils/seedData.js'
 import { Info, Leaf, UtensilsCrossed } from 'lucide-vue-next'
 
 defineProps({
-  title: { type: String, default: 'Heute im s\'Raedle' },
+  title: { type: String, default: 'Heute im s\'Rädle' },
   zoneId: String
 })
 

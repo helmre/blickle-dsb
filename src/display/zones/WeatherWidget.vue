@@ -10,7 +10,7 @@ const weather = {
   location: 'Rosenfeld',
   date: new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }),
   temp: '21',
-  condition: 'Leicht bewoelkt',
+  condition: 'Leicht bewölkt',
   forecast: [
     { tag: 'Do', icon: 'sun', temp: '24' },
     { tag: 'Fr', icon: 'cloud', temp: '19' },

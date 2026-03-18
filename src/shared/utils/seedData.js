@@ -14,8 +14,8 @@ export function getSeedLocations() {
     { id: 'loc-global', name: 'Blickle Global', parentId: null, layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
     { id: 'loc-halle1', name: 'Produktionshalle 1', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
     { id: 'loc-halle2', name: 'Produktionshalle 2', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
-    { id: 'loc-verwaltung', name: 'Verwaltungsgebaeude', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
-    { id: 'loc-kantine', name: 's\'Raedle', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-verwaltung', name: 'Verwaltungsgebäude', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-kantine', name: 's\'Rädle', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
   ]
 }
 
@@ -24,7 +24,7 @@ export function getSeedLayouts() {
     {
       id: 'layout-default',
       name: 'Standard 2x2',
-      description: 'Zwei Reihen, zwei Spalten - ideal fuer die Startseite',
+      description: 'Zwei Reihen, zwei Spalten - ideal für die Startseite',
       gridColumns: 2,
       gridRows: 2,
       zones: [
@@ -37,7 +37,7 @@ export function getSeedLayouts() {
     {
       id: 'layout-fullwidth',
       name: 'Vollbreite',
-      description: 'Eine Zone ueber die gesamte Flaeche',
+      description: 'Eine Zone über die gesamte Fläche',
       gridColumns: 1,
       gridRows: 1,
       zones: [
@@ -52,32 +52,32 @@ export function getSeedContent() {
   return [
     // ── Bestehende Basis-Inhalte ─────────────────────
     {
-      id: 'content-1', title: 'Willkommen bei Blickle', description: 'Begruessung fuer alle Mitarbeiter',
+      id: 'content-1', title: 'Willkommen bei Blickle', description: 'Begrüßung für alle Mitarbeiter',
       type: 'text', tags: ['allgemein'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: null, templateParams: null, metadata: {}
     },
     {
-      id: 'content-2', title: 'Sicherheitshinweis: Schutzausruestung', description: 'PSA ist in allen Produktionsbereichen Pflicht. Schutzbrille, Sicherheitsschuhe und Gehoerschutz tragen!',
+      id: 'content-2', title: 'Sicherheitshinweis: Schutzausrüstung', description: 'PSA ist in allen Produktionsbereichen Pflicht. Schutzbrille, Sicherheitsschuhe und Gehörschutz tragen!',
       type: 'text', tags: ['sicherheit', 'produktion'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: 'tpl-safety', templateParams: { titel: 'PSA-Pflicht in der Produktion', hinweis: 'In allen Produktionsbereichen gilt: Schutzbrille, Sicherheitsschuhe und Gehoerschutz sind Pflicht. Bitte achten Sie auf Ihre Sicherheit und die Ihrer Kolleginnen und Kollegen. Bei Fragen wenden Sie sich an Ihre Fuehrungskraft.' }, metadata: {}
+      templateId: 'tpl-safety', templateParams: { titel: 'PSA-Pflicht in der Produktion', hinweis: 'In allen Produktionsbereichen gilt: Schutzbrille, Sicherheitsschuhe und Gehörschutz sind Pflicht. Bitte achten Sie auf Ihre Sicherheit und die Ihrer Kolleginnen und Kollegen. Bei Fragen wenden Sie sich an Ihre Führungskraft.' }, metadata: {}
     },
 
     // ── Einblickle-Magazin Inhalte ───────────────────
 
     // 1. Vorwort David Blickle (S.3) → tpl-ceo
     {
-      id: 'content-ceo-vorwort', title: 'Botschaft der Geschaeftsfuehrung', description: 'David Blickle blickt auf ein erfolgreiches Jahr zurueck und gibt einen Ausblick.',
+      id: 'content-ceo-vorwort', title: 'Botschaft der Geschäftsführung', description: 'David Blickle blickt auf ein erfolgreiches Jahr zurück und gibt einen Ausblick.',
       type: 'text', tags: ['allgemein'], status: 'approved',
       createdBy: 'user-admin', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-ceo', templateParams: {
-        zitat: 'Wir haben 2025 viel erreicht und sind stolz auf das, was wir gemeinsam geschafft haben. Der Zusammenhalt bei Blickle ist unsere groesste Staerke. Gemeinsam gestalten wir die Zukunft.',
+        zitat: 'Wir haben 2025 viel erreicht und sind stolz auf das, was wir gemeinsam geschafft haben. Der Zusammenhalt bei Blickle ist unsere größte Stärke. Gemeinsam gestalten wir die Zukunft.',
         name: 'David Blickle',
-        position: 'Geschaeftsfuehrung'
+        position: 'Geschäftsführung'
       }, metadata: {}
     },
 
@@ -89,7 +89,7 @@ export function getSeedContent() {
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-production', templateParams: {
         linie: 'Matrixorganisation 2026',
-        status: 'gruen',
+        status: 'grün',
         statusText: 'In Vorbereitung',
         grund: 'Die neue Matrixorganisation in der Produktion startet ab Januar 2026. Ziel: schnellere Entscheidungen und flexiblere Teams. Weitere Infos folgen.',
         zeitpunkt: 'Start: Januar 2026'
@@ -98,14 +98,14 @@ export function getSeedContent() {
 
     // 3. #TeamBlickle Kleidung (S.20) → tpl-announcement
     {
-      id: 'content-teamblickle-kleidung', title: '#TeamBlickle Kollektion', description: 'Neue Kleidungskollektion im S\'LAEDLE erhaeltlich.',
+      id: 'content-teamblickle-kleidung', title: '#TeamBlickle Kollektion', description: 'Neue Kleidungskollektion im S\'LÄDLE erhältlich.',
       type: 'text', tags: ['allgemein', 'mitarbeiter'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-announcement', templateParams: {
         titel: '#TeamBlickle Kollektion',
-        text: 'Die neue #TeamBlickle Kleidungskollektion ist da! Hoodies, T-Shirts und Caps in Blickle-Design. Erhaeltlich im S\'LAEDLE. Zeigt euren Teamgeist!',
-        datum: 'Ab sofort verfuegbar'
+        text: 'Die neue #TeamBlickle Kleidungskollektion ist da! Hoodies, T-Shirts und Caps in Blickle-Design. Erhältlich im S\'LÄDLE. Zeigt euren Teamgeist!',
+        datum: 'Ab sofort verfügbar'
       }, metadata: {}
     },
 
@@ -117,7 +117,7 @@ export function getSeedContent() {
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-announcement', templateParams: {
         titel: 'Held des Alltags: Stammzellspende',
-        text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende ueber die DKMS einem Menschen das Leben gerettet. Wir sind stolz und dankbar fuer so viel Engagement. Auch Du kannst Dich registrieren lassen!',
+        text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet. Wir sind stolz und dankbar für so viel Engagement. Auch Du kannst Dich registrieren lassen!',
         datum: '2025'
       }, metadata: {}
     },
@@ -132,13 +132,13 @@ export function getSeedContent() {
         titel: 'Blickle Sommerfest',
         datum: '10. Juli 2025, ab 15:00 Uhr',
         ort: 'Blickle Hauptsitz Rosenfeld',
-        beschreibung: 'Fuer alle Mitarbeiterinnen und Mitarbeiter mit Familie. Essen, Trinken, Live-Musik und gute Laune!'
+        beschreibung: 'Für alle Mitarbeiterinnen und Mitarbeiter mit Familie. Essen, Trinken, Live-Musik und gute Laune!'
       }, metadata: {}
     },
 
     // 6. Firmenlauf Balingen (S.22) → tpl-event
     {
-      id: 'content-firmenlauf', title: 'Firmenlauf Balingen: Top-Ergebnis!', description: 'Ueber 60 Blickle-Laeufer am Start.',
+      id: 'content-firmenlauf', title: 'Firmenlauf Balingen: Top-Ergebnis!', description: 'Über 60 Blickle-Läufer am Start.',
       type: 'text', tags: ['events', 'soziales'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
@@ -146,26 +146,26 @@ export function getSeedContent() {
         titel: 'Firmenlauf Balingen',
         datum: '2025',
         ort: 'Balingen',
-        beschreibung: 'Mit ueber 60 Laeuferinnen und Laeufern war Blickle stark vertreten. Highlight: HBW-Sieg in der Firmenwertung! Danke an alle Teilnehmer!'
+        beschreibung: 'Mit über 60 Läuferinnen und Läufern war Blickle stark vertreten. Highlight: HBW-Sieg in der Firmenwertung! Danke an alle Teilnehmer!'
       }, metadata: {}
     },
 
     // 7. Jubilare (S.22) → tpl-jubilee
     {
-      id: 'content-jubilare', title: 'Unsere Jubilare', description: 'Herzlichen Glueckwunsch zum Firmenjubilaeum!',
+      id: 'content-jubilare', title: 'Unsere Jubilare', description: 'Herzlichen Glückwunsch zum Firmenjubiläum!',
       type: 'text', tags: ['mitarbeiter', 'soziales'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-jubilee', templateParams: {
         name: 'Unsere Jubilare 2025',
         jahre: '25+',
-        text: 'Herzlichen Glueckwunsch an alle Kolleginnen und Kollegen, die dieses Jahr ihr 25- oder 40-jaehriges Firmenjubilaeum bei Blickle feiern. Danke fuer Eure Treue!'
+        text: 'Herzlichen Glückwunsch an alle Kolleginnen und Kollegen, die dieses Jahr ihr 25- oder 40-jähriges Firmenjubiläum bei Blickle feiern. Danke für Eure Treue!'
       }, metadata: {}
     },
 
     // 8. Neue Mitarbeitende (S.25-27) → tpl-welcome
     {
-      id: 'content-neue-mitarbeiter', title: 'Willkommen im Team!', description: 'Ueber 30 neue Kolleginnen und Kollegen sind bei Blickle gestartet.',
+      id: 'content-neue-mitarbeiter', title: 'Willkommen im Team!', description: 'Über 30 neue Kolleginnen und Kollegen sind bei Blickle gestartet.',
       type: 'text', tags: ['mitarbeiter'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
@@ -178,7 +178,7 @@ export function getSeedContent() {
 
     // 9. Social Media Stats (S.9) → tpl-kpi
     {
-      id: 'content-social-stats', title: 'Social Media Reichweite', description: 'Blickle waechst auch digital.',
+      id: 'content-social-stats', title: 'Social Media Reichweite', description: 'Blickle wächst auch digital.',
       type: 'text', tags: ['allgemein'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
@@ -189,7 +189,7 @@ export function getSeedContent() {
         wert2: '2.1 Mio',
         label2: 'Impressionen',
         wert3: '186',
-        label3: 'Beitraege'
+        label3: 'Beiträge'
       }, metadata: {}
     },
 
@@ -202,8 +202,8 @@ export function getSeedContent() {
       templateId: 'tpl-spotlight', templateParams: {
         name: 'Daniel Hirschler',
         abteilung: 'Produktion',
-        hobby: 'Hobbypilot - fliegt in seiner Freizeit ueber die Schwäbische Alb',
-        zitat: 'Ob am Boden oder in der Luft - Praezision und Teamwork sind ueberall gefragt.',
+        hobby: 'Hobbypilot - fliegt in seiner Freizeit über die Schwäbische Alb',
+        zitat: 'Ob am Boden oder in der Luft - Präzision und Teamwork sind überall gefragt.',
         bild: '/content/einblickle/produktion-wandel.jpg'
       }, metadata: {}
     },
@@ -217,11 +217,11 @@ export function getSeedContent() {
       templateId: 'tpl-news-compact', templateParams: {
         titel: 'KURZNACHRICHTEN',
         news1_titel: '5 Jahre ErgoMove',
-        news1_text: 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten wurden weltweit verkauft.',
+        news1_text: 'Unser ergonomischer Antrieb feiert 5-jähriges Jubiläum. Über 10.000 Einheiten wurden weltweit verkauft.',
         news2_titel: '100 Jahre Boudrant',
-        news2_text: 'Unser franzoesischer Partner Boudrant feiert 100-jaehriges Bestehen. Herzlichen Glueckwunsch!',
+        news2_text: 'Unser französischer Partner Boudrant feiert 100-jähriges Bestehen. Herzlichen Glückwunsch!',
         news3_titel: 'Lean-Arbeitskreis gestartet',
-        news3_text: 'Der neue Lean-Arbeitskreis trifft sich regelmaessig, um Prozesse in der Produktion zu verbessern.'
+        news3_text: 'Der neue Lean-Arbeitskreis trifft sich regelmäßig, um Prozesse in der Produktion zu verbessern.'
       }, metadata: {}
     },
 
@@ -233,7 +233,7 @@ export function getSeedContent() {
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-project', templateParams: {
         projektname: 'Frida Hochbeet',
-        beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese und Kraeuter fuers s\'Raedle - nachhaltig und selbst angebaut!',
+        beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete für den Außenbereich gebaut. Frisches Gemüse und Kräuter fürs s\'Rädle - nachhaltig und selbst angebaut!',
         kategorie: 'NACHHALTIGKEIT',
         bild: '/content/einblickle/projekte.jpg'
       }, metadata: {}
@@ -247,7 +247,7 @@ export function getSeedContent() {
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-announcement', templateParams: {
         titel: 'Martin Strobel bei Blickle',
-        text: 'Ex-Handball-Nationalspieler Martin Strobel war zu Gast bei Blickle. In einem inspirierenden Vortrag sprach er ueber Teamgeist, Motivation und den Umgang mit Rueckschlaegen.',
+        text: 'Ex-Handball-Nationalspieler Martin Strobel war zu Gast bei Blickle. In einem inspirierenden Vortrag sprach er über Teamgeist, Motivation und den Umgang mit Rückschlägen.',
         datum: '2025'
       }, metadata: {}
     },
@@ -259,7 +259,7 @@ export function getSeedPlaylists() {
     {
       id: 'playlist-home',
       name: 'Startseite Standard',
-      description: 'Standard-Playlist fuer die Startseite',
+      description: 'Standard-Playlist für die Startseite',
       isLoop: true,
       priority: 1,
       createdBy: 'user-admin',
@@ -279,14 +279,14 @@ export function getSeedTemplates() {
     // ── KOMMUNIKATION ──────────────────────────────────
     {
       id: 'tpl-announcement',
-      name: 'Ankuendigung',
-      description: 'Allgemeine Ankuendigung mit Titel und Text',
+      name: 'Ankündigung',
+      description: 'Allgemeine Ankündigung mit Titel und Text',
       category: 'kommunikation',
       icon: '&#128227;',
       htmlTemplate: '<div class="tpl tpl-announcement"><div class="tpl-accent-bar"></div><h1>{{titel}}</h1><p class="tpl-body">{{text}}</p><div class="tpl-footer"><span class="tpl-date">{{datum}}</span></div></div>',
       cssTemplate: '.tpl-announcement { height:100%; display:flex; flex-direction:column; justify-content:center; padding:2.5rem 3rem; position:relative; font-family:"DM Sans",sans-serif; } .tpl-announcement .tpl-accent-bar { position:absolute; top:0; left:0; right:0; height:5px; background:var(--d-accent, #B5CC18); } .tpl-announcement h1 { font-family:"Outfit",sans-serif; font-size:2.4rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 1rem; line-height:1.2; } .tpl-announcement .tpl-body { font-size:1.2rem; color:var(--d-text-body, rgba(232,236,244,0.7)); line-height:1.6; flex:1; } .tpl-announcement .tpl-footer { margin-top:auto; padding-top:1rem; border-top:1px solid var(--d-border-subtle, rgba(255,255,255,0.06)); } .tpl-announcement .tpl-date { font-size:0.85rem; color:var(--d-text-faint, rgba(232,236,244,0.35)); }',
       parameters: [
-        { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Neue Ankuendigung', required: true },
+        { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Neue Ankündigung', required: true },
         { key: 'text', label: 'Inhalt', type: 'textarea', defaultValue: '', required: true },
         { key: 'datum', label: 'Datum', type: 'text', defaultValue: '', required: false },
       ]
@@ -307,8 +307,8 @@ export function getSeedTemplates() {
     },
     {
       id: 'tpl-ceo',
-      name: 'Geschaeftsfuehrung',
-      description: 'Botschaft der Geschaeftsfuehrung mit Zitat-Stil',
+      name: 'Geschäftsführung',
+      description: 'Botschaft der Geschäftsführung mit Zitat-Stil',
       category: 'kommunikation',
       icon: '&#128100;',
       htmlTemplate: '<div class="tpl tpl-ceo"><div class="tpl-quote-mark">&#8220;</div><p class="tpl-quote">{{zitat}}</p><div class="tpl-author"><div class="tpl-author-info"><span class="tpl-name">{{name}}</span><span class="tpl-position">{{position}}</span></div></div></div>',
@@ -316,7 +316,7 @@ export function getSeedTemplates() {
       parameters: [
         { key: 'zitat', label: 'Botschaft / Zitat', type: 'textarea', defaultValue: '', required: true },
         { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
-        { key: 'position', label: 'Position', type: 'text', defaultValue: 'Geschaeftsfuehrung', required: false },
+        { key: 'position', label: 'Position', type: 'text', defaultValue: 'Geschäftsführung', required: false },
       ]
     },
 
@@ -324,7 +324,7 @@ export function getSeedTemplates() {
     {
       id: 'tpl-safety',
       name: 'Sicherheitshinweis',
-      description: 'Auffaelliger Sicherheitshinweis mit Warnsymbol',
+      description: 'Auffälliger Sicherheitshinweis mit Warnsymbol',
       category: 'sicherheit',
       icon: '&#9888;',
       htmlTemplate: '<div class="tpl tpl-safety"><div class="tpl-warning-strip"></div><div class="tpl-safety-content"><div class="tpl-icon">&#9888;</div><h1>{{titel}}</h1><p class="tpl-body">{{hinweis}}</p></div><div class="tpl-warning-strip"></div></div>',
@@ -337,7 +337,7 @@ export function getSeedTemplates() {
     {
       id: 'tpl-production',
       name: 'Produktions-Update',
-      description: 'Status-Anzeige fuer Produktionslinien',
+      description: 'Status-Anzeige für Produktionslinien',
       category: 'produktion',
       icon: '&#9881;',
       htmlTemplate: '<div class="tpl tpl-production"><h2 class="tpl-section-title">PRODUKTIONS-UPDATE</h2><div class="tpl-status-card"><div class="tpl-status-indicator tpl-status-{{status}}"></div><div class="tpl-status-info"><h1>{{linie}}</h1><p class="tpl-status-label">Status: <strong>{{statusText}}</strong></p><p class="tpl-reason">{{grund}}</p></div></div><div class="tpl-footer"><span class="tpl-date">{{zeitpunkt}}</span></div></div>',
@@ -345,7 +345,7 @@ export function getSeedTemplates() {
       parameters: [
         { key: 'linie', label: 'Linienname', type: 'text', defaultValue: 'Linie 3', required: true },
         { key: 'status', label: 'Status (gruen/gelb/rot)', type: 'select', options: ['gruen','gelb','rot'], defaultValue: 'gruen', required: true },
-        { key: 'statusText', label: 'Status-Text', type: 'text', defaultValue: 'Laeuft', required: true },
+        { key: 'statusText', label: 'Status-Text', type: 'text', defaultValue: 'Läuft', required: true },
         { key: 'grund', label: 'Grund/Details', type: 'text', defaultValue: '', required: false },
         { key: 'zeitpunkt', label: 'Zeitpunkt', type: 'text', defaultValue: '', required: false },
       ]
@@ -353,7 +353,7 @@ export function getSeedTemplates() {
     {
       id: 'tpl-kpi',
       name: 'KPI Dashboard',
-      description: 'Kennzahlen-Anzeige mit grossen Zahlen',
+      description: 'Kennzahlen-Anzeige mit großen Zahlen',
       category: 'produktion',
       icon: '&#128200;',
       htmlTemplate: '<div class="tpl tpl-kpi"><h2 class="tpl-section-title">{{titel}}</h2><div class="tpl-kpi-grid"><div class="tpl-kpi-item"><span class="tpl-kpi-value">{{wert1}}</span><span class="tpl-kpi-label">{{label1}}</span></div><div class="tpl-kpi-item"><span class="tpl-kpi-value tpl-kpi-accent">{{wert2}}</span><span class="tpl-kpi-label">{{label2}}</span></div><div class="tpl-kpi-item"><span class="tpl-kpi-value">{{wert3}}</span><span class="tpl-kpi-label">{{label3}}</span></div></div></div>',
@@ -361,11 +361,11 @@ export function getSeedTemplates() {
       parameters: [
         { key: 'titel', label: 'Titel', type: 'text', defaultValue: 'Produktionskennzahlen', required: true },
         { key: 'wert1', label: 'Wert 1', type: 'text', defaultValue: '98.5%', required: true },
-        { key: 'label1', label: 'Bezeichnung 1', type: 'text', defaultValue: 'Qualitaetsrate', required: true },
+        { key: 'label1', label: 'Bezeichnung 1', type: 'text', defaultValue: 'Qualitätsrate', required: true },
         { key: 'wert2', label: 'Wert 2', type: 'text', defaultValue: '1.247', required: true },
-        { key: 'label2', label: 'Bezeichnung 2', type: 'text', defaultValue: 'Stueck/Tag', required: true },
+        { key: 'label2', label: 'Bezeichnung 2', type: 'text', defaultValue: 'Stück/Tag', required: true },
         { key: 'wert3', label: 'Wert 3', type: 'text', defaultValue: '0', required: true },
-        { key: 'label3', label: 'Bezeichnung 3', type: 'text', defaultValue: 'Unfaelle', required: true },
+        { key: 'label3', label: 'Bezeichnung 3', type: 'text', defaultValue: 'Unfälle', required: true },
       ]
     },
 
@@ -388,7 +388,7 @@ export function getSeedTemplates() {
     {
       id: 'tpl-welcome',
       name: 'Willkommen',
-      description: 'Begruessung fuer neue Mitarbeiter oder Besucher',
+      description: 'Begrüßung für neue Mitarbeiter oder Besucher',
       category: 'personal',
       icon: '&#128075;',
       htmlTemplate: '<div class="tpl tpl-welcome"><div class="tpl-welcome-icon">&#128075;</div><p class="tpl-welcome-label">HERZLICH WILLKOMMEN</p><h1>{{name}}</h1><div class="tpl-welcome-details"><p>{{abteilung}}</p><p class="tpl-welcome-date">{{startdatum}}</p></div></div>',
@@ -401,16 +401,16 @@ export function getSeedTemplates() {
     },
     {
       id: 'tpl-jubilee',
-      name: 'Jubilaeums-Glueckwunsch',
-      description: 'Ehrung fuer Firmenjubilaeen',
+      name: 'Jubiläums-Glückwunsch',
+      description: 'Ehrung für Firmenjubiläen',
       category: 'personal',
       icon: '&#127881;',
-      htmlTemplate: '<div class="tpl tpl-jubilee"><div class="tpl-confetti">&#127881;</div><p class="tpl-jubilee-label">HERZLICHEN GLUECKWUNSCH</p><h1>{{name}}</h1><div class="tpl-jubilee-years"><span class="tpl-years-number">{{jahre}}</span><span class="tpl-years-label">Jahre bei Blickle</span></div><p class="tpl-jubilee-text">{{text}}</p></div>',
+      htmlTemplate: '<div class="tpl tpl-jubilee"><div class="tpl-confetti">&#127881;</div><p class="tpl-jubilee-label">HERZLICHEN GLÜCKWUNSCH</p><h1>{{name}}</h1><div class="tpl-jubilee-years"><span class="tpl-years-number">{{jahre}}</span><span class="tpl-years-label">Jahre bei Blickle</span></div><p class="tpl-jubilee-text">{{text}}</p></div>',
       cssTemplate: '.tpl-jubilee { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem; font-family:"DM Sans",sans-serif; background:linear-gradient(135deg, rgba(181,204,24,0.08) 0%, rgba(245,158,11,0.06) 100%); } .tpl-confetti { font-size:3rem; margin-bottom:0.5rem; } .tpl-jubilee-label { font-size:0.8rem; font-weight:700; color:#F59E0B; letter-spacing:0.12em; margin:0 0 0.3rem; } .tpl-jubilee h1 { font-family:"Outfit",sans-serif; font-size:2.5rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 1rem; } .tpl-jubilee-years { background:var(--d-accent-subtle, rgba(181,204,24,0.15)); border:2px solid var(--d-border-accent, rgba(181,204,24,0.3)); border-radius:16px; padding:1rem 2.5rem; display:inline-flex; flex-direction:column; align-items:center; margin-bottom:1rem; } .tpl-years-number { font-family:"Outfit",sans-serif; font-size:3.5rem; font-weight:800; color:var(--d-accent, #B5CC18); line-height:1; } .tpl-years-label { font-size:0.85rem; color:var(--d-text-muted, rgba(232,236,244,0.5)); margin-top:0.2rem; } .tpl-jubilee-text { font-size:1.1rem; color:var(--d-text-muted, rgba(232,236,244,0.6)); margin-top:0.5rem; }',
       parameters: [
         { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
         { key: 'jahre', label: 'Anzahl Jahre', type: 'text', defaultValue: '25', required: true },
-        { key: 'text', label: 'Glueckwunschtext', type: 'textarea', defaultValue: 'Vielen Dank fuer Ihre Treue und Ihr Engagement!', required: false },
+        { key: 'text', label: 'Glückwunschtext', type: 'textarea', defaultValue: 'Vielen Dank für Ihre Treue und Ihr Engagement!', required: false },
       ]
     },
 
@@ -418,7 +418,7 @@ export function getSeedTemplates() {
     {
       id: 'tpl-event',
       name: 'Veranstaltung',
-      description: 'Save-the-Date fuer Veranstaltungen',
+      description: 'Save-the-Date für Veranstaltungen',
       category: 'events',
       icon: '&#127880;',
       htmlTemplate: '<div class="tpl tpl-event"><span class="tpl-event-badge">SAVE THE DATE</span><h1>{{titel}}</h1><div class="tpl-event-details"><div class="tpl-event-detail"><span class="tpl-event-icon">&#128197;</span><span>{{datum}}</span></div><div class="tpl-event-detail"><span class="tpl-event-icon">&#128205;</span><span>{{ort}}</span></div></div><p class="tpl-event-desc">{{beschreibung}}</p></div>',
@@ -461,7 +461,7 @@ export function getSeedTemplates() {
         { key: 'datum', label: 'Datum & Uhrzeit', type: 'text', defaultValue: '', required: true },
         { key: 'ort', label: 'Ort / Raum', type: 'text', defaultValue: '', required: true },
         { key: 'teilnehmer', label: 'Teilnehmerkreis', type: 'text', defaultValue: 'Alle Produktionsmitarbeiter', required: false },
-        { key: 'hinweis', label: 'Zusaetzlicher Hinweis', type: 'textarea', defaultValue: '', required: false },
+        { key: 'hinweis', label: 'Zusätzlicher Hinweis', type: 'textarea', defaultValue: '', required: false },
       ]
     },
     {
@@ -481,7 +481,7 @@ export function getSeedTemplates() {
     {
       id: 'tpl-spotlight',
       name: 'Mitarbeiter-Spotlight',
-      description: 'Persoenliches Portrait eines Mitarbeiters mit Hobby/Zitat',
+      description: 'Persönliches Portrait eines Mitarbeiters mit Hobby/Zitat',
       category: 'personal',
       icon: '&#11088;',
       htmlTemplate: '<div class="tpl tpl-spotlight"><div class="tpl-spotlight-photo"><img src="{{bild}}" alt="{{name}}" /></div><div class="tpl-spotlight-info"><span class="tpl-spotlight-badge">MITARBEITER-SPOTLIGHT</span><h1>{{name}}</h1><p class="tpl-spotlight-dept">{{abteilung}}</p><div class="tpl-spotlight-quote"><span class="tpl-spotlight-qmark">&#8220;</span><p>{{zitat}}</p></div><p class="tpl-spotlight-hobby"><strong>Hobby:</strong> {{hobby}}</p></div></div>',
@@ -490,7 +490,7 @@ export function getSeedTemplates() {
         { key: 'name', label: 'Name', type: 'text', defaultValue: '', required: true },
         { key: 'abteilung', label: 'Abteilung', type: 'text', defaultValue: '', required: false },
         { key: 'hobby', label: 'Hobby / Besonderheit', type: 'text', defaultValue: '', required: true },
-        { key: 'zitat', label: 'Zitat / persoenlicher Satz', type: 'textarea', defaultValue: '', required: true },
+        { key: 'zitat', label: 'Zitat / persönlicher Satz', type: 'textarea', defaultValue: '', required: true },
         { key: 'bild', label: 'Bild-URL', type: 'text', defaultValue: '/content/einblickle/placeholder.jpg', required: false },
       ]
     },
@@ -503,7 +503,7 @@ export function getSeedTemplates() {
       htmlTemplate: '<div class="tpl tpl-newscompact"><h2 class="tpl-nc-title">{{titel}}</h2><div class="tpl-nc-list"><div class="tpl-nc-item"><div class="tpl-nc-dot"></div><div class="tpl-nc-content"><h3>{{news1_titel}}</h3><p>{{news1_text}}</p></div></div><div class="tpl-nc-item"><div class="tpl-nc-dot"></div><div class="tpl-nc-content"><h3>{{news2_titel}}</h3><p>{{news2_text}}</p></div></div><div class="tpl-nc-item"><div class="tpl-nc-dot"></div><div class="tpl-nc-content"><h3>{{news3_titel}}</h3><p>{{news3_text}}</p></div></div></div></div>',
       cssTemplate: '.tpl-newscompact { height:100%; display:flex; flex-direction:column; padding:2rem 2.5rem; font-family:"DM Sans",sans-serif; } .tpl-nc-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.1em; text-transform:uppercase; margin:0 0 1.5rem; } .tpl-nc-list { flex:1; display:flex; flex-direction:column; gap:0.8rem; } .tpl-nc-item { display:flex; gap:1rem; padding:1rem 1.2rem; background:var(--d-surface, rgba(255,255,255,0.03)); border:1px solid var(--d-border, rgba(255,255,255,0.06)); border-radius:10px; flex:1; align-items:flex-start; transition:border-color 0.2s ease; } .tpl-nc-item:hover { border-color:var(--d-border-accent, rgba(181,204,24,0.2)); } .tpl-nc-dot { width:10px; height:10px; border-radius:50%; background:var(--d-accent, #B5CC18); flex-shrink:0; margin-top:0.35rem; box-shadow:0 0 8px rgba(181,204,24,0.3); } .tpl-nc-content h3 { font-family:"Outfit",sans-serif; font-size:1.05rem; font-weight:700; color:var(--d-text, #E8ECF4); margin:0 0 0.3rem; } .tpl-nc-content p { font-size:0.9rem; color:var(--d-text-muted, rgba(232,236,244,0.55)); line-height:1.45; margin:0; }',
       parameters: [
-        { key: 'titel', label: 'Ueberschrift', type: 'text', defaultValue: 'KURZNACHRICHTEN', required: true },
+        { key: 'titel', label: 'Überschrift', type: 'text', defaultValue: 'KURZNACHRICHTEN', required: true },
         { key: 'news1_titel', label: 'News 1 Titel', type: 'text', defaultValue: '', required: true },
         { key: 'news1_text', label: 'News 1 Text', type: 'text', defaultValue: '', required: true },
         { key: 'news2_titel', label: 'News 2 Titel', type: 'text', defaultValue: '', required: true },
@@ -569,11 +569,11 @@ export function getSeedDisplayPages() {
     },
     {
       id: 'plaene',
-      label: 'PLAENE',
+      label: 'PLÄNE',
       icon: '&#128197;',
       layout: 'full',
       zones: [
-        { id: 'plaene-full', type: 'schedule-weekly', title: 'Schichtplan naechste Woche' },
+        { id: 'plaene-full', type: 'schedule-weekly', title: 'Schichtplan nächste Woche' },
       ]
     },
   ]
@@ -582,12 +582,12 @@ export function getSeedDisplayPages() {
 export function getSeedScheduleData() {
   return {
     today: [
-      { zeit: '06:00 - 14:00', name: 'Fruehschicht', mitarbeiter: ['M. Schmidt', 'K. Weber', 'S. Fischer', 'H. Mueller'] },
-      { zeit: '14:00 - 22:00', name: 'Spaetschicht', mitarbeiter: ['A. Wagner', 'P. Becker', 'L. Hoffmann', 'R. Schulz'] },
+      { zeit: '06:00 - 14:00', name: 'Frühschicht', mitarbeiter: ['M. Schmidt', 'K. Weber', 'S. Fischer', 'H. Müller'] },
+      { zeit: '14:00 - 22:00', name: 'Spätschicht', mitarbeiter: ['A. Wagner', 'P. Becker', 'L. Hoffmann', 'R. Schulz'] },
       { zeit: '22:00 - 06:00', name: 'Nachtschicht', mitarbeiter: ['J. Koch', 'D. Richter'] },
     ],
     weekly: {
-      schichten: ['Fruehschicht', 'Spaetschicht', 'Nachtschicht'],
+      schichten: ['Frühschicht', 'Spätschicht', 'Nachtschicht'],
       tage: ['Mo', 'Di', 'Mi', 'Do', 'Fr'],
       plan: [
         ['Team A', 'Team A', 'Team A', 'Team B', 'Team B'],
@@ -601,10 +601,10 @@ export function getSeedScheduleData() {
 export function getSeedCanteenData() {
   const tage = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
   const gerichte = [
-    { tag: 'Montag', gericht1: 'Schnitzel mit Kartoffelsalat', gericht2: 'Gemuese-Curry mit Reis', beilage: 'Tagessuppe: Tomatensuppe', preis1: '5,80', preis2: '4,50', beschreibung1: 'Mit Zitrone & Preiselbeeren', beschreibung2: 'Mit Basmatireis & Naan-Brot', bild1: 'https://picsum.photos/seed/schnitzel/96/96', bild2: 'https://picsum.photos/seed/curry/96/96' },
+    { tag: 'Montag', gericht1: 'Schnitzel mit Kartoffelsalat', gericht2: 'Gemüse-Curry mit Reis', beilage: 'Tagessuppe: Tomatensuppe', preis1: '5,80', preis2: '4,50', beschreibung1: 'Mit Zitrone & Preiselbeeren', beschreibung2: 'Mit Basmatireis & Naan-Brot', bild1: 'https://picsum.photos/seed/schnitzel/96/96', bild2: 'https://picsum.photos/seed/curry/96/96' },
     { tag: 'Dienstag', gericht1: 'Spaghetti Bolognese', gericht2: 'Spinat-Gnocchi', beilage: 'Tagessuppe: Gulaschsuppe', preis1: '4,90', preis2: '4,20', beschreibung1: 'Mit frischem Parmesan', beschreibung2: 'Mit Salbei-Butter & Pinienkernen', bild1: 'https://picsum.photos/seed/bolognese/96/96', bild2: 'https://picsum.photos/seed/gnocchi/96/96' },
-    { tag: 'Mittwoch', gericht1: 'Haehnchenbrust mit Gemuese', gericht2: 'Kaesespätzle', beilage: 'Tagessuppe: Kartoffelsuppe', preis1: '5,50', preis2: '4,20', beschreibung1: 'Mit Rosmarinkartoffeln & Grillgemuese', beschreibung2: 'Mit Roestzwiebeln & kleinem Beilagensalat', bild1: 'https://picsum.photos/seed/chicken/96/96', bild2: 'https://picsum.photos/seed/kaesespaetzle/96/96' },
-    { tag: 'Donnerstag', gericht1: 'Rindergulasch mit Knoedel', gericht2: 'Gemuese-Lasagne', beilage: 'Tagessuppe: Linsensuppe', preis1: '6,20', preis2: '4,80', beschreibung1: 'Klassisch mit Semmelknoedel', beschreibung2: 'Mit Bechamel & frischem Basilikum', bild1: 'https://picsum.photos/seed/gulasch/96/96', bild2: 'https://picsum.photos/seed/lasagne/96/96' },
+    { tag: 'Mittwoch', gericht1: 'Hähnchenbrust mit Gemüse', gericht2: 'Käsespätzle', beilage: 'Tagessuppe: Kartoffelsuppe', preis1: '5,50', preis2: '4,20', beschreibung1: 'Mit Rosmarinkartoffeln & Grillgemüse', beschreibung2: 'Mit Röstzwiebeln & kleinem Beilagensalat', bild1: 'https://picsum.photos/seed/chicken/96/96', bild2: 'https://picsum.photos/seed/kaesespaetzle/96/96' },
+    { tag: 'Donnerstag', gericht1: 'Rindergulasch mit Knödel', gericht2: 'Gemüse-Lasagne', beilage: 'Tagessuppe: Linsensuppe', preis1: '6,20', preis2: '4,80', beschreibung1: 'Klassisch mit Semmelknödel', beschreibung2: 'Mit Bechamel & frischem Basilikum', bild1: 'https://picsum.photos/seed/gulasch/96/96', bild2: 'https://picsum.photos/seed/lasagne/96/96' },
     { tag: 'Freitag', gericht1: 'Gebratener Fisch mit Pommes', gericht2: 'Pizza Margherita', beilage: 'Tagessuppe: Brokkolicremesuppe', preis1: '5,90', preis2: '4,50', beschreibung1: 'Knuspriger Seelachs mit Remoulade', beschreibung2: 'Mit Mozzarella & frischem Basilikum', bild1: 'https://picsum.photos/seed/fish/96/96', bild2: 'https://picsum.photos/seed/pizza/96/96' },
   ]
   return { tage, gerichte }
@@ -612,23 +612,23 @@ export function getSeedCanteenData() {
 
 export function getSeedNewsData() {
   return [
-    { id: 'news-1', title: 'Unterweisung Arbeitssicherheit 2024', text: 'Bitte denken Sie an den fristgerechten Abschluss der jaehrlichen Sicherheitsunterweisung im E-Learning Portal bis zum 30.06.', datum: '15.03.2026', kategorie: 'Sicherheit', imageUrl: 'https://picsum.photos/seed/safety/400/240', imageAlt: 'Arbeitssicherheit Unterweisung' },
-    { id: 'news-2', title: 'Wartungsarbeiten in Halle 4', text: 'Am kommenden Wochenende werden planmaessige Instandsetzungsarbeiten an der Hauptmontagelinie durchgefuehrt. Zugang nur fuer befugtes Personal.', datum: '12.03.2026', kategorie: 'Produktion', imageUrl: 'https://picsum.photos/seed/factory/400/240', imageAlt: 'Wartungsarbeiten Halle 4' },
+    { id: 'news-1', title: 'Unterweisung Arbeitssicherheit 2024', text: 'Bitte denken Sie an den fristgerechten Abschluss der jährlichen Sicherheitsunterweisung im E-Learning Portal bis zum 30.06.', datum: '15.03.2026', kategorie: 'Sicherheit', imageUrl: '/content/karriere/blickle-fertigung.jpg', imageAlt: 'Arbeitssicherheit Unterweisung' },
+    { id: 'news-2', title: 'Wartungsarbeiten in Halle 4', text: 'Am kommenden Wochenende werden planmäßige Instandsetzungsarbeiten an der Hauptmontagelinie durchgeführt. Zugang nur für befugtes Personal.', datum: '12.03.2026', kategorie: 'Produktion', imageUrl: '/content/karriere/blickle-produktion.jpg', imageAlt: 'Wartungsarbeiten Halle 4' },
     { id: 'news-3', title: '#TeamBlickle Kollektion im S\'LAEDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '10.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/teamwear/400/240', imageAlt: 'TeamBlickle Kollektion' },
-    { id: 'news-4', title: 'Firmenlauf Balingen: 60+ Laeufer!', text: 'Blickle war mit ueber 60 Laeuferinnen und Laeufern stark vertreten. Highlight: HBW-Sieg!', datum: '08.03.2026', kategorie: 'Events', imageUrl: 'https://picsum.photos/seed/running/400/240', imageAlt: 'Firmenlauf Balingen' },
-    { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende ueber die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/health/400/240', imageAlt: 'DKMS Stammzellspende' },
-    { id: 'news-6', title: '5 Jahre ErgoMove', text: 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten weltweit verkauft.', datum: '09.03.2026', kategorie: 'Neuheiten', imageUrl: 'https://picsum.photos/seed/innovation/400/240', imageAlt: 'ErgoMove Jubilaeum' },
+    { id: 'news-4', title: 'Firmenlauf Balingen: 60+ Läufer!', text: 'Blickle war mit über 60 Läuferinnen und Läufern stark vertreten. Highlight: HBW-Sieg!', datum: '08.03.2026', kategorie: 'Events', imageUrl: 'https://picsum.photos/seed/running/400/240', imageAlt: 'Firmenlauf Balingen' },
+    { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/health/400/240', imageAlt: 'DKMS Stammzellspende' },
+    { id: 'news-6', title: '5 Jahre ErgoMove', text: 'Unser ergonomischer Antrieb feiert 5-jähriges Jubiläum. Über 10.000 Einheiten weltweit verkauft.', datum: '09.03.2026', kategorie: 'Neuheiten', imageUrl: 'https://picsum.photos/seed/innovation/400/240', imageAlt: 'ErgoMove Jubiläum' },
   ]
 }
 
 export function getSeedTickerMessages() {
   return [
     'Willkommen bei Blickle! Alle Neuigkeiten auf einen Blick.',
-    '#TeamBlickle Kollektion - Hoodies, T-Shirts und Caps jetzt im S\'LAEDLE erhaeltlich!',
+    '#TeamBlickle Kollektion - Hoodies, T-Shirts und Caps jetzt im S\'LAEDLE erhältlich!',
     'Matrixorganisation in der Produktion startet ab Januar 2026.',
-    'Firmenlauf Balingen: Ueber 60 Blickle-Laeufer am Start - HBW-Sieg!',
-    'Projekt Frida: Hochbeete fuers s\'Raedle - nachhaltig und selbst angebaut.',
-    '5 Jahre ErgoMove - ueber 10.000 Einheiten weltweit!',
+    'Firmenlauf Balingen: Über 60 Blickle-Läufer am Start - HBW-Sieg!',
+    'Projekt Frida: Hochbeete fürs s\'Raedle - nachhaltig und selbst angebaut.',
+    '5 Jahre ErgoMove - über 10.000 Einheiten weltweit!',
     'DKMS: Ein Blickle-Kollege hat einem Menschen das Leben gerettet. Danke!',
   ]
 }
@@ -636,9 +636,9 @@ export function getSeedTickerMessages() {
 export function getSeedKarriereData() {
   return {
     jobs: [
-      { id: 'job-1', title: 'Sachbearbeiter Export / Aussenhandel (m/w/d)', abteilung: 'Aussendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-1', title: 'Sachbearbeiter Export / Außenhandel (m/w/d)', abteilung: 'Außendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-2', title: 'Inhouse Consultant SAP SD (m/w/d)', abteilung: 'Controlling/Rechnungswesen', standort: 'Rosenfeld', typ: 'Vollzeit' },
-      { id: 'job-3', title: 'Assistenz im Key Account Management (m/w/d)', abteilung: 'Aussendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-3', title: 'Assistenz im Key Account Management (m/w/d)', abteilung: 'Außendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-4', title: 'Mitarbeiter Werkzeugbau (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-5', title: 'Controller (m/w/d)', abteilung: 'Controlling/Rechnungswesen', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-6', title: 'Assistenz der Konstruktionsleitung (m/w/d)', abteilung: 'Konstruktion/Entwicklung', standort: 'Rosenfeld', typ: 'Vollzeit' },
@@ -647,16 +647,16 @@ export function getSeedKarriereData() {
       { id: 'job-9', title: 'IT-Systembetreuer (m/w/d)', abteilung: 'IT', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-10', title: 'SAP Application Developer ABAP (m/w/d)', abteilung: 'IT', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-11', title: 'Verfahrensmechaniker Kunststofftechnik (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
-      { id: 'job-12', title: 'Mitglied der Exportleitung Vertrieb International (m/w/d)', abteilung: 'Aussendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-12', title: 'Mitglied der Exportleitung Vertrieb International (m/w/d)', abteilung: 'Außendienst/Export/Verkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-13', title: 'Mitarbeiter Fertigung / Produktion / Montage (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
-      { id: 'job-14', title: 'Schweisser MAG (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-14', title: 'Schweißer MAG (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-15', title: 'Mitarbeiter Instandhaltung (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-16', title: 'Personalreferent / HR-Spezialist (m/w/d)', abteilung: 'Personal', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-17', title: 'Sachbearbeiter Einkauf (m/w/d)', abteilung: 'Einkauf', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-18', title: 'Service-Techniker Elektrische Antriebssysteme (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-19', title: 'Fertigungsplaner / Industrial Engineer (m/w/d)', abteilung: 'Operational Excellence', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-20', title: 'Entwicklungsingenieur mechanische Baugruppen (m/w/d)', abteilung: 'Konstruktion/Entwicklung', standort: 'Rosenfeld', typ: 'Vollzeit' },
-      { id: 'job-21', title: 'Qualitaetstechniker Fertigungs-QS (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
+      { id: 'job-21', title: 'Qualitätstechniker Fertigungs-QS (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-22', title: 'Produktionscontroller (m/w/d)', abteilung: 'Controlling/Rechnungswesen', standort: 'Rosenfeld', typ: 'Vollzeit' },
       { id: 'job-23', title: 'Mitarbeiter im Winterdienst (m/w/d)', abteilung: 'Fertigung/Logistik', standort: 'Rosenfeld', typ: 'Minijob' },
       { id: 'job-24', title: 'Initiativbewerbung Fertigung (m/w/d)', abteilung: 'alle Funktionsbereiche', standort: 'Rosenfeld', typ: 'Vollzeit' },
@@ -664,7 +664,7 @@ export function getSeedKarriereData() {
     referral: {
       title: 'Mitarbeiter werben Mitarbeiter',
       bonus: 500,
-      beschreibung: 'Empfehlen Sie qualifizierte Kandidaten und erhalten Sie eine Praemie von 500 EUR bei erfolgreicher Einstellung!'
+      beschreibung: 'Empfehlen Sie qualifizierte Kandidaten und erhalten Sie eine Prämie von 500 EUR bei erfolgreicher Einstellung!'
     }
   }
 }
@@ -682,21 +682,21 @@ export function getSeedProduktionNews() {
     {
       id: 'pn-2',
       title: 'Neues CNC-Bearbeitungszentrum',
-      text: 'Investition in ein 5-Achs-CNC-Bearbeitungszentrum fuer die Werkzeugfertigung. Inbetriebnahme geplant fuer Q1 2026.',
+      text: 'Investition in ein 5-Achs-CNC-Bearbeitungszentrum für die Werkzeugfertigung. Inbetriebnahme geplant für Q1 2026.',
       datum: '15.01.2026',
       kategorie: 'Investition'
     },
     {
       id: 'pn-3',
       title: 'Lean-Arbeitskreis gestartet',
-      text: 'Start des bereichsuebergreifenden Lean-Arbeitskreises zur kontinuierlichen Verbesserung in der Kunststofffertigung.',
+      text: 'Start des bereichsübergreifenden Lean-Arbeitskreises zur kontinuierlichen Verbesserung in der Kunststofffertigung.',
       datum: '03.02.2026',
       kategorie: 'Optimierung'
     },
     {
       id: 'pn-4',
       title: 'Automatisierung Montagelinie 3',
-      text: 'Erfolgreiche Umruestung der Montagelinie 3 auf teilautomatisierten Betrieb. Kapazitaetssteigerung um 20%.',
+      text: 'Erfolgreiche Umrüstung der Montagelinie 3 auf teilautomatisierten Betrieb. Kapazitätssteigerung um 20%.',
       datum: '20.02.2026',
       kategorie: 'Automatisierung'
     },

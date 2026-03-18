@@ -64,7 +64,7 @@ const featuredJob = jobs.find(j => j.title.includes('Controller')) || jobs[0]
   right: 0;
   width: 280px;
   height: 100%;
-  background: url('https://picsum.photos/seed/office/280/500') center/cover no-repeat;
+  background: url('/content/karriere/blickle-team.jpg') center/cover no-repeat;
   opacity: 0.08;
   pointer-events: none;
 }
