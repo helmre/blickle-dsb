@@ -67,7 +67,7 @@ function getZoneStyle(zone) {
     <div
       v-for="(zone, index) in page.zones"
       :key="zone.id"
-      class="grid-zone"
+      :class="['grid-zone', { 'grid-zone--no-chrome': page.noZoneChrome }]"
       :style="{ ...getZoneStyle(zone), '--zone-index': index }"
     >
       <component
@@ -149,6 +149,20 @@ function getZoneStyle(zone) {
   border-color: var(--d-ghost-border-accent);
   transform: scale(1.005);
   box-shadow: var(--d-editorial-shadow);
+}
+
+.grid-zone--no-chrome {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.grid-zone--no-chrome:hover {
+  border-color: transparent;
+  transform: none;
+  box-shadow: none;
 }
 
 @keyframes zone-enter {

@@ -87,9 +87,10 @@ function getIcon(page) {
 }
 
 .nav-btn.active {
-  background: var(--d-nav-pill-bg);
-  color: var(--d-nav-pill-text);
-  border-radius: 24px;
+  background: var(--d-accent, #B5CC18);
+  color: var(--d-accent-text, #181e00);
+  border-radius: 20px;
+  transform: scale(1.1);
 }
 
 .nav-icon {
@@ -134,26 +135,28 @@ function getIcon(page) {
 
 /* ===== BOTTOM VARIANT (unten, horizontal) ===== */
 .display-nav--bottom {
-  height: 68px;
+  height: 84px;
   flex-direction: row;
   border-top: none;
-  box-shadow: 0 -1px 0 var(--d-ghost-border);
-  padding: 8px 20px;
-  gap: 6px;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  padding: 8px 32px 16px;
+  gap: 4px;
   justify-content: space-evenly;
 }
 
 .display-nav--bottom .nav-btn {
   flex: 1;
-  max-width: 180px;
+  max-width: 160px;
   min-width: 0;
-  padding: 8px 6px;
-  font-size: 0.8rem;
-  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 0.75rem;
+  border-radius: 16px;
 }
 
 .display-nav--bottom .nav-btn.active {
-  border-radius: 24px;
+  border-radius: 20px;
+  padding: 10px 16px;
 }
 
 .display-nav--bottom .nav-icon {

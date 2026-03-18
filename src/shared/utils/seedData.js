@@ -15,7 +15,7 @@ export function getSeedLocations() {
     { id: 'loc-halle1', name: 'Produktionshalle 1', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
     { id: 'loc-halle2', name: 'Produktionshalle 2', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
     { id: 'loc-verwaltung', name: 'Verwaltungsgebaeude', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
-    { id: 'loc-kantine', name: 'Kantine', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-kantine', name: 's\'Raedle', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
   ]
 }
 
@@ -233,7 +233,7 @@ export function getSeedContent() {
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-project', templateParams: {
         projektname: 'Frida Hochbeet',
-        beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese und Kraeuter fuer die Kantine - nachhaltig und selbst angebaut!',
+        beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese und Kraeuter fuers s\'Raedle - nachhaltig und selbst angebaut!',
         kategorie: 'NACHHALTIGKEIT',
         bild: '/content/einblickle/projekte.jpg'
       }, metadata: {}
@@ -539,14 +539,14 @@ export function getSeedDisplayPages() {
       layout: '2x2',
       zones: [
         { id: 'home-tl', type: 'schedule-table', title: 'Schichtplan' },
-        { id: 'home-tr', type: 'canteen-menu', title: 'Heute in der Kantine' },
+        { id: 'home-tr', type: 'canteen-menu', title: 'Heute im s\'Raedle' },
         { id: 'home-bl', type: 'weather', title: 'Wetter' },
         { id: 'home-br', type: 'news-feed', title: 'News' },
       ]
     },
     {
       id: 'kantine',
-      label: 'KANTINE',
+      label: 'S\'RAEDLE',
       icon: '&#127860;',
       layout: 'full',
       zones: [
@@ -601,23 +601,23 @@ export function getSeedScheduleData() {
 export function getSeedCanteenData() {
   const tage = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
   const gerichte = [
-    { tag: 'Montag', gericht1: 'Schnitzel mit Kartoffelsalat', gericht2: 'Gemuese-Curry mit Reis', beilage: 'Tagessuppe: Tomatensuppe' },
-    { tag: 'Dienstag', gericht1: 'Spaghetti Bolognese', gericht2: 'Spinat-Gnocchi', beilage: 'Tagessuppe: Gulaschsuppe' },
-    { tag: 'Mittwoch', gericht1: 'Haehnchenbrust mit Gemuese', gericht2: 'Kaesespätzle', beilage: 'Tagessuppe: Kartoffelsuppe' },
-    { tag: 'Donnerstag', gericht1: 'Rindergulasch mit Knoedel', gericht2: 'Gemuese-Lasagne', beilage: 'Tagessuppe: Linsensuppe' },
-    { tag: 'Freitag', gericht1: 'Gebratener Fisch mit Pommes', gericht2: 'Pizza Margherita', beilage: 'Tagessuppe: Brokkolicremesuppe' },
+    { tag: 'Montag', gericht1: 'Schnitzel mit Kartoffelsalat', gericht2: 'Gemuese-Curry mit Reis', beilage: 'Tagessuppe: Tomatensuppe', preis1: '5,80', preis2: '4,50', beschreibung1: 'Mit Zitrone & Preiselbeeren', beschreibung2: 'Mit Basmatireis & Naan-Brot', bild1: 'https://picsum.photos/seed/schnitzel/96/96', bild2: 'https://picsum.photos/seed/curry/96/96' },
+    { tag: 'Dienstag', gericht1: 'Spaghetti Bolognese', gericht2: 'Spinat-Gnocchi', beilage: 'Tagessuppe: Gulaschsuppe', preis1: '4,90', preis2: '4,20', beschreibung1: 'Mit frischem Parmesan', beschreibung2: 'Mit Salbei-Butter & Pinienkernen', bild1: 'https://picsum.photos/seed/bolognese/96/96', bild2: 'https://picsum.photos/seed/gnocchi/96/96' },
+    { tag: 'Mittwoch', gericht1: 'Haehnchenbrust mit Gemuese', gericht2: 'Kaesespätzle', beilage: 'Tagessuppe: Kartoffelsuppe', preis1: '5,50', preis2: '4,20', beschreibung1: 'Mit Rosmarinkartoffeln & Grillgemuese', beschreibung2: 'Mit Roestzwiebeln & kleinem Beilagensalat', bild1: 'https://picsum.photos/seed/chicken/96/96', bild2: 'https://picsum.photos/seed/kaesespaetzle/96/96' },
+    { tag: 'Donnerstag', gericht1: 'Rindergulasch mit Knoedel', gericht2: 'Gemuese-Lasagne', beilage: 'Tagessuppe: Linsensuppe', preis1: '6,20', preis2: '4,80', beschreibung1: 'Klassisch mit Semmelknoedel', beschreibung2: 'Mit Bechamel & frischem Basilikum', bild1: 'https://picsum.photos/seed/gulasch/96/96', bild2: 'https://picsum.photos/seed/lasagne/96/96' },
+    { tag: 'Freitag', gericht1: 'Gebratener Fisch mit Pommes', gericht2: 'Pizza Margherita', beilage: 'Tagessuppe: Brokkolicremesuppe', preis1: '5,90', preis2: '4,50', beschreibung1: 'Knuspriger Seelachs mit Remoulade', beschreibung2: 'Mit Mozzarella & frischem Basilikum', bild1: 'https://picsum.photos/seed/fish/96/96', bild2: 'https://picsum.photos/seed/pizza/96/96' },
   ]
   return { tage, gerichte }
 }
 
 export function getSeedNewsData() {
   return [
-    { id: 'news-1', title: '#TeamBlickle Kollektion im S\'LAEDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '15.03.2026', kategorie: 'Mitarbeiter' },
-    { id: 'news-2', title: 'Firmenlauf Balingen: 60+ Laeufer!', text: 'Blickle war mit ueber 60 Laeuferinnen und Laeufern stark vertreten. Highlight: HBW-Sieg!', datum: '12.03.2026', kategorie: 'Events' },
-    { id: 'news-3', title: 'Matrixorganisation ab 2026', text: 'Die Produktion stellt auf Matrixorganisation um. Ziel: schnellere Entscheidungen und flexiblere Teams.', datum: '10.03.2026', kategorie: 'Produktion' },
-    { id: 'news-4', title: 'Projekt Frida: Hochbeete gebaut', text: 'Mitarbeiter haben Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese fuer die Kantine!', datum: '08.03.2026', kategorie: 'Nachhaltigkeit' },
-    { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende ueber die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter' },
-    { id: 'news-6', title: '5 Jahre ErgoMove', text: 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten weltweit verkauft.', datum: '09.03.2026', kategorie: 'Neuheiten' },
+    { id: 'news-1', title: 'Unterweisung Arbeitssicherheit 2024', text: 'Bitte denken Sie an den fristgerechten Abschluss der jaehrlichen Sicherheitsunterweisung im E-Learning Portal bis zum 30.06.', datum: '15.03.2026', kategorie: 'Sicherheit', imageUrl: 'https://picsum.photos/seed/safety/400/240', imageAlt: 'Arbeitssicherheit Unterweisung' },
+    { id: 'news-2', title: 'Wartungsarbeiten in Halle 4', text: 'Am kommenden Wochenende werden planmaessige Instandsetzungsarbeiten an der Hauptmontagelinie durchgefuehrt. Zugang nur fuer befugtes Personal.', datum: '12.03.2026', kategorie: 'Produktion', imageUrl: 'https://picsum.photos/seed/factory/400/240', imageAlt: 'Wartungsarbeiten Halle 4' },
+    { id: 'news-3', title: '#TeamBlickle Kollektion im S\'LAEDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '10.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/teamwear/400/240', imageAlt: 'TeamBlickle Kollektion' },
+    { id: 'news-4', title: 'Firmenlauf Balingen: 60+ Laeufer!', text: 'Blickle war mit ueber 60 Laeuferinnen und Laeufern stark vertreten. Highlight: HBW-Sieg!', datum: '08.03.2026', kategorie: 'Events', imageUrl: 'https://picsum.photos/seed/running/400/240', imageAlt: 'Firmenlauf Balingen' },
+    { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende ueber die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/health/400/240', imageAlt: 'DKMS Stammzellspende' },
+    { id: 'news-6', title: '5 Jahre ErgoMove', text: 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten weltweit verkauft.', datum: '09.03.2026', kategorie: 'Neuheiten', imageUrl: 'https://picsum.photos/seed/innovation/400/240', imageAlt: 'ErgoMove Jubilaeum' },
   ]
 }
 
@@ -627,7 +627,7 @@ export function getSeedTickerMessages() {
     '#TeamBlickle Kollektion - Hoodies, T-Shirts und Caps jetzt im S\'LAEDLE erhaeltlich!',
     'Matrixorganisation in der Produktion startet ab Januar 2026.',
     'Firmenlauf Balingen: Ueber 60 Blickle-Laeufer am Start - HBW-Sieg!',
-    'Projekt Frida: Hochbeete fuer die Kantine - nachhaltig und selbst angebaut.',
+    'Projekt Frida: Hochbeete fuers s\'Raedle - nachhaltig und selbst angebaut.',
     '5 Jahre ErgoMove - ueber 10.000 Einheiten weltweit!',
     'DKMS: Ein Blickle-Kollege hat einem Menschen das Leben gerettet. Danke!',
   ]

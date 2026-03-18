@@ -1,12 +1,12 @@
 <script setup>
-import { useDisplayContent } from '../../shared/composables/useDisplayContent.js'
+import { getSeedNewsData } from '../../shared/utils/seedData.js'
 
 defineProps({
   title: { type: String, default: 'News' },
   zoneId: String
 })
 
-const { newsItems } = useDisplayContent()
+const newsItems = getSeedNewsData()
 
 const categoryColors = {
   'Messen': '#3B82F6',
@@ -23,132 +23,139 @@ const categoryColors = {
 </script>
 
 <template>
-  <div class="zone-news">
-    <div class="zone-header">
-      <div class="zone-header-accent"></div>
-      <h3>{{ title }}</h3>
-    </div>
-    <div class="zone-body">
-      <div v-if="newsItems.length === 0" class="news-empty">
-        Keine freigegebenen Inhalte vorhanden.
+  <div class="news-card">
+    <!-- Header -->
+    <div class="news-header">
+      <h2 class="news-title">Aktuelles &amp; Mitteilungen</h2>
+      <div class="news-dots">
+        <span class="dot dot--active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
       </div>
-      <div v-for="item in newsItems.slice(0, 4)" :key="item.id" class="news-item">
-        <div class="news-meta">
+    </div>
+
+    <!-- Image Card Grid -->
+    <div class="news-grid">
+      <div v-for="item in newsItems.slice(0, 2)" :key="item.id" class="news-item group">
+        <div class="news-image-wrap">
+          <img :src="item.imageUrl" :alt="item.imageAlt || item.title" class="news-image" />
+        </div>
+        <div class="news-content">
           <span
             class="news-category"
-            :style="{ background: (categoryColors[item.kategorie] || '#6B7280') + '22', color: categoryColors[item.kategorie] || '#6B7280' }"
+            :style="{ color: categoryColors[item.kategorie] || '#6B7280' }"
           >{{ item.kategorie }}</span>
-          <span class="news-date">{{ item.datum }}</span>
+          <h3 class="news-item-title">{{ item.title }}</h3>
+          <p class="news-text">{{ item.text }}</p>
         </div>
-        <div class="news-title">{{ item.title }}</div>
-        <div class="news-text">{{ item.text }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.zone-news {
+.news-card {
   height: 100%;
+  background: var(--d-surface-structural, #FFFFFF);
+  border-radius: 16px;
+  padding: 36px 40px;
   display: flex;
   flex-direction: column;
-}
-
-.zone-header {
-  padding: 16px 22px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: none;
-  background: var(--d-zone-header-bg);
-}
-
-.zone-header-accent {
-  width: 4px;
-  height: 22px;
-  background: var(--d-accent);
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.zone-header h3 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--d-text);
-  margin: 0;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.zone-body {
-  flex: 1;
-  padding: 16px 20px;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
-.news-empty {
-  flex: 1;
+.news-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  color: var(--d-text-faint);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
+  margin-bottom: 28px;
+}
+
+.news-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--blickle-navy, #163A6C);
+  margin: 0;
+}
+
+.news-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--d-surface-content, #e2e8f0);
+}
+
+.dot--active {
+  background: var(--d-accent, #B5CC18);
+}
+
+.news-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
 }
 
 .news-item {
-  padding: 16px 18px;
-  background: var(--d-surface-content);
-  border: none;
-  border-radius: 8px;
-  flex: 1;
-  transition: background 0.2s ease;
-}
-
-.news-item:hover {
-  background: var(--d-surface-content-hover);
-}
-
-.news-meta {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 5px;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.news-image-wrap {
+  height: 192px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--d-surface-content, #f1f5f9);
+}
+
+.news-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.group:hover .news-image {
+  transform: scale(1.05);
+}
+
+.news-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .news-category {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 20px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
-.news-date {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.7rem;
-  color: var(--d-text-faint);
-}
-
-.news-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1.0rem;
+.news-item-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--d-text);
-  margin-bottom: 3px;
+  color: var(--blickle-navy, #163A6C);
+  margin: 2px 0 0;
+  line-height: 1.3;
 }
 
 .news-text {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.88rem;
-  color: var(--d-text-muted);
+  font-size: 0.9rem;
+  color: var(--d-text-muted, #6B6C68);
   line-height: 1.5;
+  margin: 4px 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

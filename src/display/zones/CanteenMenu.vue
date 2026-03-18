@@ -1,142 +1,183 @@
 <script setup>
 import { computed } from 'vue'
 import { getSeedCanteenData } from '../../shared/utils/seedData.js'
+import { Info, Leaf, UtensilsCrossed } from 'lucide-vue-next'
 
 defineProps({
-  title: { type: String, default: 'Heute in der Kantine' },
+  title: { type: String, default: 'Heute im s\'Raedle' },
   zoneId: String
 })
 
 const data = getSeedCanteenData()
-const todayIndex = Math.min(new Date().getDay() - 1, 4)
-const today = computed(() => data.gerichte[Math.max(0, todayIndex)])
+const todayIndex = Math.min(Math.max(new Date().getDay() - 1, 0), 4)
+const today = computed(() => data.gerichte[todayIndex])
 </script>
 
 <template>
-  <div class="zone-canteen">
-    <div class="zone-header">
-      <div class="zone-header-accent"></div>
-      <h3>{{ title }}</h3>
+  <div class="canteen-card">
+    <!-- Header -->
+    <div class="canteen-header">
+      <h2 class="canteen-title">{{ title }}</h2>
+      <span class="canteen-badge">Speiseplan</span>
     </div>
-    <div class="zone-body">
+
+    <!-- Menu Items -->
+    <div class="canteen-items">
+      <!-- Gericht 1 -->
       <div class="menu-item">
-        <div class="menu-icon">&#127858;</div>
-        <div class="menu-content">
-          <div class="menu-label">Gericht 1</div>
-          <div class="menu-name">{{ today.gericht1 }}</div>
+        <div class="menu-image">
+          <img :src="today.bild1" :alt="today.gericht1" />
+        </div>
+        <div class="menu-details">
+          <div class="menu-top">
+            <h3 class="menu-name">{{ today.gericht1 }}</h3>
+            <span class="menu-price">{{ today.preis1 }} &euro;</span>
+          </div>
+          <p class="menu-desc">{{ today.beschreibung1 }}</p>
+          <div class="menu-icons">
+            <Info :size="18" :stroke-width="1.5" class="menu-icon" />
+            <UtensilsCrossed :size="18" :stroke-width="1.5" class="menu-icon" />
+          </div>
         </div>
       </div>
+
+      <!-- Gericht 2 (vegetarisch) -->
       <div class="menu-item">
-        <div class="menu-icon">&#127793;</div>
-        <div class="menu-content">
-          <div class="menu-label">Gericht 2 (vegetarisch)</div>
-          <div class="menu-name">{{ today.gericht2 }}</div>
+        <div class="menu-image">
+          <img :src="today.bild2" :alt="today.gericht2" />
         </div>
-      </div>
-      <div class="menu-beilage">
-        <span class="beilage-label">Beilage:</span> {{ today.beilage }}
+        <div class="menu-details">
+          <div class="menu-top">
+            <h3 class="menu-name">{{ today.gericht2 }}</h3>
+            <span class="menu-price">{{ today.preis2 }} &euro;</span>
+          </div>
+          <p class="menu-desc">{{ today.beschreibung2 }}</p>
+          <div class="menu-icons">
+            <Leaf :size="18" :stroke-width="1.5" class="menu-icon" />
+            <UtensilsCrossed :size="18" :stroke-width="1.5" class="menu-icon" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.zone-canteen {
+.canteen-card {
   height: 100%;
+  background: var(--d-surface-structural, #FFFFFF);
+  border-radius: 16px;
+  padding: 36px 40px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.zone-header {
-  padding: 16px 22px;
+.canteen-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  border-bottom: none;
-  background: var(--d-zone-header-bg);
+  margin-bottom: 32px;
 }
 
-.zone-header-accent {
-  width: 4px;
-  height: 22px;
-  background: var(--d-accent);
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.zone-header h3 {
+.canteen-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: var(--d-text);
+  color: var(--blickle-navy, #163A6C);
   margin: 0;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
-.zone-body {
+.canteen-badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--d-accent-text, #181e00);
+  background: var(--d-accent, #B5CC18);
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+
+.canteen-items {
   flex: 1;
-  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 
 .menu-item {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  background: var(--d-surface-content);
-  border: none;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--d-surface-content, #F7F7F5);
+  border-radius: 16px;
+  flex: 1;
+}
+
+.menu-image {
+  width: 96px;
+  height: 96px;
   border-radius: 12px;
-  padding: 18px 22px;
-  flex: 1;
-  transition: background 0.2s ease;
-}
-
-.menu-item:hover {
-  background: var(--d-surface-content-hover);
-}
-
-.menu-icon {
-  font-size: 1.8rem;
-  line-height: 1;
+  overflow: hidden;
   flex-shrink: 0;
-  margin-top: 2px;
+  background: var(--d-surface-content, #e5e5e5);
 }
 
-.menu-content {
+.menu-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-details {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.menu-label {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  color: var(--d-accent-faint);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 4px;
+.menu-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .menu-name {
   font-family: 'DM Sans', sans-serif;
   font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--d-text);
+  font-weight: 700;
+  color: var(--d-text, #1a1b20);
+  margin: 0;
   line-height: 1.3;
 }
 
-.menu-beilage {
-  font-family: 'DM Sans', sans-serif;
-  color: var(--d-text-muted);
-  font-size: 0.9rem;
-  padding: 0 4px;
-  margin-top: auto;
+.menu-price {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--blickle-navy, #163A6C);
+  white-space: nowrap;
+  margin-left: 12px;
 }
 
-.beilage-label {
-  color: var(--d-text-faint);
-  font-weight: 600;
+.menu-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--d-text-muted, #6B6C68);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.menu-icons {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.menu-icon {
+  color: var(--d-accent, #B5CC18);
 }
 </style>

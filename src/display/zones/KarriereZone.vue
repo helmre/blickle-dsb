@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getSeedKarriereData } from '../../shared/utils/seedData.js'
+import { Users } from 'lucide-vue-next'
 
 defineProps({
   title: { type: String, default: 'Karriere bei Blickle' },
@@ -10,258 +10,176 @@ defineProps({
 const data = getSeedKarriereData()
 const jobs = data.jobs
 const referral = data.referral
-const batchSize = 4
-const currentBatch = ref(0)
-const transitioning = ref(false)
-
-const totalBatches = computed(() => Math.ceil(jobs.length / batchSize))
-const visibleJobs = computed(() => {
-  const start = currentBatch.value * batchSize
-  return jobs.slice(start, start + batchSize)
-})
-
-let rotateTimer = null
-
-function nextBatch() {
-  transitioning.value = true
-  setTimeout(() => {
-    currentBatch.value = (currentBatch.value + 1) % totalBatches.value
-    setTimeout(() => { transitioning.value = false }, 50)
-  }, 300)
-}
-
-onMounted(() => {
-  rotateTimer = setInterval(nextBatch, 6000)
-})
-
-onUnmounted(() => {
-  if (rotateTimer) clearInterval(rotateTimer)
-})
-
-const abteilungColors = {
-  'Fertigung/Logistik': '#8B5CF6',
-  'IT': '#3B82F6',
-  'Aussendienst/Export/Verkauf': '#F59E0B',
-  'Controlling/Rechnungswesen': '#10B981',
-  'Konstruktion/Entwicklung': '#06B6D4',
-  'Personal': '#EC4899',
-  'Einkauf': '#F97316',
-  'Operational Excellence': '#14B8A6',
-  'alle Funktionsbereiche': '#6B7280',
-}
+const featuredJob = jobs.find(j => j.title.includes('Controller')) || jobs[0]
 </script>
 
 <template>
-  <div class="zone-karriere">
-    <div class="zone-header">
-      <div class="zone-header-accent"></div>
-      <h3>{{ title }}</h3>
-      <span class="zone-header-badge">{{ jobs.length }} Stellen</span>
-    </div>
-    <div class="zone-body">
-      <div :class="['jobs-list', { 'is-transitioning': transitioning }]">
-        <div v-for="job in visibleJobs" :key="job.id" class="job-card">
-          <div class="job-title">{{ job.title }}</div>
-          <div class="job-meta">
-            <span
-              class="job-abteilung"
-              :style="{ background: (abteilungColors[job.abteilung] || '#6B7280') + '22', color: abteilungColors[job.abteilung] || '#6B7280' }"
-            >{{ job.abteilung }}</span>
-            <span class="job-standort">{{ job.standort }}</span>
+  <div class="karriere-hero">
+    <!-- Background image overlay -->
+    <div class="karriere-bg-image"></div>
+
+    <!-- Content -->
+    <div class="karriere-content">
+      <div class="karriere-top">
+        <span class="karriere-badge">Karriere</span>
+        <h1 class="karriere-headline">Deine Zukunft bei Blickle</h1>
+        <div class="karriere-stats">
+          <span class="karriere-count">{{ jobs.length }}</span>
+          <span class="karriere-count-label">Offene Stellen</span>
+        </div>
+      </div>
+
+      <div class="karriere-bottom">
+        <div class="karriere-featured">
+          <p class="karriere-featured-label">Top-Position</p>
+          <p class="karriere-featured-title">{{ featuredJob.title }}</p>
+        </div>
+        <div class="karriere-referral">
+          <div class="karriere-referral-text">
+            <p class="karriere-featured-label">Empfehlungsprogramm</p>
+            <p class="karriere-featured-title">{{ referral.title }}</p>
           </div>
+          <Users :size="32" :stroke-width="1.5" class="karriere-referral-icon" />
         </div>
       </div>
-      <div class="referral-banner">
-        <div class="referral-icon">&#129309;</div>
-        <div class="referral-content">
-          <div class="referral-title">{{ referral.title }}</div>
-          <div class="referral-bonus">{{ referral.bonus }} &euro; Praemie</div>
-        </div>
-      </div>
-    </div>
-    <div class="batch-dots">
-      <span
-        v-for="i in totalBatches"
-        :key="i"
-        :class="['dot', { active: i - 1 === currentBatch }]"
-      ></span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.zone-karriere {
+.karriere-hero {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.zone-header {
-  padding: 16px 22px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: none;
-  background: var(--d-zone-header-bg);
-}
-
-.zone-header-accent {
-  width: 4px;
-  height: 22px;
-  background: var(--d-accent);
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.zone-header h3 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--d-text);
-  margin: 0;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  flex: 1;
-}
-
-.zone-header-badge {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--d-accent);
-  background: var(--d-accent-subtle);
-  padding: 4px 12px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.zone-body {
-  flex: 1;
-  padding: 16px 20px;
+  background: var(--d-surface-structural, #FFFFFF);
+  border-radius: 16px;
+  border-left: 8px solid var(--d-accent, #B5CC18);
+  position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-.jobs-list {
+.karriere-bg-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background: url('https://picsum.photos/seed/office/280/500') center/cover no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.karriere-content {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  justify-content: space-between;
+  padding: 40px;
 }
 
-.jobs-list.is-transitioning {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-.job-card {
-  padding: 14px 18px;
-  background: var(--d-surface-content);
-  border: none;
-  border-radius: 8px;
-  flex: 1;
+.karriere-top {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  transition: background 0.2s ease;
 }
 
-.job-card:hover {
-  background: var(--d-surface-content-hover);
-}
-
-.job-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--d-text);
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.job-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.job-abteilung {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-.job-standort {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
-  color: var(--d-text-faint);
-}
-
-.referral-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  background: var(--d-accent-subtle);
-  border: none;
-  border-left: 4px solid var(--d-card-accent-strip, var(--d-accent));
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.referral-icon {
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-
-.referral-content {
-  flex: 1;
-}
-
-.referral-title {
+.karriere-badge {
+  display: inline-block;
+  width: fit-content;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--d-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--d-accent-text, #181e00);
+  background: var(--d-accent, #B5CC18);
+  padding: 5px 16px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.karriere-headline {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--blickle-navy, #163A6C);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 28px;
+}
+
+.karriere-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.karriere-count {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--d-accent, #B5CC18);
+  line-height: 1;
+}
+
+.karriere-count-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--d-text-muted, #6B6C68);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.referral-bonus {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--d-text);
+.karriere-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-.batch-dots {
+.karriere-featured {
+  background: var(--d-surface-content, #F7F7F5);
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.karriere-featured-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--d-text-muted, #6B6C68);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+}
+
+.karriere-featured-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--blickle-navy, #163A6C);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.karriere-referral {
+  background: rgba(181, 204, 24, 0.15);
+  padding: 24px;
+  border-radius: 16px;
   display: flex;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 0 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--d-text-faint);
-  transition: background 0.3s ease, transform 0.3s ease;
+.karriere-referral-text {
+  flex: 1;
 }
 
-.dot.active {
-  background: var(--d-accent);
-  transform: scale(1.3);
+.karriere-referral-icon {
+  color: var(--blickle-navy, #163A6C);
+  flex-shrink: 0;
 }
 </style>

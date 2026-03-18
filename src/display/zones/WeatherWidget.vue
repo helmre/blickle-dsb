@@ -1,4 +1,6 @@
 <script setup>
+import { CloudSun, Sun, Cloud, CloudRain } from 'lucide-vue-next'
+
 defineProps({
   title: { type: String, default: 'Wetter' },
   zoneId: String
@@ -6,181 +8,140 @@ defineProps({
 
 const weather = {
   location: 'Rosenfeld',
-  temp: '12',
-  condition: 'Bewoelkt',
-  icon: '&#9729;',
-  humidity: '65%',
-  wind: '12 km/h',
+  date: new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }),
+  temp: '21',
+  condition: 'Leicht bewoelkt',
   forecast: [
-    { tag: 'Do', icon: '&#9728;', high: '14', low: '5' },
-    { tag: 'Fr', icon: '&#127782;', high: '11', low: '4' },
-    { tag: 'Sa', icon: '&#127783;', high: '9', low: '3' },
+    { tag: 'Do', icon: 'sun', temp: '24' },
+    { tag: 'Fr', icon: 'cloud', temp: '19' },
+    { tag: 'Sa', icon: 'rain', temp: '17' },
   ]
 }
+
+const iconMap = { sun: Sun, cloud: Cloud, rain: CloudRain, cloudsun: CloudSun }
 </script>
 
 <template>
-  <div class="zone-weather">
-    <div class="zone-header">
-      <div class="zone-header-accent"></div>
-      <h3>{{ title }}</h3>
-      <span class="zone-header-location">{{ weather.location }}</span>
+  <div class="weather-block">
+    <!-- Decorative blur -->
+    <div class="weather-blur"></div>
+
+    <!-- Top: Location + Icon -->
+    <div class="weather-top">
+      <div>
+        <h2 class="weather-location">{{ weather.location }}</h2>
+        <p class="weather-date">{{ weather.date }}</p>
+      </div>
+      <CloudSun :size="52" :stroke-width="1.5" class="weather-main-icon" />
     </div>
-    <div class="zone-body">
-      <div class="weather-main">
-        <span class="weather-icon" v-html="weather.icon"></span>
-        <div class="weather-temp">
-          <span class="temp-value">{{ weather.temp }}<span class="temp-unit">°C</span></span>
-          <span class="temp-condition">{{ weather.condition }}</span>
-        </div>
-      </div>
-      <div class="weather-details">
-        <div class="detail">
-          <span class="detail-label">Luftfeuchte</span>
-          <span class="detail-value">{{ weather.humidity }}</span>
-        </div>
-        <div class="detail">
-          <span class="detail-label">Wind</span>
-          <span class="detail-value">{{ weather.wind }}</span>
-        </div>
-      </div>
-      <div class="weather-forecast">
-        <div v-for="day in weather.forecast" :key="day.tag" class="forecast-day">
-          <span class="forecast-tag">{{ day.tag }}</span>
-          <span class="forecast-icon" v-html="day.icon"></span>
-          <span class="forecast-temps">{{ day.high }}° / {{ day.low }}°</span>
-        </div>
+
+    <!-- Center: Temperature -->
+    <div class="weather-center">
+      <span class="weather-temp">{{ weather.temp }}&deg;</span>
+      <span class="weather-condition">{{ weather.condition }}</span>
+    </div>
+
+    <!-- Forecast -->
+    <div class="weather-forecast">
+      <div v-for="day in weather.forecast" :key="day.tag" class="forecast-day">
+        <p class="forecast-tag">{{ day.tag }}</p>
+        <component :is="iconMap[day.icon]" :size="28" :stroke-width="1.5" class="forecast-icon" :class="{ 'forecast-icon--accent': day.icon === 'sun' || day.icon === 'rain' }" />
+        <p class="forecast-temp">{{ day.temp }}&deg;</p>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.zone-weather {
+.weather-block {
   height: 100%;
+  background: var(--blickle-navy, #163A6C);
+  border-radius: 16px;
+  padding: 36px 40px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
 }
 
-.zone-header {
-  padding: 16px 22px;
+.weather-blur {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 220px;
+  height: 220px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.weather-top {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: none;
-  background: var(--d-zone-header-bg);
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
-.zone-header-accent {
-  width: 4px;
-  height: 22px;
-  background: var(--d-accent);
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.zone-header h3 {
+.weather-location {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: var(--d-text);
   margin: 0;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  flex: 1;
+  letter-spacing: -0.01em;
 }
 
-.zone-header-location {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
-  color: var(--d-text-muted);
-  font-weight: 500;
-}
-
-.zone-body {
-  flex: 1;
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.weather-main {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-}
-
-.weather-icon {
-  font-size: 3.2rem;
-  line-height: 1;
-}
-
-.temp-value {
-  display: block;
-  font-family: 'Outfit', sans-serif;
-  font-size: 3.25rem;
-  font-weight: 800;
-  color: var(--d-text);
-  line-height: 1;
-}
-
-.temp-unit {
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: var(--d-text-muted);
-}
-
-.temp-condition {
-  display: block;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  color: var(--d-text-muted);
-  margin-top: 4px;
-}
-
-.weather-details {
-  display: flex;
-  gap: 24px;
-}
-
-.detail {
-  display: flex;
-  flex-direction: column;
-}
-
-.detail-label {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.72rem;
-  color: var(--d-accent-faint);
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-.detail-value {
+.weather-date {
   font-family: 'DM Sans', sans-serif;
   font-size: 1rem;
-  font-weight: 600;
-  color: var(--d-text-body);
+  color: rgba(175, 198, 255, 0.7);
+  margin: 4px 0 0;
+}
+
+.weather-main-icon {
+  color: var(--blickle-green, #B5CC18);
+}
+
+.weather-center {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.weather-temp {
+  font-family: 'Outfit', sans-serif;
+  font-size: 5.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.weather-condition {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: rgba(175, 198, 255, 0.7);
 }
 
 .weather-forecast {
-  display: flex;
-  gap: 10px;
-  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .forecast-day {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 10px;
-  background: var(--d-surface-content);
-  border: none;
-  border-radius: 12px;
   gap: 4px;
 }
 
@@ -188,19 +149,24 @@ const weather = {
   font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--d-text-body);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
+  color: rgba(175, 198, 255, 0.6);
+  margin: 0;
 }
 
 .forecast-icon {
-  font-size: 1.3rem;
+  color: rgba(200, 210, 230, 0.6);
 }
 
-.forecast-temps {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
-  color: var(--d-text-muted);
-  font-variant-numeric: tabular-nums;
+.forecast-icon--accent {
+  color: var(--blickle-green, #B5CC18);
+}
+
+.forecast-temp {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
 }
 </style>
