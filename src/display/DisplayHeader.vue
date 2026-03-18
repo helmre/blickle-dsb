@@ -58,13 +58,14 @@ onUnmounted(() => {
 
 <style scoped>
 .display-header {
-  height: 72px;
+  height: 76px;
   background: var(--d-header-bg);
   backdrop-filter: var(--d-backdrop-blur);
-  border-bottom: 3px solid var(--d-header-border);
+  border-bottom: none;
+  box-shadow: 0 1px 0 var(--d-ghost-border);
   display: flex;
   align-items: center;
-  padding: 0 28px;
+  padding: 0 36px;
   gap: 24px;
   flex-shrink: 0;
   position: relative;
@@ -86,16 +87,16 @@ onUnmounted(() => {
 
 .header-divider {
   width: 1px;
-  height: 28px;
-  background: var(--d-divider);
+  height: 32px;
+  background: var(--d-ghost-border);
 }
 
 .header-subtitle {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--d-subtitle);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -108,9 +109,9 @@ onUnmounted(() => {
 .header-title {
   font-family: 'Outfit', sans-serif;
   color: var(--d-clock);
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   position: relative;
   z-index: 1;
@@ -118,9 +119,9 @@ onUnmounted(() => {
 
 .header-title-glow {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   position: absolute;
   left: 50%;
@@ -139,7 +140,7 @@ onUnmounted(() => {
 .header-clock {
   font-family: 'Outfit', sans-serif;
   color: var(--d-clock);
-  font-size: 2.1rem;
+  font-size: 2.4rem;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -159,7 +160,7 @@ onUnmounted(() => {
   height: 36px;
   border-radius: 8px;
   background: var(--d-header-btn-bg);
-  border: 1px solid var(--d-header-btn-border);
+  border: 1px solid var(--d-ghost-border);
   color: var(--d-clock);
   font-size: 1.2rem;
   cursor: pointer;

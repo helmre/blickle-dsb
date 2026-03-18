@@ -97,24 +97,25 @@ const abteilungColors = {
 }
 
 .zone-header {
-  padding: 12px 18px;
+  padding: 16px 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  gap: 12px;
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 18px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -125,30 +126,30 @@ const abteilungColors = {
 
 .zone-header-badge {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--d-accent);
   background: var(--d-accent-subtle);
-  padding: 2px 10px;
-  border-radius: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .zone-body {
   flex: 1;
-  padding: 10px 14px;
+  padding: 16px 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .jobs-list {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -158,24 +159,24 @@ const abteilungColors = {
 }
 
 .job-card {
-  padding: 10px 14px;
-  background: var(--d-zone-surface);
-  border: 1px solid var(--d-zone-surface-border);
+  padding: 14px 18px;
+  background: var(--d-surface-content);
+  border: none;
   border-radius: 8px;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition: border-color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .job-card:hover {
-  border-color: var(--d-border-accent);
+  background: var(--d-surface-content-hover);
 }
 
 .job-title {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--d-text);
   margin-bottom: 4px;
@@ -192,10 +193,10 @@ const abteilungColors = {
 
 .job-abteilung {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
@@ -211,9 +212,10 @@ const abteilungColors = {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 14px 18px;
   background: var(--d-accent-subtle);
-  border: 1px solid var(--d-accent);
+  border: none;
+  border-left: 4px solid var(--d-card-accent-strip, var(--d-accent));
   border-radius: 8px;
   flex-shrink: 0;
 }

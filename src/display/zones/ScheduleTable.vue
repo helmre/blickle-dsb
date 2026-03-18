@@ -45,24 +45,25 @@ const data = getSeedScheduleData()
 }
 
 .zone-header {
-  padding: 12px 18px;
+  padding: 16px 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  gap: 12px;
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 18px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -73,19 +74,19 @@ const data = getSeedScheduleData()
 
 .zone-header-badge {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--d-accent);
   background: var(--d-accent-subtle);
-  padding: 2px 10px;
-  border-radius: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .zone-body {
   flex: 1;
-  padding: 10px 14px;
+  padding: 16px 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -106,22 +107,30 @@ tbody {
   display: table-row-group;
 }
 
+thead {
+  background: var(--d-zone-header-bg);
+}
+
 th {
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--d-table-header-border);
+  padding: 14px 16px;
+  border-bottom: none;
   color: var(--d-accent-muted);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--d-table-border);
+  padding: 16px 16px;
+  border-bottom: none;
   vertical-align: middle;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--d-surface-content);
 }
 
 .schicht-name {
@@ -129,7 +138,7 @@ td {
   font-weight: 700;
   color: var(--d-text);
   white-space: nowrap;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
 }
 
 .schicht-zeit {

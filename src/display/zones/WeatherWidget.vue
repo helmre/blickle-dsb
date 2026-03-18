@@ -63,24 +63,25 @@ const weather = {
 }
 
 .zone-header {
-  padding: 12px 18px;
+  padding: 16px 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  gap: 12px;
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 18px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -98,7 +99,7 @@ const weather = {
 
 .zone-body {
   flex: 1;
-  padding: 16px 18px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -119,7 +120,7 @@ const weather = {
 .temp-value {
   display: block;
   font-family: 'Outfit', sans-serif;
-  font-size: 3rem;
+  font-size: 3.25rem;
   font-weight: 800;
   color: var(--d-text);
   line-height: 1;
@@ -151,7 +152,7 @@ const weather = {
 
 .detail-label {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   color: var(--d-accent-faint);
   text-transform: uppercase;
   font-weight: 600;
@@ -176,10 +177,10 @@ const weather = {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 8px;
-  background: var(--d-zone-surface);
-  border: 1px solid var(--d-zone-surface-border);
-  border-radius: 8px;
+  padding: 12px 10px;
+  background: var(--d-surface-content);
+  border: none;
+  border-radius: 12px;
   gap: 4px;
 }
 

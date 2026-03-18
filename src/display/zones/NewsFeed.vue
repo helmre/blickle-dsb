@@ -55,24 +55,25 @@ const categoryColors = {
 }
 
 .zone-header {
-  padding: 12px 18px;
+  padding: 16px 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  gap: 12px;
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 18px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -82,11 +83,11 @@ const categoryColors = {
 
 .zone-body {
   flex: 1;
-  padding: 10px 14px;
+  padding: 16px 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .news-empty {
@@ -100,16 +101,16 @@ const categoryColors = {
 }
 
 .news-item {
-  padding: 12px 14px;
-  background: var(--d-zone-surface);
-  border: 1px solid var(--d-zone-surface-border);
+  padding: 16px 18px;
+  background: var(--d-surface-content);
+  border: none;
   border-radius: 8px;
   flex: 1;
-  transition: border-color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .news-item:hover {
-  border-color: var(--d-border-accent);
+  background: var(--d-surface-content-hover);
 }
 
 .news-meta {
@@ -121,10 +122,10 @@ const categoryColors = {
 
 .news-category {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -137,7 +138,7 @@ const categoryColors = {
 
 .news-title {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-weight: 700;
   color: var(--d-text);
   margin-bottom: 3px;
@@ -145,9 +146,9 @@ const categoryColors = {
 
 .news-text {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   color: var(--d-text-muted);
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

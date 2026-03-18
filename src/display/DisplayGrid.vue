@@ -90,7 +90,7 @@ function getZoneStyle(zone) {
   width: 100%;
   height: 100%;
   display: grid;
-  gap: 14px;
+  gap: 20px;
 }
 
 .grid-2x2 {
@@ -133,11 +133,11 @@ function getZoneStyle(zone) {
 }
 
 .grid-zone {
-  background: var(--d-surface);
-  border: 1px solid var(--d-border);
-  border-radius: 14px;
+  background: var(--d-surface-structural);
+  border: 1px solid var(--d-ghost-border);
+  border-radius: 16px;
   overflow: hidden;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(16px);
   box-shadow: var(--d-zone-shadow);
   transition: background 0.4s ease, border-color 0.3s ease, box-shadow 0.4s ease, transform 0.25s ease;
   /* Staggered entry animation */
@@ -146,9 +146,9 @@ function getZoneStyle(zone) {
 }
 
 .grid-zone:hover {
-  border-color: var(--d-border-accent);
+  border-color: var(--d-ghost-border-accent);
   transform: scale(1.005);
-  box-shadow: var(--d-zone-shadow), 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--d-editorial-shadow);
 }
 
 @keyframes zone-enter {

@@ -21,10 +21,11 @@ const tickerText = computed(() => props.messages.join('   \u2022   '))
 
 <style scoped>
 .display-ticker {
-  height: 44px;
+  height: 48px;
   background: var(--d-ticker-bg);
   backdrop-filter: var(--d-backdrop-blur);
-  border-top: 1px solid var(--d-ticker-border);
+  border-top: none;
+  box-shadow: 0 -1px 0 var(--d-ghost-border);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -36,15 +37,15 @@ const tickerText = computed(() => props.messages.join('   \u2022   '))
 
 .ticker-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.15em;
   color: var(--d-accent-text);
   background: var(--d-accent);
-  padding: 4px 14px;
+  padding: 6px 16px;
   margin-left: 16px;
   margin-right: 16px;
-  border-radius: 4px;
+  border-radius: 20px;
   flex-shrink: 0;
 }
 
@@ -62,7 +63,7 @@ const tickerText = computed(() => props.messages.join('   \u2022   '))
 .ticker-text {
   font-family: 'DM Sans', sans-serif;
   color: var(--d-ticker-text);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 400;
   letter-spacing: 0.02em;
 }

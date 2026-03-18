@@ -51,7 +51,6 @@ function getIcon(page) {
         <span v-else v-html="page.icon"></span>
       </span>
       <span class="nav-label">{{ page.label }}</span>
-      <span class="nav-active-bar" v-if="index === activeIndex"></span>
     </button>
   </nav>
 </template>
@@ -79,20 +78,18 @@ function getIcon(page) {
   transition: all 0.25s ease;
   cursor: pointer;
   position: relative;
-  border: 1px solid transparent;
+  border: none;
 }
 
 .nav-btn:hover {
   background: var(--d-surface-hover);
   color: var(--d-nav-text-hover);
-  border-color: var(--d-border);
 }
 
 .nav-btn.active {
-  background: var(--d-nav-active-bg);
-  color: var(--d-accent);
-  border-color: var(--d-nav-active-border);
-  box-shadow: 0 0 20px var(--d-nav-active-shadow);
+  background: var(--d-nav-pill-bg);
+  color: var(--d-nav-pill-text);
+  border-radius: 24px;
 }
 
 .nav-icon {
@@ -116,13 +113,14 @@ function getIcon(page) {
 .display-nav--sidebar {
   width: 140px;
   flex-direction: column;
-  border-left: 1px solid var(--d-nav-border);
-  padding: 12px 8px;
+  border-left: none;
+  box-shadow: -1px 0 0 var(--d-ghost-border);
+  padding: 16px 10px;
   gap: 6px;
 }
 
 .display-nav--sidebar .nav-btn {
-  padding: 14px 8px;
+  padding: 16px 10px;
   font-size: 0.8rem;
 }
 
@@ -131,28 +129,17 @@ function getIcon(page) {
 }
 
 .display-nav--sidebar .nav-label {
-  font-size: 0.65rem;
-}
-
-.display-nav--sidebar .nav-active-bar {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 24px;
-  background: var(--d-accent);
-  border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 8px rgba(181, 204, 24, 0.5);
+  font-size: 0.7rem;
 }
 
 /* ===== BOTTOM VARIANT (unten, horizontal) ===== */
 .display-nav--bottom {
-  height: 64px;
+  height: 68px;
   flex-direction: row;
-  border-top: 1px solid var(--d-nav-border);
-  padding: 4px 12px;
-  gap: 4px;
+  border-top: none;
+  box-shadow: 0 -1px 0 var(--d-ghost-border);
+  padding: 8px 20px;
+  gap: 6px;
   justify-content: space-evenly;
 }
 
@@ -160,9 +147,13 @@ function getIcon(page) {
   flex: 1;
   max-width: 180px;
   min-width: 0;
-  padding: 6px 4px;
-  font-size: 0.75rem;
-  border-radius: 8px;
+  padding: 8px 6px;
+  font-size: 0.8rem;
+  border-radius: 10px;
+}
+
+.display-nav--bottom .nav-btn.active {
+  border-radius: 24px;
 }
 
 .display-nav--bottom .nav-icon {
@@ -170,18 +161,6 @@ function getIcon(page) {
 }
 
 .display-nav--bottom .nav-label {
-  font-size: 0.58rem;
-}
-
-.display-nav--bottom .nav-active-bar {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 3px;
-  width: 28px;
-  background: var(--d-accent);
-  border-radius: 0 0 3px 3px;
-  box-shadow: 0 0 8px rgba(181, 204, 24, 0.5);
+  font-size: 0.65rem;
 }
 </style>

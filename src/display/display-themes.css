@@ -77,6 +77,36 @@
   /* Header button */
   --d-header-btn-bg: rgba(255, 255, 255, 0.1);
   --d-header-btn-border: rgba(255, 255, 255, 0.15);
+
+  /* ── Editorial: Tonal Surface Hierarchy ── */
+  --d-surface-base: #080C18;
+  --d-surface-structural: rgba(255, 255, 255, 0.025);
+  --d-surface-content: rgba(255, 255, 255, 0.05);
+  --d-surface-content-hover: rgba(255, 255, 255, 0.07);
+  --d-surface-elevated: rgba(255, 255, 255, 0.08);
+
+  /* ── Editorial: Ghost Borders ── */
+  --d-ghost-border: rgba(255, 255, 255, 0.04);
+  --d-ghost-border-accent: rgba(181, 204, 24, 0.10);
+
+  /* ── Editorial: Glassmorphism ── */
+  --d-glass-bg: rgba(255, 255, 255, 0.05);
+  --d-glass-blur: blur(24px);
+  --d-glass-border: rgba(255, 255, 255, 0.06);
+
+  /* ── Editorial: Nav Pill ── */
+  --d-nav-pill-bg: rgba(181, 204, 24, 0.14);
+  --d-nav-pill-text: #B5CC18;
+
+  /* ── Editorial: Shadow ── */
+  --d-editorial-shadow: 0 4px 24px rgba(22, 58, 108, 0.06);
+
+  /* ── Editorial: Zone Header BG ── */
+  --d-zone-header-bg: rgba(255, 255, 255, 0.02);
+
+  /* ── Editorial: Card Accent Strip ── */
+  --d-card-accent-strip: var(--d-accent);
+  --d-card-accent-strip-width: 4px;
 }
 
 .display-root[data-theme="light"] {
@@ -153,4 +183,34 @@
   /* Header button */
   --d-header-btn-bg: rgba(75, 76, 72, 0.06);
   --d-header-btn-border: rgba(75, 76, 72, 0.12);
+
+  /* ── Editorial: Tonal Surface Hierarchy ── */
+  --d-surface-base: #F5F5F3;
+  --d-surface-structural: #FFFFFF;
+  --d-surface-content: #F7F7F5;
+  --d-surface-content-hover: #F0F0EE;
+  --d-surface-elevated: #FFFFFF;
+
+  /* ── Editorial: Ghost Borders ── */
+  --d-ghost-border: rgba(75, 76, 72, 0.05);
+  --d-ghost-border-accent: rgba(181, 204, 24, 0.20);
+
+  /* ── Editorial: Glassmorphism ── */
+  --d-glass-bg: rgba(255, 255, 255, 0.80);
+  --d-glass-blur: blur(20px);
+  --d-glass-border: rgba(75, 76, 72, 0.06);
+
+  /* ── Editorial: Nav Pill ── */
+  --d-nav-pill-bg: rgba(181, 204, 24, 0.14);
+  --d-nav-pill-text: #6B8A08;
+
+  /* ── Editorial: Shadow ── */
+  --d-editorial-shadow: 0 4px 24px rgba(22, 58, 108, 0.06);
+
+  /* ── Editorial: Zone Header BG ── */
+  --d-zone-header-bg: rgba(75, 76, 72, 0.025);
+
+  /* ── Editorial: Card Accent Strip ── */
+  --d-card-accent-strip: var(--d-accent);
+  --d-card-accent-strip-width: 4px;
 }

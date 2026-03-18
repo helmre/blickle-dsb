@@ -89,8 +89,8 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  gap: 16px;
+  padding: 28px;
+  gap: 20px;
 }
 
 /* ── Header ── */
@@ -111,7 +111,7 @@ onUnmounted(() => {
 
 .sw-title {
   font-family: var(--font-display, 'Outfit', sans-serif);
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--d-text, rgba(255,255,255,0.95));
   letter-spacing: 0.06em;
@@ -129,7 +129,7 @@ onUnmounted(() => {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
   min-height: 0;
 }
 
@@ -137,9 +137,9 @@ onUnmounted(() => {
 .sw-feed {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
+  background: var(--d-surface-content);
+  border: none;
+  border-radius: 16px;
   overflow: hidden;
   min-height: 0;
 }
@@ -148,8 +148,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 18px;
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
   flex-shrink: 0;
 }
 
@@ -187,7 +188,7 @@ onUnmounted(() => {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 3px 8px;
-  border-radius: 10px;
+  border-radius: 20px;
   background: rgba(181, 204, 24, 0.15);
   color: var(--d-accent, #B5CC18);
   animation: pulse-badge 2.5s ease-in-out infinite;

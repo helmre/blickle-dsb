@@ -339,7 +339,7 @@ onUnmounted(() => {
 .display-content {
   flex: 1;
   overflow: hidden;
-  padding: 14px 20px;
+  padding: 20px 28px;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -371,8 +371,8 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px);
+  background: rgba(8, 12, 24, 0.70) !important;
+  backdrop-filter: var(--d-glass-blur);
   animation: overlay-fade-in 0.3s ease;
 }
 
@@ -383,8 +383,8 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px);
+  background: rgba(8, 12, 24, 0.70) !important;
+  backdrop-filter: var(--d-glass-blur);
   animation: overlay-fade-in 0.3s ease;
 }
 

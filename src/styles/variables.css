@@ -70,6 +70,23 @@
   --font-size-4xl: 2.25rem;
   --font-size-display: 3rem;
 
+  /* ── Editorial Display Typography ── */
+  --font-size-display-xl: 3.5rem;
+  --font-size-display-lg: 2.5rem;
+  --font-size-display-md: 1.75rem;
+  --font-size-display-sm: 1.25rem;
+  --font-size-display-body: 1.05rem;
+  --font-size-display-meta: 0.8rem;
+  --font-size-display-micro: 0.7rem;
+
+  /* ── Editorial Spacing ── */
+  --space-editorial-xs: 0.75rem;
+  --space-editorial-sm: 1.25rem;
+  --space-editorial-md: 1.75rem;
+  --space-editorial-lg: 2.75rem;
+  --space-editorial-xl: 3.5rem;
+  --grid-gap-editorial: 20px;
+
   --leading-tight: 1.2;
   --leading-snug: 1.35;
   --leading-normal: 1.5;

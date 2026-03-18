@@ -79,43 +79,43 @@ const categoryColors = {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 32px 28px;
   text-align: center;
 }
 
 .announcement-badge {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: #FFFFFF;
-  padding: 3px 12px;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
 }
 
 .announcement-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--d-text);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   line-height: 1.3;
 }
 
 .announcement-text {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--d-text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
   max-width: 95%;
 }
 
 .announcement-date {
   margin-top: auto;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--d-text-faint);
   letter-spacing: 0.03em;
 }

@@ -69,24 +69,25 @@ const todayIndex = Math.max(0, Math.min(new Date().getDay() - 1, 4))
 }
 
 .zone-header {
-  padding: 16px 28px;
+  padding: 18px 32px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 20px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -108,6 +109,10 @@ table {
   border-spacing: 0;
 }
 
+thead {
+  background: var(--d-zone-header-bg);
+}
+
 th {
   padding: 16px 18px;
   text-align: center;
@@ -117,7 +122,7 @@ th {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--d-table-header-border);
+  border-bottom: none;
 }
 
 th.is-today {
@@ -125,13 +130,17 @@ th.is-today {
 }
 
 td {
-  padding: 20px 18px;
-  border-bottom: 1px solid var(--d-table-border);
+  padding: 22px 20px;
+  border-bottom: none;
   text-align: center;
   vertical-align: middle;
   font-family: 'DM Sans', sans-serif;
   font-size: 1.05rem;
   color: var(--d-text-body);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--d-surface-content);
 }
 
 .row-label {

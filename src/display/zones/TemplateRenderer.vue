@@ -179,7 +179,7 @@ const isPdf = computed(() => content.value?.type === 'pdf' && content.value?.fil
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 2rem 2.5rem;
+  padding: 2.5rem 3rem;
   position: relative;
 }
 
@@ -194,7 +194,7 @@ const isPdf = computed(() => content.value?.type === 'pdf' && content.value?.fil
 
 .fallback-card h2 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.6rem;
+  font-size: 1.85rem;
   font-weight: 700;
   color: var(--d-text, #E8ECF4);
   margin: 0 0 0.6rem;

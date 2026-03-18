@@ -57,20 +57,21 @@ const todayIndex = Math.max(0, Math.min(new Date().getDay() - 1, 4))
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 20px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -91,6 +92,10 @@ table {
   border-spacing: 0;
 }
 
+thead {
+  background: var(--d-zone-header-bg);
+}
+
 th {
   padding: 18px 20px;
   text-align: center;
@@ -100,7 +105,7 @@ th {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--d-table-header-border);
+  border-bottom: none;
 }
 
 th.col-schicht {
@@ -115,11 +120,15 @@ th.is-today {
 td {
   padding: 24px 20px;
   text-align: center;
-  border-bottom: 1px solid var(--d-table-border);
+  border-bottom: none;
   font-family: 'DM Sans', sans-serif;
   font-weight: 500;
   color: var(--d-text-body);
   font-size: 1.1rem;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--d-surface-content);
 }
 
 .schicht-label {

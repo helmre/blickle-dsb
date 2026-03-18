@@ -48,24 +48,25 @@ const today = computed(() => data.gerichte[Math.max(0, todayIndex)])
 }
 
 .zone-header {
-  padding: 12px 18px;
+  padding: 16px 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--d-zone-header-border);
+  gap: 12px;
+  border-bottom: none;
+  background: var(--d-zone-header-bg);
 }
 
 .zone-header-accent {
-  width: 3px;
-  height: 18px;
+  width: 4px;
+  height: 22px;
   background: var(--d-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .zone-header h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--d-text);
   margin: 0;
@@ -78,23 +79,23 @@ const today = computed(() => data.gerichte[Math.max(0, todayIndex)])
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .menu-item {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  background: var(--d-zone-surface);
-  border: 1px solid var(--d-zone-surface-border);
-  border-radius: 10px;
-  padding: 16px 18px;
+  background: var(--d-surface-content);
+  border: none;
+  border-radius: 12px;
+  padding: 18px 22px;
   flex: 1;
-  transition: border-color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .menu-item:hover {
-  border-color: var(--d-border-accent);
+  background: var(--d-surface-content-hover);
 }
 
 .menu-icon {
@@ -110,7 +111,7 @@ const today = computed(() => data.gerichte[Math.max(0, todayIndex)])
 
 .menu-label {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: var(--d-accent-faint);
   font-weight: 600;
   text-transform: uppercase;
@@ -120,7 +121,7 @@ const today = computed(() => data.gerichte[Math.max(0, todayIndex)])
 
 .menu-name {
   font-family: 'DM Sans', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--d-text);
   line-height: 1.3;
