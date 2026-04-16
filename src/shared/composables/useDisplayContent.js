@@ -5,6 +5,7 @@ import { useLocationStore } from '../stores/locationStore.js'
 import { useLayoutStore } from '../stores/layoutStore.js'
 import { usePlaylistStore } from '../stores/playlistStore.js'
 import { getSeedScheduleData, getSeedCanteenData, getSeedTickerMessages as getSeedTicker, getSeedFullscreenMedia } from '../utils/seedData.js'
+import { isCurrentlyValid } from '../utils/datetime.js'
 
 /**
  * Composable that builds dynamic display pages from store data.
@@ -25,12 +26,8 @@ export function useDisplayContent(locationId = null) {
 
   // --- Approved + schedule-filtered content ---
   const visibleContent = computed(() => {
-    const now = new Date().toISOString()
-    return contentStore.approved.filter(c => {
-      if (c.validFrom && c.validFrom > now) return false
-      if (c.validUntil && c.validUntil < now) return false
-      return true
-    })
+    const nowTs = Date.now()
+    return contentStore.approved.filter(c => isCurrentlyValid(c.validFrom, c.validUntil, nowTs))
   })
 
   // --- Content filtered by location (global + location-specific) ---
@@ -206,6 +203,20 @@ export function useDisplayContent(locationId = null) {
       zones: [
         { id: 'prod-left', type: 'produktion-news', title: 'Produktionsnews' },
         { id: 'prod-right', type: 'fullscreen-media', title: 'Vision 2030', mediaUrl: '/media/Plakat_Produktion2030_V1.jpg', mediaType: 'image' },
+      ]
+    })
+
+    // SHOPFLOOR page: full-bleed SFM Board (SQKTPO)
+    pages.push({
+      id: 'shopfloor',
+      label: 'SHOPFLOOR',
+      icon: '&#128202;',
+      iconName: 'layout',
+      layout: 'full',
+      noZoneChrome: true,
+      duration: 22,
+      zones: [
+        { id: 'shopfloor-board', type: 'shop-floor-board', title: 'Shopfloor Board' },
       ]
     })
 

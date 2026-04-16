@@ -12,6 +12,7 @@ import SocialWall from './zones/SocialWall.vue'
 import KarriereZone from './zones/KarriereZone.vue'
 import ProduktionNews from './zones/ProduktionNews.vue'
 import FullscreenMedia from './zones/FullscreenMedia.vue'
+import ShopFloorBoardZone from './zones/ShopFloorBoardZone.vue'
 
 const props = defineProps({
   page: { type: Object, required: true },
@@ -35,6 +36,7 @@ const componentMap = {
   'karriere': KarriereZone,
   'produktion-news': ProduktionNews,
   'fullscreen-media': FullscreenMedia,
+  'shop-floor-board': ShopFloorBoardZone,
 }
 
 const isCustomLayout = computed(() => props.page.layout === 'custom' && props.page.customGrid)

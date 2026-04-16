@@ -6,6 +6,7 @@ import { usePlaylistStore } from '../../shared/stores/playlistStore.js'
 import { useLocationStore } from '../../shared/stores/locationStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { formatDateTime, DEFAULT_TZ } from '../../shared/utils/datetime.js'
 
 const scheduleStore = useScheduleStore()
 const contentStore = useContentStore()
@@ -45,9 +46,11 @@ const calendarDays = computed(() => {
   }
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    const hasSchedule = scheduleStore.items.some(s =>
-      s.startDate <= dateStr && s.endDate >= dateStr
-    )
+    const hasSchedule = scheduleStore.items.some(s => {
+      const start = (s.startDate || '').slice(0, 10)
+      const end = (s.endDate || '').slice(0, 10)
+      return start <= dateStr && end >= dateStr
+    })
     days.push({ day: d, date: dateStr, hasSchedule })
   }
   return days
@@ -169,7 +172,8 @@ const availableTargets = computed(() => {
             {{ getTargetName(schedule) }}
           </span>
           <span class="schedule-dates">
-            {{ schedule.startDate }} &mdash; {{ schedule.endDate }}
+            {{ formatDateTime(schedule.startDate) }} &mdash; {{ formatDateTime(schedule.endDate) }}
+            <span class="tz-badge">{{ DEFAULT_TZ }}</span>
           </span>
           <span class="schedule-locations">Standorte: {{ getLocationNames(schedule.locationIds) || 'Keine' }}</span>
         </div>
@@ -208,12 +212,12 @@ const availableTargets = computed(() => {
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Startdatum</label>
-              <input v-model="newSchedule.startDate" type="date" class="form-input" />
+              <label>Start <span class="tz-hint">({{ DEFAULT_TZ }})</span></label>
+              <input v-model="newSchedule.startDate" type="datetime-local" class="form-input" />
             </div>
             <div class="form-group">
-              <label>Enddatum</label>
-              <input v-model="newSchedule.endDate" type="date" class="form-input" />
+              <label>Ende <span class="tz-hint">({{ DEFAULT_TZ }})</span></label>
+              <input v-model="newSchedule.endDate" type="datetime-local" class="form-input" />
             </div>
           </div>
           <div class="form-group">
@@ -348,6 +352,22 @@ const availableTargets = computed(() => {
 .schedule-locations {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
+}
+.tz-badge {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 4px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.tz-hint {
+  font-size: 0.7rem;
+  color: var(--gray-500);
+  font-weight: 400;
+  margin-left: 4px;
 }
 .schedule-actions {
   display: flex;

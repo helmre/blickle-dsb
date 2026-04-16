@@ -1,11 +1,12 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
 import { useLocationStore } from '../../shared/stores/locationStore.js'
 import { useToastStore } from '../../shared/stores/toastStore.js'
+import { formatDateTime, getValidityState, DEFAULT_TZ } from '../../shared/utils/datetime.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -185,6 +186,16 @@ function reject() {
   toastStore.warning('Inhalt abgelehnt')
   initForm()
 }
+
+const nowTs = ref(Date.now())
+let nowTimer = null
+onMounted(() => { nowTimer = setInterval(() => { nowTs.value = Date.now() }, 30000) })
+onUnmounted(() => { if (nowTimer) clearInterval(nowTimer) })
+
+const validityState = computed(() => {
+  if (!content.value) return 'active'
+  return getValidityState(content.value.validFrom, content.value.validUntil, nowTs.value)
+})
 
 const statusLabels = {
   draft: 'Entwurf',
@@ -382,11 +393,11 @@ const canApprove = computed(() => {
             <h4 class="card-section-title">Zeitsteuerung</h4>
             <div class="form-row">
               <div class="form-group">
-                <label>Gueltig ab</label>
+                <label>Gueltig ab <span class="tz-hint">({{ DEFAULT_TZ }})</span></label>
                 <input v-model="editForm.validFrom" type="datetime-local" class="form-input" />
               </div>
               <div class="form-group">
-                <label>Gueltig bis</label>
+                <label>Gueltig bis <span class="tz-hint">({{ DEFAULT_TZ }})</span></label>
                 <input v-model="editForm.validUntil" type="datetime-local" class="form-input" />
               </div>
             </div>
@@ -555,14 +566,20 @@ const canApprove = computed(() => {
         <div class="sidebar-card">
           <h4 class="sidebar-title">Zeitfenster</h4>
           <div v-if="content.validFrom || content.validUntil">
+            <div :class="['validity-badge', `validity-${validityState}`]" data-testid="validity-badge">
+              <span v-if="validityState === 'active'">Aktuell sichtbar</span>
+              <span v-else-if="validityState === 'pending'">Geplant &mdash; noch nicht sichtbar</span>
+              <span v-else>Abgelaufen</span>
+            </div>
             <div class="sidebar-row" v-if="content.validFrom">
               <span class="sidebar-label">Von</span>
-              <span class="sidebar-value">{{ new Date(content.validFrom).toLocaleString('de-DE') }}</span>
+              <span class="sidebar-value">{{ formatDateTime(content.validFrom) }}</span>
             </div>
             <div class="sidebar-row" v-if="content.validUntil">
               <span class="sidebar-label">Bis</span>
-              <span class="sidebar-value">{{ new Date(content.validUntil).toLocaleString('de-DE') }}</span>
+              <span class="sidebar-value">{{ formatDateTime(content.validUntil) }}</span>
             </div>
+            <div class="sidebar-tz">Zeitzone: {{ DEFAULT_TZ }}</div>
           </div>
           <div v-else class="sidebar-hint">Dauerhaft sichtbar nach Freigabe</div>
         </div>
@@ -1217,6 +1234,42 @@ const canApprove = computed(() => {
   font-size: var(--font-size-xs);
   color: var(--gray-400);
   font-style: italic;
+}
+
+.sidebar-tz {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  letter-spacing: 0.02em;
+}
+
+.tz-hint {
+  font-size: 0.7rem;
+  color: var(--gray-500);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.validity-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+.validity-badge.validity-active {
+  background: rgba(181, 204, 24, 0.18);
+  color: #556b00;
+}
+.validity-badge.validity-pending {
+  background: rgba(251, 191, 36, 0.18);
+  color: #92400e;
+}
+.validity-badge.validity-expired {
+  background: rgba(148, 163, 184, 0.22);
+  color: #475569;
 }
 
 .sidebar-file {

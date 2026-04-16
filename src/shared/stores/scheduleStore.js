@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { loadData, saveData, generateId, now } from '../utils/storage.js'
+import { isCurrentlyValid } from '../utils/datetime.js'
 
 export const useScheduleStore = defineStore('schedules', () => {
   const items = ref(loadData('schedules', []))
@@ -10,8 +11,8 @@ export const useScheduleStore = defineStore('schedules', () => {
   function getById(id) { return items.value.find(s => s.id === id) }
 
   const activeSchedules = computed(() => {
-    const current = new Date().toISOString()
-    return items.value.filter(s => s.isActive && s.startDate <= current && s.endDate >= current)
+    const nowTs = Date.now()
+    return items.value.filter(s => s.isActive && isCurrentlyValid(s.startDate, s.endDate, nowTs))
   })
 
   function getForLocation(locationId) {

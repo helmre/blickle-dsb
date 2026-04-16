@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEmergencyStore } from '../shared/stores/emergencyStore.js'
+import { useLocationStore } from '../shared/stores/locationStore.js'
 import { useDisplayTheme } from '../shared/composables/useDisplayTheme.js'
 import { useDisplayContent } from '../shared/composables/useDisplayContent.js'
 import DisplayHeader from './DisplayHeader.vue'
@@ -15,8 +16,22 @@ const route = useRoute()
 const locationId = computed(() => route.params.locationId || route.query.location || null)
 
 const emergencyStore = useEmergencyStore()
+const locationStore = useLocationStore()
 const { theme, toggleTheme, navPosition, toggleNavPosition } = useDisplayTheme()
 const { displayPages: pages, tickerMessages, activePlaylist } = useDisplayContent(locationId)
+
+const isEmergencyTargeted = computed(() => {
+  const em = emergencyStore.activeEmergency
+  if (!em) return false
+  const targets = em.targetLocationIds || []
+  if (targets.length === 0) return true
+  const locId = locationId.value
+  if (!locId) return false
+  if (targets.includes(locId)) return true
+  const parentId = locationStore.getById(locId)?.parentId || null
+  if (parentId && targets.includes(parentId)) return true
+  return false
+})
 
 const currentPageIndex = ref(0)
 const currentPage = computed(() => pages.value[currentPageIndex.value] || pages.value[0])
@@ -261,7 +276,7 @@ onUnmounted(() => {
       <DisplayTicker v-if="!isFullscreen" :messages="tickerMessages" />
 
       <DisplayEmergency
-        v-if="emergencyStore.activeEmergency"
+        v-if="emergencyStore.activeEmergency && isEmergencyTargeted"
         :emergency="emergencyStore.activeEmergency"
         @dismiss="emergencyStore.dismiss(emergencyStore.activeEmergency.id)"
       />
