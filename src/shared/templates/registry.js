@@ -316,6 +316,66 @@ export const LEGACY_DISPLAY_ALIASES = {
       theme: 'dark',
     })
   },
+  'tpl-welcome': {
+    displayComponent: 'LegalNoticeEditor',
+    mapParams: (p = {}) => ({
+      variant: 'info',
+      kicker: 'HERZLICH WILLKOMMEN · BLICKLE',
+      headline: p.name || 'Willkommen im Team',
+      body: p.abteilung || '',
+      validFrom: '',
+      source: 'Blickle Personalabteilung',
+      ackLabel: p.startdatum ? `Start: ${p.startdatum}` : 'Willkommen im Team!',
+      docRef: '',
+      readingTime: '',
+    })
+  },
+  'tpl-jubilee': {
+    displayComponent: 'LegalNoticeEditor',
+    mapParams: (p = {}) => ({
+      variant: 'info',
+      kicker: `${p.jahre || '0'} JAHRE · JUBILAEUM`,
+      headline: p.name || 'Herzlichen Glueckwunsch',
+      body: p.text || 'Vielen Dank fuer die Treue und das Engagement!',
+      validFrom: '',
+      source: 'Blickle Geschaeftsleitung',
+      ackLabel: 'Herzlichen Glueckwunsch!',
+      docRef: '',
+      readingTime: '',
+    })
+  },
+  'tpl-training': {
+    displayComponent: 'MeetingCalloutEditor',
+    mapParams: (p = {}) => ({
+      kicker: (p.pflicht || 'SCHULUNG') + ' · TERMIN',
+      topic: p.titel || 'Schulung',
+      dateTimeValue: parseGermanDateToIso(p.datum),
+      location: p.ort || 'Blickle',
+      body: p.hinweis || '',
+      audienceNote: p.teilnehmer || '',
+      showCountdown: true,
+      authorLabel: 'Blickle',
+      accent: '#3B82F6',
+      theme: 'dark',
+    })
+  },
+  'tpl-production': {
+    displayComponent: 'LegalNoticeEditor',
+    mapParams: (p = {}) => {
+      const variant = p.status === 'rot' ? 'danger' : p.status === 'gelb' ? 'warn' : 'info'
+      return {
+        variant,
+        kicker: `PRODUKTIONS-UPDATE · ${p.linie || 'LINIE'}`,
+        headline: p.statusText || 'Status-Update',
+        body: p.grund || '',
+        validFrom: '',
+        source: '',
+        ackLabel: p.zeitpunkt ? `Stand: ${p.zeitpunkt}` : 'Aktueller Status',
+        docRef: '',
+        readingTime: '',
+      }
+    }
+  },
 }
 
 // Helper: synthesize an ISO datetime N days from now, so MeetingCalloutEditor
