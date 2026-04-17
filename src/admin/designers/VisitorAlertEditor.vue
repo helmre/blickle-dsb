@@ -46,7 +46,7 @@ function initials(name) {
 
 const previewFrame = ref(null)
 const scale = ref(0.4)
-function recomputeScale() { if (previewFrame.value) scale.value = previewFrame.value.clientWidth / 1920 }
+function recomputeScale() { if (previewFrame.value) scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080) }
 let ro = null
 onMounted(() => { recomputeScale(); if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(recomputeScale); if (previewFrame.value) ro.observe(previewFrame.value) } })
 onUnmounted(() => { if (ro) ro.disconnect() })
@@ -165,7 +165,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .preview-panel { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
-.display-wrap { width: 100%; height: 100%; aspect-ratio: 16 / 9; overflow: hidden; position: relative; background: #000; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
 .canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); }
 .canvas.theme-light { background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%); color: #0B1F3A; }

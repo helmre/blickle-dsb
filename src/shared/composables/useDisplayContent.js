@@ -6,6 +6,14 @@ import { useLayoutStore } from '../stores/layoutStore.js'
 import { usePlaylistStore } from '../stores/playlistStore.js'
 import { getSeedScheduleData, getSeedCanteenData, getSeedTickerMessages as getSeedTicker, getSeedFullscreenMedia } from '../utils/seedData.js'
 import { isCurrentlyValid } from '../utils/datetime.js'
+import { getDesignerTemplate } from '../templates/registry.js'
+
+// Content that renders via a full-canvas designer component gets its own
+// fullscreen page instead of being squeezed into an INFOS tile.
+function isFullscreenDesigner(content) {
+  if (!content?.templateId) return false
+  return !!getDesignerTemplate(content.templateId)
+}
 
 /**
  * Composable that builds dynamic display pages from store data.
@@ -48,9 +56,13 @@ export function useDisplayContent(locationId = null) {
     })
   })
 
+  // --- Content split: designer-based full-canvas vs. tile-suitable ---
+  const designerContent = computed(() => locationContent.value.filter(isFullscreenDesigner))
+  const tileContent = computed(() => locationContent.value.filter(c => !isFullscreenDesigner(c)))
+
   // --- Build news items from approved content ---
   const newsItems = computed(() => {
-    return locationContent.value.map((c, i) => ({
+    return tileContent.value.map((c, i) => ({
       id: c.id,
       title: c.title,
       text: c.description || '',
@@ -59,9 +71,9 @@ export function useDisplayContent(locationId = null) {
     }))
   })
 
-  // --- Build announcement cards from approved content ---
+  // --- Build announcement cards from approved content (designer content excluded) ---
   const announcementItems = computed(() => {
-    return locationContent.value.map((c, i) => ({
+    return tileContent.value.map((c, i) => ({
       id: c.id,
       title: c.title,
       text: c.description || '',
@@ -192,6 +204,25 @@ export function useDisplayContent(locationId = null) {
       })
     }
 
+    // Designer-based content: each gets its own full-canvas page.
+    // The 1920x1080 designer is rendered by TemplateRenderer via displayMode.
+    designerContent.value.forEach((c) => {
+      const tpl = getDesignerTemplate(c.templateId)
+      const label = (tpl?.name || c.title || 'DESIGN').toUpperCase().slice(0, 14)
+      pages.push({
+        id: `designer-${c.id}`,
+        label,
+        icon: '&#9733;',
+        iconName: 'sparkle',
+        layout: 'full',
+        noZoneChrome: true,
+        duration: 18,
+        zones: [
+          { id: `designer-zone-${c.id}`, type: 'template', title: '', contentId: c.id }
+        ]
+      })
+    })
+
     // PRODUKTION page: production news + poster
     pages.push({
       id: 'produktion',
@@ -317,6 +348,8 @@ export function useDisplayContent(locationId = null) {
   return {
     visibleContent,
     locationContent,
+    designerContent,
+    tileContent,
     newsItems,
     announcementItems,
     tickerMessages,

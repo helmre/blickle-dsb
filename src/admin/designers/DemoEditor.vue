@@ -55,7 +55,7 @@ const previewFrame = ref(null)
 const scale = ref(0.4)
 function recomputeScale() {
   if (!previewFrame.value) return
-  scale.value = previewFrame.value.clientWidth / 1920
+  scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080)
 }
 let ro = null
 onMounted(() => {
@@ -213,7 +213,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06); background: #000; }
 
-.display-wrap { width: 100%; height: 100%; aspect-ratio: 16 / 9; overflow: hidden; position: relative; background: #000; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
 .canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 56px 72px; font-family: var(--font-body); box-sizing: border-box; align-content: space-between; }
 .canvas.theme-dark { background: linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%); color: #fff; }

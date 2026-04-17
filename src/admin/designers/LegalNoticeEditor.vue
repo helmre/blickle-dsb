@@ -31,7 +31,7 @@ const formattedFrom = computed(() => { if (!validFrom.value) return ''; try { re
 
 const previewFrame = ref(null)
 const scale = ref(0.4)
-function recomputeScale() { if (previewFrame.value) scale.value = previewFrame.value.clientWidth / 1920 }
+function recomputeScale() { if (previewFrame.value) scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080) }
 let ro = null
 onMounted(() => { recomputeScale(); if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(recomputeScale); if (previewFrame.value) ro.observe(previewFrame.value) } })
 onUnmounted(() => { if (ro) ro.disconnect() })
@@ -126,7 +126,7 @@ const canvasStyle = computed(() => ({
 .preview-panel { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
-.display-wrap { width: 100%; height: 100%; aspect-ratio: 16 / 9; overflow: hidden; position: relative; background: #000; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
 .canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto 1fr auto auto; gap: 36px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); color: #fff; }
 .canvas::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0px, transparent 140px, rgba(255,255,255,0.025) 140px, rgba(255,255,255,0.025) 180px); pointer-events: none; }
