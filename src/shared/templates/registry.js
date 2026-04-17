@@ -190,6 +190,26 @@ export const DESIGNER_TEMPLATES = [
     }
   },
   {
+    id: 'designer-ceo-quote',
+    name: 'Geschaeftsleitungs-Zitat',
+    description: 'Hochwertiges Zitat-Design mit grosser Typografie und optionalem Portrait. Fuer Botschaften der Geschaeftsleitung.',
+    category: 'kommunikation',
+    renderer: 'component',
+    editorComponent: 'CeoQuoteEditor',
+    displayComponent: 'CeoQuoteEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    defaultParams: {
+      kicker: 'BOTSCHAFT DER GESCHAEFTSLEITUNG',
+      quote: 'Unser Erfolg ist kein Zufall — er entsteht, weil wir als Team jeden Tag Verantwortung uebernehmen und fuereinander einstehen.',
+      authorName: 'David Blickle',
+      authorPosition: 'Geschaeftsfuehrung',
+      photoUrl: '',
+      accent: '#B5CC18',
+      theme: 'dark',
+    }
+  },
+  {
     id: 'designer-visitor-alert',
     name: 'Besucher-Anzeige',
     description: 'Sachlicher Hinweis auf externe Gaeste fuer Empfang und oeffentliche Bereiche.',
@@ -356,6 +376,18 @@ export const LEGACY_DISPLAY_ALIASES = {
       showCountdown: true,
       authorLabel: 'Blickle',
       accent: '#3B82F6',
+      theme: 'dark',
+    })
+  },
+  'tpl-ceo': {
+    displayComponent: 'CeoQuoteEditor',
+    mapParams: (p = {}) => ({
+      kicker: 'BOTSCHAFT DER GESCHAEFTSLEITUNG',
+      quote: p.zitat || '',
+      authorName: p.name || '',
+      authorPosition: p.position || 'Geschaeftsfuehrung',
+      photoUrl: '',
+      accent: '#B5CC18',
       theme: 'dark',
     })
   },

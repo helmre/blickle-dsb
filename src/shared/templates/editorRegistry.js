@@ -11,6 +11,7 @@ export const editorRegistry = {
   LegalNoticeEditor: defineAsyncComponent(() => import('../../admin/designers/LegalNoticeEditor.vue')),
   RoomLocationEditor: defineAsyncComponent(() => import('../../admin/designers/RoomLocationEditor.vue')),
   VisitorAlertEditor: defineAsyncComponent(() => import('../../admin/designers/VisitorAlertEditor.vue')),
+  CeoQuoteEditor: defineAsyncComponent(() => import('../../admin/designers/CeoQuoteEditor.vue')),
 }
 
 export function getEditor(name) {
