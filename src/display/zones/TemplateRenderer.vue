@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useTemplateStore } from '../../shared/stores/templateStore.js'
 import { useDisplayContent } from '../../shared/composables/useDisplayContent.js'
+import { getDesignerTemplate } from '../../shared/templates/registry.js'
+import { editorRegistry } from '../../shared/templates/editorRegistry.js'
 
 const props = defineProps({
   title: { type: String, default: '' },
@@ -27,10 +29,18 @@ const content = computed(() => {
   return null
 })
 
-// Get template from the Pinia store (guaranteed same data source as admin)
+// Unified template lookup: designer registry first, then legacy templateStore
 const template = computed(() => {
   if (!content.value?.templateId) return null
+  const designer = getDesignerTemplate(content.value.templateId)
+  if (designer) return designer
   return templateStore.items.find(t => t.id === content.value.templateId) || null
+})
+
+// Designer component for renderer === 'component'
+const designerComponent = computed(() => {
+  if (!template.value || template.value.renderer !== 'component') return null
+  return editorRegistry[template.value.displayComponent || template.value.editorComponent] || null
 })
 
 // Render HTML by replacing {{params}} with actual values or placeholder
@@ -66,8 +76,17 @@ const isPdf = computed(() => content.value?.type === 'pdf' && content.value?.fil
 
 <template>
   <div class="zone-template-renderer">
-    <!-- Template-based content -->
-    <div v-if="renderedHtml" class="template-wrap">
+    <!-- Component-based designer template -->
+    <component
+      v-if="designerComponent && content"
+      :is="designerComponent"
+      :params="content.templateParams || {}"
+      :displayMode="true"
+      :readonly="true"
+    />
+
+    <!-- Legacy HTML+CSS template -->
+    <div v-else-if="renderedHtml" class="template-wrap">
       <component :is="'style'" v-if="templateCss">{{ templateCss }}</component>
       <div v-html="renderedHtml" class="template-content"></div>
     </div>

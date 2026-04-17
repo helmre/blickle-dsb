@@ -241,7 +241,7 @@ const categoryLabels = {
           </select>
         </div>
       </div>
-      <button class="btn-create" @click="openDesigner">
+      <button class="btn-create" @click="router.push({ name: 'admin-templates' })">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M8 3v10M3 8h10"/>
         </svg>

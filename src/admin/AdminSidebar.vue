@@ -17,16 +17,9 @@ const navSections = [
   },
   {
     items: [
+      { label: 'Vorlagen-Katalog', icon: 'template', to: '/admin/templates', name: 'admin-templates' },
       { label: 'Standorte', icon: 'location', to: '/admin/locations', name: 'admin-locations' },
       { label: 'Layouts', icon: 'layout', to: '/admin/layouts', name: 'admin-layouts' },
-      { label: 'Templates', icon: 'template', to: '/admin/templates', name: 'admin-templates' },
-      { label: 'QR-Ankuendigung', icon: 'designer', to: '/admin/designer-demo', name: 'admin-designer-demo' },
-      { label: 'Video-News', icon: 'video-news', to: '/admin/designer-video-news', name: 'admin-designer-video-news' },
-      { label: 'Termin-Hinweis', icon: 'meeting', to: '/admin/designer-meeting-callout', name: 'admin-designer-meeting-callout' },
-      { label: 'Stellenanzeige', icon: 'job', to: '/admin/designer-job-posting', name: 'admin-designer-job-posting' },
-      { label: 'Rechtliches', icon: 'legal', to: '/admin/designer-legal-notice', name: 'admin-designer-legal-notice' },
-      { label: 'Raum-Hinweis', icon: 'room', to: '/admin/designer-room-location', name: 'admin-designer-room-location' },
-      { label: 'Besucher', icon: 'visitor', to: '/admin/designer-visitor-alert', name: 'admin-designer-visitor-alert' },
       { label: 'Shopfloor', icon: 'shopfloor', to: '/admin/shopfloor-demo', name: 'admin-shopfloor-demo' },
     ]
   },
