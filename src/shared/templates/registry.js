@@ -287,6 +287,46 @@ export const LEGACY_DISPLAY_ALIASES = {
       theme: 'dark',
     })
   },
+  'tpl-announcement': {
+    displayComponent: 'LegalNoticeEditor',
+    mapParams: (p = {}) => ({
+      variant: 'info',
+      kicker: 'ANKUENDIGUNG · BLICKLE',
+      headline: p.titel || 'Neue Ankuendigung',
+      body: p.text || '',
+      validFrom: '',
+      source: '',
+      ackLabel: p.datum ? `Datum: ${p.datum}` : 'Bitte beachten',
+      docRef: '',
+      readingTime: '',
+    })
+  },
+  'tpl-countdown': {
+    displayComponent: 'MeetingCalloutEditor',
+    mapParams: (p = {}) => ({
+      kicker: (p.label || 'NOCH') + ' · COUNTDOWN',
+      topic: p.event || 'Veranstaltung',
+      dateTimeValue: daysFromNowToIso(p.tage),
+      location: p.datum || 'Blickle',
+      body: '',
+      audienceNote: '',
+      showCountdown: true,
+      authorLabel: 'Blickle',
+      accent: '#F97316',
+      theme: 'dark',
+    })
+  },
+}
+
+// Helper: synthesize an ISO datetime N days from now, so MeetingCalloutEditor
+// can compute its live countdown. Noon chosen as a sensible default hour.
+function daysFromNowToIso(tageRaw) {
+  const tage = parseInt(tageRaw, 10)
+  const days = Number.isFinite(tage) && tage >= 0 ? tage : 14
+  const d = new Date(Date.now() + days * 24 * 3600 * 1000)
+  d.setHours(12, 0, 0, 0)
+  const pad = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T12:00`
 }
 
 // Returns an object describing how to render a given templateId on the
