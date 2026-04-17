@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -31,11 +31,7 @@ function addVisitor() {
 }
 function removeVisitor(i) { const a = [...(visitors.value || [])]; a.splice(i, 1); update('visitors', a) }
 function setVisitor(i, k, v) { const a = [...(visitors.value || [])]; a[i] = { ...a[i], [k]: v }; update('visitors', a) }
-function onLogoPick(i, e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  setVisitor(i, 'logoUrl', URL.createObjectURL(file))
-}
+function onLogoPick(i, e) { const file = e.target.files?.[0]; if (!file) return; setVisitor(i, 'logoUrl', URL.createObjectURL(file)) }
 
 const formattedDate = computed(() => { if (!dateLabel.value) return ''; try { return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(dateLabel.value)) } catch { return dateLabel.value } })
 function initials(name) {
@@ -43,18 +39,11 @@ function initials(name) {
   const p = name.trim().replace(/^Dr\.?\s*/i, '').split(/\s+/)
   return p.length === 1 ? p[0][0] : (p[0][0] + p[p.length - 1][0]).toUpperCase()
 }
-
-const previewFrame = ref(null)
-const scale = ref(0.4)
-function recomputeScale() { if (previewFrame.value) scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080) }
-let ro = null
-onMounted(() => { recomputeScale(); if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(recomputeScale); if (previewFrame.value) ro.observe(previewFrame.value) } })
-onUnmounted(() => { if (ro) ro.disconnect() })
 </script>
 
 <template>
-  <div v-if="displayMode" class="display-wrap" ref="previewFrame">
-    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+  <div v-if="displayMode" class="display-wrap">
+    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
       <div class="head">
         <div class="head-left">
           <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span><span class="head-divider"></span><span class="date-text">{{ formattedDate }}</span></div>
@@ -117,9 +106,9 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </aside>
 
     <section class="preview-panel">
-      <div class="preview-header"><span>Live-Vorschau · 1920 × 1080</span></div>
-      <div class="preview-frame" ref="previewFrame">
-        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+      <div class="preview-header"><span>Live-Vorschau · fluid</span></div>
+      <div class="preview-frame">
+        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
           <div class="head">
             <div class="head-left">
               <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span><span class="head-divider"></span><span class="date-text">{{ formattedDate }}</span></div>
@@ -164,53 +153,53 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .theme-row { display: flex; gap: 6px; } .theme-btn { flex: 1; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--gray-50); font-size: 0.8rem; font-weight: 500; } .theme-btn.active { background: var(--blickle-navy); color: #fff; border-color: var(--blickle-navy); }
 .preview-panel { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
-.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
+.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; container-type: size; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: calc(28 * var(--u)); padding: calc(60 * var(--u)) calc(80 * var(--u)); box-sizing: border-box; font-family: var(--font-body); }
 .canvas.theme-light { background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%); color: #0B1F3A; }
 .canvas.theme-dark { background: linear-gradient(135deg, #0A1A33 0%, #163A6C 100%); color: #fff; }
-.head { grid-column: 1 / 13; display: grid; grid-template-columns: 2fr 1fr; gap: 28px; align-items: end; padding-bottom: 20px; border-bottom: 2px solid rgba(11,31,58,0.08); }
+.head { grid-column: 1 / 13; display: grid; grid-template-columns: 2fr 1fr; gap: calc(28 * var(--u)); align-items: end; padding-bottom: calc(20 * var(--u)); border-bottom: 2px solid rgba(11,31,58,0.08); }
 .theme-dark .head { border-bottom-color: rgba(255,255,255,0.1); }
-.kicker-row { display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.kicker-row { display: flex; align-items: center; gap: calc(14 * var(--u)); font-family: var(--font-display); font-size: calc(20 * var(--u)); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: calc(14 * var(--u)); }
 .theme-dark .kicker-row { color: #B5CC18; }
-.kicker-dot { width: 12px; height: 12px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; }
-.head-divider { width: 1px; height: 18px; background: rgba(11,31,58,0.2); }
+.kicker-dot { width: calc(12 * var(--u)); height: calc(12 * var(--u)); border-radius: 50%; background: currentColor; box-shadow: 0 0 calc(10 * var(--u)) currentColor; }
+.head-divider { width: 1px; height: calc(18 * var(--u)); background: rgba(11,31,58,0.2); }
 .theme-dark .head-divider { background: rgba(255,255,255,0.2); }
-.date-text { font-family: var(--font-body); font-size: 18px; font-weight: 500; color: rgba(11,31,58,0.55); letter-spacing: 0.02em; text-transform: none; }
+.date-text { font-family: var(--font-body); font-size: calc(18 * var(--u)); font-weight: 500; color: rgba(11,31,58,0.55); letter-spacing: 0.02em; text-transform: none; }
 .theme-dark .date-text { color: rgba(255,255,255,0.6); }
-.welcome { font-family: var(--font-display); font-size: 96px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; margin: 0; }
+.welcome { font-family: var(--font-display); font-size: calc(96 * var(--u)); font-weight: 700; line-height: 1; letter-spacing: -0.02em; margin: 0; }
 .theme-dark .welcome { color: #fff; }
-.count { margin-top: 12px; font-family: var(--font-body); font-size: 28px; font-weight: 500; color: rgba(11,31,58,0.65); }
+.count { margin-top: calc(12 * var(--u)); font-family: var(--font-body); font-size: calc(28 * var(--u)); font-weight: 500; color: rgba(11,31,58,0.65); }
 .theme-dark .count { color: rgba(255,255,255,0.75); }
-.greet-card { display: flex; align-items: center; gap: 14px; padding: 18px 24px; background: rgba(11,31,58,0.04); border: 1px solid rgba(11,31,58,0.08); border-radius: 14px; }
+.greet-card { display: flex; align-items: center; gap: calc(14 * var(--u)); padding: calc(18 * var(--u)) calc(24 * var(--u)); background: rgba(11,31,58,0.04); border: 1px solid rgba(11,31,58,0.08); border-radius: calc(14 * var(--u)); }
 .theme-dark .greet-card { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
-.greet-icon { font-size: 38px; opacity: 0.75; }
-.greet-text { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: rgba(11,31,58,0.78); line-height: 1.2; }
+.greet-icon { font-size: calc(38 * var(--u)); opacity: 0.75; }
+.greet-text { font-family: var(--font-display); font-size: calc(22 * var(--u)); font-weight: 600; color: rgba(11,31,58,0.78); line-height: 1.2; }
 .theme-dark .greet-text { color: rgba(255,255,255,0.88); }
-.visitors { grid-column: 1 / 13; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 22px; align-items: stretch; }
-.visitor-card { background: rgba(255,255,255,0.95); border-radius: 18px; padding: 28px 28px 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 8px 24px rgba(11,31,58,0.08); border-top: 6px solid var(--vcolor); }
-.theme-dark .visitor-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-top: 6px solid var(--vcolor); }
-.avatar { width: 90px; height: 90px; border-radius: 22px; background: var(--vcolor); color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: var(--font-display); font-size: 40px; font-weight: 800; }
+.visitors { grid-column: 1 / 13; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: calc(22 * var(--u)); align-items: stretch; }
+.visitor-card { background: rgba(255,255,255,0.95); border-radius: calc(18 * var(--u)); padding: calc(28 * var(--u)) calc(28 * var(--u)) calc(24 * var(--u)); display: flex; flex-direction: column; gap: calc(16 * var(--u)); box-shadow: 0 calc(8 * var(--u)) calc(24 * var(--u)) rgba(11,31,58,0.08); border-top: calc(6 * var(--u)) solid var(--vcolor); }
+.theme-dark .visitor-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-top: calc(6 * var(--u)) solid var(--vcolor); }
+.avatar { width: calc(90 * var(--u)); height: calc(90 * var(--u)); border-radius: calc(22 * var(--u)); background: var(--vcolor); color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: var(--font-display); font-size: calc(40 * var(--u)); font-weight: 800; }
 .avatar img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
-.v-name { font-family: var(--font-display); font-size: 34px; font-weight: 700; color: #0B1F3A; line-height: 1.05; }
+.v-name { font-family: var(--font-display); font-size: calc(34 * var(--u)); font-weight: 700; color: #0B1F3A; line-height: 1.05; }
 .theme-dark .v-name { color: #fff; }
-.v-role { font-family: var(--font-body); font-size: 20px; font-weight: 500; color: rgba(11,31,58,0.6); }
+.v-role { font-family: var(--font-body); font-size: calc(20 * var(--u)); font-weight: 500; color: rgba(11,31,58,0.6); }
 .theme-dark .v-role { color: rgba(255,255,255,0.7); }
-.v-meta { display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid rgba(11,31,58,0.08); }
+.v-meta { display: flex; flex-direction: column; gap: calc(8 * var(--u)); padding-top: calc(14 * var(--u)); border-top: 1px solid rgba(11,31,58,0.08); }
 .theme-dark .v-meta { border-top-color: rgba(255,255,255,0.1); }
-.meta-item { display: flex; align-items: baseline; gap: 12px; font-size: 18px; font-weight: 500; color: rgba(11,31,58,0.75); }
+.meta-item { display: flex; align-items: baseline; gap: calc(12 * var(--u)); font-size: calc(18 * var(--u)); font-weight: 500; color: rgba(11,31,58,0.75); }
 .theme-dark .meta-item { color: rgba(255,255,255,0.82); }
-.meta-icon { font-size: 20px; color: var(--vcolor); width: 24px; text-align: center; }
-.v-host { display: flex; align-items: baseline; gap: 10px; margin-top: auto; padding-top: 14px; border-top: 1px dashed rgba(11,31,58,0.12); }
+.meta-icon { font-size: calc(20 * var(--u)); color: var(--vcolor); width: calc(24 * var(--u)); text-align: center; }
+.v-host { display: flex; align-items: baseline; gap: calc(10 * var(--u)); margin-top: auto; padding-top: calc(14 * var(--u)); border-top: 1px dashed rgba(11,31,58,0.12); }
 .theme-dark .v-host { border-top-color: rgba(255,255,255,0.12); }
-.host-label { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(11,31,58,0.45); }
+.host-label { font-size: calc(12 * var(--u)); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(11,31,58,0.45); }
 .theme-dark .host-label { color: rgba(255,255,255,0.5); }
-.host-name { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--accent); }
+.host-name { font-family: var(--font-display); font-size: calc(20 * var(--u)); font-weight: 700; color: var(--accent); }
 .theme-dark .host-name { color: #B5CC18; }
-.footer { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; padding-top: 18px; border-top: 1px solid rgba(11,31,58,0.08); font-size: 15px; color: rgba(11,31,58,0.5); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 14px; }
+.footer { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); padding-top: calc(18 * var(--u)); border-top: 1px solid rgba(11,31,58,0.08); font-size: calc(15 * var(--u)); color: rgba(11,31,58,0.5); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-top: calc(14 * var(--u)); }
 .theme-dark .footer { color: rgba(255,255,255,0.55); border-top-color: rgba(255,255,255,0.1); }
 .dot { opacity: 0.6; } .spacer { flex: 1; }
-.footer-logo { height: 26px; opacity: 0.7; }
+.footer-logo { height: calc(26 * var(--u)); opacity: 0.7; }
 .theme-dark .footer-logo { filter: brightness(0) invert(1); opacity: 0.85; }
 </style>

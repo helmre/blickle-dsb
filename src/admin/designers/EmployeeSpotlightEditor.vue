@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -27,32 +26,12 @@ const accentPresets = [
   { name: 'Pink', value: '#EC4899' },
 ]
 
-function onPhotoPick(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  photoUrl.value = URL.createObjectURL(file)
-}
-
-const previewFrame = ref(null)
-const scale = ref(0.4)
-function recomputeScale() {
-  if (!previewFrame.value) return
-  scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080)
-}
-let ro = null
-onMounted(() => {
-  recomputeScale()
-  if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(recomputeScale)
-    if (previewFrame.value) ro.observe(previewFrame.value)
-  }
-})
-onUnmounted(() => { if (ro) ro.disconnect() })
+function onPhotoPick(e) { const file = e.target.files?.[0]; if (!file) return; photoUrl.value = URL.createObjectURL(file) }
 </script>
 
 <template>
-  <div v-if="displayMode" class="display-wrap" ref="previewFrame">
-    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+  <div v-if="displayMode" class="display-wrap">
+    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
       <div class="photo-col">
         <div v-if="photoUrl" class="photo-frame"><img :src="photoUrl" :alt="name" class="portrait" /></div>
         <div v-else class="photo-placeholder">
@@ -116,9 +95,9 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </aside>
 
     <section class="preview-panel">
-      <div class="preview-header"><span>Live-Vorschau · 1920 × 1080</span></div>
-      <div class="preview-frame" ref="previewFrame">
-        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+      <div class="preview-header"><span>Live-Vorschau · fluid</span></div>
+      <div class="preview-frame">
+        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
           <div class="photo-col">
             <div v-if="photoUrl" class="photo-frame"><img :src="photoUrl" :alt="name" class="portrait" /></div>
             <div v-else class="photo-placeholder">
@@ -169,46 +148,46 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .theme-row { display: flex; gap: 6px; } .theme-btn { flex: 1; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--gray-50); font-size: 0.8rem; font-weight: 500; } .theme-btn.active { background: var(--blickle-navy); color: #fff; border-color: var(--blickle-navy); }
 .preview-panel { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
-.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
+.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; container-type: size; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: 820px 1fr; gap: 72px; padding: 72px 96px; box-sizing: border-box; font-family: var(--font-body); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); display: grid; grid-template-columns: calc(820 * var(--u)) 1fr; gap: calc(72 * var(--u)); padding: calc(72 * var(--u)) calc(96 * var(--u)); box-sizing: border-box; font-family: var(--font-body); }
 .canvas.theme-dark { background: radial-gradient(ellipse at 0% 50%, rgba(181,204,24,0.1) 0%, transparent 55%), linear-gradient(135deg, #0A1A33 0%, #0B2442 40%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
 
-.photo-col { position: relative; display: flex; flex-direction: column; gap: 24px; }
-.photo-frame { width: 100%; height: 820px; border-radius: 32px; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08); position: relative; }
+.photo-col { position: relative; display: flex; flex-direction: column; gap: calc(24 * var(--u)); }
+.photo-frame { width: 100%; height: calc(820 * var(--u)); border-radius: calc(32 * var(--u)); overflow: hidden; box-shadow: 0 calc(50 * var(--u)) calc(100 * var(--u)) rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08); position: relative; }
 .photo-frame::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 60%, color-mix(in srgb, var(--accent) 20%, transparent) 100%); pointer-events: none; }
 .portrait { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-placeholder { width: 100%; height: 820px; border-radius: 32px; background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 20%, transparent) 0%, rgba(0,0,0,0.3) 70%); display: flex; align-items: center; justify-content: center; box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
-.initials-big { font-family: var(--font-display); font-size: 280px; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 40%, transparent); }
-.photo-badge { position: absolute; bottom: 48px; left: 32px; display: inline-flex; align-items: center; gap: 12px; background: rgba(10,26,51,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: 14px 24px; font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; }
-.badge-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.photo-placeholder { width: 100%; height: calc(820 * var(--u)); border-radius: calc(32 * var(--u)); background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 20%, transparent) 0%, rgba(0,0,0,0.3) 70%); display: flex; align-items: center; justify-content: center; box-shadow: 0 calc(50 * var(--u)) calc(100 * var(--u)) rgba(0,0,0,0.5); }
+.initials-big { font-family: var(--font-display); font-size: calc(280 * var(--u)); font-weight: 800; color: var(--accent); letter-spacing: -0.04em; text-shadow: 0 0 calc(60 * var(--u)) color-mix(in srgb, var(--accent) 40%, transparent); }
+.photo-badge { position: absolute; bottom: calc(48 * var(--u)); left: calc(32 * var(--u)); display: inline-flex; align-items: center; gap: calc(12 * var(--u)); background: rgba(10,26,51,0.85); backdrop-filter: blur(calc(12 * var(--u))); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: calc(14 * var(--u)) calc(24 * var(--u)); font-family: var(--font-display); font-size: calc(22 * var(--u)); font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; }
+.badge-dot { width: calc(12 * var(--u)); height: calc(12 * var(--u)); border-radius: 50%; background: var(--accent); box-shadow: 0 0 calc(12 * var(--u)) var(--accent); }
 
-.info-col { display: flex; flex-direction: column; gap: 28px; justify-content: center; }
-.name { margin: 0; font-family: var(--font-display); font-size: 110px; font-weight: 700; line-height: 0.95; letter-spacing: -0.02em; color: #fff; }
+.info-col { display: flex; flex-direction: column; gap: calc(28 * var(--u)); justify-content: center; }
+.name { margin: 0; font-family: var(--font-display); font-size: calc(110 * var(--u)); font-weight: 700; line-height: 0.95; letter-spacing: -0.02em; color: #fff; }
 .theme-light .name { color: #0B1F3A; }
-.dept { font-family: var(--font-display); font-size: 32px; font-weight: 500; color: var(--accent); letter-spacing: 0.01em; }
+.dept { font-family: var(--font-display); font-size: calc(32 * var(--u)); font-weight: 500; color: var(--accent); letter-spacing: 0.01em; }
 
-.quote-block { position: relative; padding: 28px 32px 28px 56px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-left: 6px solid var(--accent); border-radius: 16px; }
+.quote-block { position: relative; padding: calc(28 * var(--u)) calc(32 * var(--u)) calc(28 * var(--u)) calc(56 * var(--u)); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-left: calc(6 * var(--u)) solid var(--accent); border-radius: calc(16 * var(--u)); }
 .theme-light .quote-block { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); border-left-color: var(--accent); }
-.quote-mark { position: absolute; top: -16px; left: 24px; font-family: Georgia, serif; font-size: 120px; line-height: 1; color: var(--accent); font-weight: 700; }
-.quote-text { margin: 0; font-family: var(--font-display); font-size: 34px; font-weight: 500; line-height: 1.3; color: #fff; font-style: italic; }
+.quote-mark { position: absolute; top: calc(-16 * var(--u)); left: calc(24 * var(--u)); font-family: Georgia, serif; font-size: calc(120 * var(--u)); line-height: 1; color: var(--accent); font-weight: 700; }
+.quote-text { margin: 0; font-family: var(--font-display); font-size: calc(34 * var(--u)); font-weight: 500; line-height: 1.3; color: #fff; font-style: italic; }
 .theme-light .quote-text { color: #0B1F3A; }
 
-.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.meta-card { display: flex; gap: 18px; align-items: center; padding: 20px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; }
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: calc(18 * var(--u)); }
+.meta-card { display: flex; gap: calc(18 * var(--u)); align-items: center; padding: calc(20 * var(--u)) calc(24 * var(--u)); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: calc(14 * var(--u)); }
 .theme-light .meta-card { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
-.meta-icon { font-size: 36px; color: var(--accent); filter: drop-shadow(0 0 12px var(--accent)); width: 40px; text-align: center; }
+.meta-icon { font-size: calc(36 * var(--u)); color: var(--accent); filter: drop-shadow(0 0 calc(12 * var(--u)) var(--accent)); width: calc(40 * var(--u)); text-align: center; }
 .meta-body { min-width: 0; flex: 1; }
-.meta-label { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 4px; }
+.meta-label { font-family: var(--font-display); font-size: calc(14 * var(--u)); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: calc(4 * var(--u)); }
 .theme-light .meta-label { color: rgba(11,31,58,0.55); }
-.meta-value { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #fff; line-height: 1.2; }
+.meta-value { font-family: var(--font-display); font-size: calc(24 * var(--u)); font-weight: 700; color: #fff; line-height: 1.2; }
 .theme-light .meta-value { color: #0B1F3A; }
 
-.footer { display: flex; align-items: center; gap: 16px; margin-top: auto; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 16px; color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+.footer { display: flex; align-items: center; gap: calc(16 * var(--u)); margin-top: auto; padding-top: calc(18 * var(--u)); border-top: 1px solid rgba(255,255,255,0.08); font-size: calc(16 * var(--u)); color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
 .theme-light .footer { border-top-color: rgba(0,0,0,0.1); color: rgba(11,31,58,0.55); }
 .spacer { flex: 1; }
-.footer-logo { height: 32px; filter: brightness(0) invert(1); opacity: 0.85; }
+.footer-logo { height: calc(32 * var(--u)); filter: brightness(0) invert(1); opacity: 0.85; }
 .theme-light .footer-logo { filter: none; opacity: 0.7; }
 </style>

@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -25,32 +24,12 @@ const accentPresets = [
   { name: 'Blau', value: '#3B82F6' },
 ]
 
-function onPhotoPick(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  photoUrl.value = URL.createObjectURL(file)
-}
-
-const previewFrame = ref(null)
-const scale = ref(0.4)
-function recomputeScale() {
-  if (!previewFrame.value) return
-  scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080)
-}
-let ro = null
-onMounted(() => {
-  recomputeScale()
-  if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(recomputeScale)
-    if (previewFrame.value) ro.observe(previewFrame.value)
-  }
-})
-onUnmounted(() => { if (ro) ro.disconnect() })
+function onPhotoPick(e) { const file = e.target.files?.[0]; if (!file) return; photoUrl.value = URL.createObjectURL(file) }
 </script>
 
 <template>
-  <div v-if="displayMode" class="display-wrap" ref="previewFrame">
-    <div :class="['canvas', `theme-${theme}`, { 'has-photo': photoUrl }]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+  <div v-if="displayMode" class="display-wrap">
+    <div :class="['canvas', `theme-${theme}`, { 'has-photo': photoUrl }]" :style="{ '--accent': accent }">
       <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span></div>
       <div class="main-row">
         <div v-if="photoUrl" class="photo-col">
@@ -103,9 +82,9 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </aside>
 
     <section class="preview-panel">
-      <div class="preview-header"><span>Live-Vorschau · 1920 × 1080</span></div>
-      <div class="preview-frame" ref="previewFrame">
-        <div :class="['canvas', `theme-${theme}`, { 'has-photo': photoUrl }]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+      <div class="preview-header"><span>Live-Vorschau · fluid</span></div>
+      <div class="preview-frame">
+        <div :class="['canvas', `theme-${theme}`, { 'has-photo': photoUrl }]" :style="{ '--accent': accent }">
           <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span></div>
           <div class="main-row">
             <div v-if="photoUrl" class="photo-col">
@@ -149,41 +128,41 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .theme-btn.active { background: var(--blickle-navy); color: #fff; border-color: var(--blickle-navy); }
 .preview-panel { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
-.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
+.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; container-type: size; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-rows: auto 1fr auto; gap: 40px; padding: 72px 96px; box-sizing: border-box; font-family: var(--font-body); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); display: grid; grid-template-rows: auto 1fr auto; gap: calc(40 * var(--u)); padding: calc(72 * var(--u)) calc(96 * var(--u)); box-sizing: border-box; font-family: var(--font-body); }
 .canvas.theme-dark { background: radial-gradient(ellipse at 30% 20%, rgba(181,204,24,0.08) 0%, transparent 55%), radial-gradient(ellipse at 70% 80%, rgba(22,58,108,0.3) 0%, transparent 50%), linear-gradient(135deg, #0A1A33 0%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
-.canvas::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0px, transparent 120px, rgba(255,255,255,0.02) 120px, rgba(255,255,255,0.02) 160px); pointer-events: none; }
+.canvas::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0, transparent calc(120 * var(--u)), rgba(255,255,255,0.02) calc(120 * var(--u)), rgba(255,255,255,0.02) calc(160 * var(--u))); pointer-events: none; }
 
-.kicker-row { display: flex; align-items: center; gap: 16px; font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); z-index: 2; }
-.kicker-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 18px var(--accent); }
+.kicker-row { display: flex; align-items: center; gap: calc(16 * var(--u)); font-family: var(--font-display); font-size: calc(24 * var(--u)); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); z-index: 2; }
+.kicker-dot { width: calc(14 * var(--u)); height: calc(14 * var(--u)); border-radius: 50%; background: var(--accent); box-shadow: 0 0 calc(18 * var(--u)) var(--accent); }
 
-.main-row { display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center; z-index: 1; position: relative; }
-.has-photo .main-row { grid-template-columns: 420px 1fr; }
+.main-row { display: grid; grid-template-columns: 1fr; gap: calc(48 * var(--u)); align-items: center; z-index: 1; position: relative; }
+.has-photo .main-row { grid-template-columns: calc(420 * var(--u)) 1fr; }
 
 .photo-col { display: flex; align-items: center; justify-content: center; }
-.photo-frame { position: relative; width: 380px; height: 460px; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08); }
+.photo-frame { position: relative; width: calc(380 * var(--u)); height: calc(460 * var(--u)); border-radius: calc(24 * var(--u)); overflow: hidden; box-shadow: 0 calc(40 * var(--u)) calc(80 * var(--u)) rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08); }
 .portrait { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-glow { position: absolute; inset: 0; box-shadow: inset 0 -120px 80px -60px rgba(0,0,0,0.5); pointer-events: none; }
+.photo-glow { position: absolute; inset: 0; box-shadow: inset 0 calc(-120 * var(--u)) calc(80 * var(--u)) calc(-60 * var(--u)) rgba(0,0,0,0.5); pointer-events: none; }
 
-.quote-col { display: flex; flex-direction: column; gap: 36px; justify-content: center; }
-.quote-mark-big { font-family: Georgia, 'Times New Roman', serif; font-size: 240px; font-weight: 700; line-height: 0.7; color: var(--accent); opacity: 0.85; text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 40%, transparent); }
-.quote-text { margin: 0; font-family: var(--font-display); font-size: 64px; font-weight: 500; line-height: 1.15; letter-spacing: -0.015em; color: #fff; font-style: italic; }
+.quote-col { display: flex; flex-direction: column; gap: calc(36 * var(--u)); justify-content: center; }
+.quote-mark-big { font-family: Georgia, 'Times New Roman', serif; font-size: calc(240 * var(--u)); font-weight: 700; line-height: 0.7; color: var(--accent); opacity: 0.85; text-shadow: 0 0 calc(40 * var(--u)) color-mix(in srgb, var(--accent) 40%, transparent); }
+.quote-text { margin: 0; font-family: var(--font-display); font-size: calc(64 * var(--u)); font-weight: 500; line-height: 1.15; letter-spacing: -0.015em; color: #fff; font-style: italic; }
 .theme-light .quote-text { color: #0B1F3A; }
 
-.author-block { display: flex; align-items: stretch; gap: 24px; }
-.author-accent { width: 6px; border-radius: 3px; background: var(--accent); box-shadow: 0 0 16px var(--accent); }
-.author-info { display: flex; flex-direction: column; gap: 6px; }
-.author-name { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1; }
+.author-block { display: flex; align-items: stretch; gap: calc(24 * var(--u)); }
+.author-accent { width: calc(6 * var(--u)); border-radius: calc(3 * var(--u)); background: var(--accent); box-shadow: 0 0 calc(16 * var(--u)) var(--accent); }
+.author-info { display: flex; flex-direction: column; gap: calc(6 * var(--u)); }
+.author-name { font-family: var(--font-display); font-size: calc(42 * var(--u)); font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1; }
 .theme-light .author-name { color: #0B1F3A; }
-.author-position { font-family: var(--font-body); font-size: 22px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.02em; text-transform: uppercase; }
+.author-position { font-family: var(--font-body); font-size: calc(22 * var(--u)); font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.02em; text-transform: uppercase; }
 .theme-light .author-position { color: rgba(11,31,58,0.6); }
 
-.footer { display: flex; align-items: center; gap: 16px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 16px; color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; z-index: 2; }
+.footer { display: flex; align-items: center; gap: calc(16 * var(--u)); padding-top: calc(18 * var(--u)); border-top: 1px solid rgba(255,255,255,0.1); font-size: calc(16 * var(--u)); color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; z-index: 2; }
 .theme-light .footer { border-top-color: rgba(0,0,0,0.1); color: rgba(11,31,58,0.55); }
 .spacer { flex: 1; }
-.footer-logo { height: 32px; filter: brightness(0) invert(1); opacity: 0.85; }
+.footer-logo { height: calc(32 * var(--u)); filter: brightness(0) invert(1); opacity: 0.85; }
 .theme-light .footer-logo { filter: none; opacity: 0.7; }
 </style>
