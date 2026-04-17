@@ -190,6 +190,28 @@ export const DESIGNER_TEMPLATES = [
     }
   },
   {
+    id: 'designer-employee-spotlight',
+    name: 'Mitarbeiter-Spotlight',
+    description: 'Portrait-Foto plus Zitat und Hobby. Fuer die Serie #MenschenBeiBlickle.',
+    category: 'mitarbeiter',
+    renderer: 'component',
+    editorComponent: 'EmployeeSpotlightEditor',
+    displayComponent: 'EmployeeSpotlightEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    defaultParams: {
+      kicker: 'MITARBEITER-SPOTLIGHT',
+      name: 'Daniel Hirschler',
+      department: 'Fertigung · Halle 2',
+      quote: 'Bei Blickle zaehlt nicht nur was du machst, sondern wer du bist.',
+      hobby: 'Motorrad-Touren durch die Schwaebische Alb',
+      since: '2011',
+      photoUrl: '',
+      accent: '#B5CC18',
+      theme: 'dark',
+    }
+  },
+  {
     id: 'designer-ceo-quote',
     name: 'Geschaeftsleitungs-Zitat',
     description: 'Hochwertiges Zitat-Design mit grosser Typografie und optionalem Portrait. Fuer Botschaften der Geschaeftsleitung.',
@@ -376,6 +398,20 @@ export const LEGACY_DISPLAY_ALIASES = {
       showCountdown: true,
       authorLabel: 'Blickle',
       accent: '#3B82F6',
+      theme: 'dark',
+    })
+  },
+  'tpl-spotlight': {
+    displayComponent: 'EmployeeSpotlightEditor',
+    mapParams: (p = {}) => ({
+      kicker: 'MITARBEITER-SPOTLIGHT',
+      name: p.name || '',
+      department: p.abteilung || '',
+      quote: p.zitat || '',
+      hobby: p.hobby || '',
+      since: '',
+      photoUrl: p.bild || '',
+      accent: '#B5CC18',
       theme: 'dark',
     })
   },
