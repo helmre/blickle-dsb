@@ -128,7 +128,7 @@ const canvasStyle = computed(() => ({
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
 .display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
-.canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto 1fr auto auto; gap: 36px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); color: #fff; }
+.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto 1fr auto auto; gap: 36px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); color: #fff; }
 .canvas::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0px, transparent 140px, rgba(255,255,255,0.025) 140px, rgba(255,255,255,0.025) 180px); pointer-events: none; }
 .topline { grid-column: 1 / 13; display: grid; grid-template-columns: 200px 1fr; gap: 40px; align-items: center; position: relative; }
 .icon-badge { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; color: var(--primary); filter: drop-shadow(0 0 32px var(--primary)); }

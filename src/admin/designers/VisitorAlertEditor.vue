@@ -167,7 +167,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; }
 .display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
-.canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); }
+.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); }
 .canvas.theme-light { background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%); color: #0B1F3A; }
 .canvas.theme-dark { background: linear-gradient(135deg, #0A1A33 0%, #163A6C 100%); color: #fff; }
 .head { grid-column: 1 / 13; display: grid; grid-template-columns: 2fr 1fr; gap: 28px; align-items: end; padding-bottom: 20px; border-bottom: 2px solid rgba(11,31,58,0.08); }

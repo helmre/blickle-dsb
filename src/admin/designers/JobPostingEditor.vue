@@ -255,7 +255,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06); background: #000; }
 .display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
-.canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 24px; padding: 56px 72px; box-sizing: border-box; font-family: var(--font-body); align-content: start; }
+.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 24px; padding: 56px 72px; box-sizing: border-box; font-family: var(--font-body); align-content: start; }
 .canvas.theme-dark { background: radial-gradient(ellipse at 85% 0%, rgba(181, 204, 24, 0.1) 0%, transparent 55%), linear-gradient(135deg, #0A1A33 0%, #0B2442 40%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
 .kicker-row { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }

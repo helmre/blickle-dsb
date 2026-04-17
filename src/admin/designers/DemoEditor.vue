@@ -215,7 +215,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 
 .display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
 
-.canvas { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: top left; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 56px 72px; font-family: var(--font-body); box-sizing: border-box; align-content: space-between; }
+.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 56px 72px; font-family: var(--font-body); box-sizing: border-box; align-content: space-between; }
 .canvas.theme-dark { background: linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
 
