@@ -218,6 +218,94 @@ export function getDesignerTemplate(id) {
   return DESIGNER_TEMPLATES.find(t => t.id === id) || null
 }
 
+// --- Legacy → Designer Display-Aliase ---
+//
+// Bestimmte klassische Templates haben visuelle Pendants unter den Designer-
+// Komponenten. Statt sie komplett zu migrieren, rendern wir sie auf Display-
+// Seite durch den jeweiligen Designer mit transformierten Params. Der
+// Admin-Editor-Flow (html-params Form) bleibt unveraendert.
+
+function parseGermanDateToIso(raw) {
+  if (!raw) return ''
+  const pad = n => String(n).padStart(2, '0')
+  // Try ISO first: '2026-05-15' or '2026-05-15T18:00'
+  let m = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/)
+  if (m) {
+    return `${m[1]}-${m[2]}-${m[3]}T${m[4] || '09'}:${m[5] || '00'}`
+  }
+  // DD.MM.YYYY with optional time: '15.06.2025' or '15.06.2025 18:00' or '15.06.2025 · 18:00'
+  m = String(raw).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[\s·,]+(\d{1,2}):(\d{2}))?/)
+  if (m) {
+    return `${m[3]}-${pad(m[2])}-${pad(m[1])}T${pad(m[4] || '09')}:${m[5] || '00'}`
+  }
+  // Fallback: 2 hours from now so countdown still works
+  const d = new Date(Date.now() + 2 * 3600 * 1000)
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+export const LEGACY_DISPLAY_ALIASES = {
+  'tpl-urgent': {
+    displayComponent: 'LegalNoticeEditor',
+    mapParams: (p = {}) => ({
+      variant: 'danger',
+      kicker: 'DRINGEND · WICHTIGE MITTEILUNG',
+      headline: p.titel || 'Wichtige Mitteilung',
+      body: p.text || '',
+      validFrom: p.datum || '',
+      source: '',
+      ackLabel: 'Bitte zur Kenntnis nehmen',
+      docRef: '',
+      readingTime: '',
+    })
+  },
+  'tpl-safety': {
+    displayComponent: 'LegalNoticeEditor',
+    mapParams: (p = {}) => ({
+      variant: 'warn',
+      kicker: 'SICHERHEIT',
+      headline: p.titel || 'Sicherheitshinweis',
+      body: p.hinweis || '',
+      validFrom: '',
+      source: '',
+      ackLabel: 'Bitte Sicherheitsvorschriften beachten',
+      docRef: '',
+      readingTime: '',
+    })
+  },
+  'tpl-event': {
+    displayComponent: 'MeetingCalloutEditor',
+    mapParams: (p = {}) => ({
+      kicker: 'SAVE THE DATE',
+      topic: p.titel || 'Veranstaltung',
+      dateTimeValue: parseGermanDateToIso(p.datum),
+      location: p.ort || 'Blickle',
+      body: p.beschreibung || '',
+      audienceNote: '',
+      showCountdown: true,
+      authorLabel: 'Blickle',
+      accent: '#B5CC18',
+      theme: 'dark',
+    })
+  },
+}
+
+// Returns an object describing how to render a given templateId on the
+// display side. For legacy templates with a display-alias, returns the
+// designer-component name plus pre-mapped params. For designer templates or
+// regular legacy content, returns null → fall through to default logic.
+export function getDisplayAlias(templateId, params) {
+  const alias = LEGACY_DISPLAY_ALIASES[templateId]
+  if (!alias) return null
+  return {
+    displayComponent: alias.displayComponent,
+    mappedParams: alias.mapParams(params || {}),
+  }
+}
+
+export function hasDisplayAlias(templateId) {
+  return !!LEGACY_DISPLAY_ALIASES[templateId]
+}
+
 // Unified access — returns an array of all templates (designer + legacy).
 // Use inside a component context only (needs Pinia store).
 export function getAllTemplates() {

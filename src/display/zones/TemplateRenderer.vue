@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useTemplateStore } from '../../shared/stores/templateStore.js'
 import { useDisplayContent } from '../../shared/composables/useDisplayContent.js'
-import { getDesignerTemplate } from '../../shared/templates/registry.js'
+import { getDesignerTemplate, getDisplayAlias } from '../../shared/templates/registry.js'
 import { editorRegistry } from '../../shared/templates/editorRegistry.js'
 
 const props = defineProps({
@@ -37,10 +37,26 @@ const template = computed(() => {
   return templateStore.items.find(t => t.id === content.value.templateId) || null
 })
 
-// Designer component for renderer === 'component'
+// Legacy → Designer alias: if a classic template has a visual Designer pendant,
+// use that for display rendering with mapped params. Edit flow stays classic.
+const displayAlias = computed(() => {
+  if (!content.value?.templateId) return null
+  return getDisplayAlias(content.value.templateId, content.value.templateParams || {})
+})
+
+// Designer component for renderer === 'component' OR for aliased legacy templates
 const designerComponent = computed(() => {
+  if (displayAlias.value) {
+    return editorRegistry[displayAlias.value.displayComponent] || null
+  }
   if (!template.value || template.value.renderer !== 'component') return null
   return editorRegistry[template.value.displayComponent || template.value.editorComponent] || null
+})
+
+// Params to pass to the Designer component — aliased params take precedence
+const designerParams = computed(() => {
+  if (displayAlias.value) return displayAlias.value.mappedParams
+  return content.value?.templateParams || {}
 })
 
 // Render HTML by replacing {{params}} with actual values or placeholder
@@ -76,11 +92,11 @@ const isPdf = computed(() => content.value?.type === 'pdf' && content.value?.fil
 
 <template>
   <div class="zone-template-renderer">
-    <!-- Component-based designer template -->
+    <!-- Component-based designer template (native or legacy alias) -->
     <component
       v-if="designerComponent && content"
       :is="designerComponent"
-      :params="content.templateParams || {}"
+      :params="designerParams"
       :displayMode="true"
       :readonly="true"
     />

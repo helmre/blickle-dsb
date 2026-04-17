@@ -6,13 +6,17 @@ import { useLayoutStore } from '../stores/layoutStore.js'
 import { usePlaylistStore } from '../stores/playlistStore.js'
 import { getSeedScheduleData, getSeedCanteenData, getSeedTickerMessages as getSeedTicker, getSeedFullscreenMedia } from '../utils/seedData.js'
 import { isCurrentlyValid } from '../utils/datetime.js'
-import { getDesignerTemplate } from '../templates/registry.js'
+import { getDesignerTemplate, hasDisplayAlias } from '../templates/registry.js'
 
 // Content that renders via a full-canvas designer component gets its own
-// fullscreen page instead of being squeezed into an INFOS tile.
+// fullscreen page instead of being squeezed into an INFOS tile. Legacy
+// templates aliased to a designer (e.g. tpl-urgent → LegalNoticeEditor) are
+// treated the same way.
 function isFullscreenDesigner(content) {
   if (!content?.templateId) return false
-  return !!getDesignerTemplate(content.templateId)
+  if (getDesignerTemplate(content.templateId)) return true
+  if (hasDisplayAlias(content.templateId)) return true
+  return false
 }
 
 /**
