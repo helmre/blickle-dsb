@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -50,31 +50,11 @@ const formattedUntil = computed(() => {
     return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(validUntil.value))
   } catch { return validUntil.value }
 })
-
-const previewFrame = ref(null)
-const scale = ref(0.4)
-function recomputeScale() {
-  if (!previewFrame.value) return
-  scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080)
-}
-let ro = null
-onMounted(() => {
-  recomputeScale()
-  if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(recomputeScale)
-    if (previewFrame.value) ro.observe(previewFrame.value)
-  }
-})
-onUnmounted(() => { if (ro) ro.disconnect() })
 </script>
 
 <template>
-  <!-- Display-Mode: canvas only, fits container -->
-  <div v-if="displayMode" class="display-wrap" ref="previewFrame">
-    <div
-      :class="['canvas', `theme-${theme}`]"
-      :style="{ '--accent': accent, transform: `scale(${scale})` }"
-    >
+  <div v-if="displayMode" class="display-wrap">
+    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
       <div class="block block-kicker"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
       <div class="block block-headline">{{ headline }}</div>
       <div class="block block-media">
@@ -94,35 +74,18 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </div>
   </div>
 
-  <!-- Editor-Mode: form + preview -->
   <div v-else class="designer-split">
     <aside class="designer-form" v-if="!readonly">
       <div class="form-section">
         <h4 class="form-section-title">Inhalt</h4>
-        <label class="fld">
-          <span class="fld-label">Kicker / Ueberzeile</span>
-          <input v-model="kicker" type="text" class="fld-input" />
-          <span class="fld-hint">Kurz, GROSS, Akzentfarbe. Max. 30 Zeichen.</span>
-        </label>
-        <label class="fld">
-          <span class="fld-label">Headline</span>
-          <textarea v-model="headline" class="fld-input fld-textarea-sm" rows="2" />
-        </label>
-        <label class="fld">
-          <span class="fld-label">Begleittext</span>
-          <textarea v-model="body" class="fld-input" rows="3" />
-        </label>
+        <label class="fld"><span class="fld-label">Kicker / Ueberzeile</span><input v-model="kicker" type="text" class="fld-input" /><span class="fld-hint">Kurz, GROSS, Akzentfarbe.</span></label>
+        <label class="fld"><span class="fld-label">Headline</span><textarea v-model="headline" class="fld-input fld-textarea-sm" rows="2" /></label>
+        <label class="fld"><span class="fld-label">Begleittext</span><textarea v-model="body" class="fld-input" rows="3" /></label>
       </div>
       <div class="form-section">
         <h4 class="form-section-title">Video</h4>
-        <label class="fld">
-          <span class="fld-label">Datei waehlen</span>
-          <input type="file" accept="video/*" class="fld-input fld-file" @change="onVideoPick" />
-        </label>
-        <label class="fld">
-          <span class="fld-label">Poster-Bild (Fallback)</span>
-          <input v-model="videoPoster" type="text" class="fld-input" />
-        </label>
+        <label class="fld"><span class="fld-label">Datei waehlen</span><input type="file" accept="video/*" class="fld-input fld-file" @change="onVideoPick" /></label>
+        <label class="fld"><span class="fld-label">Poster-Bild (Fallback)</span><input v-model="videoPoster" type="text" class="fld-input" /></label>
       </div>
       <div class="form-section">
         <h4 class="form-section-title">QR-Codes</h4>
@@ -144,16 +107,12 @@ onUnmounted(() => { if (ro) ro.disconnect() })
       </div>
       <div class="form-section">
         <h4 class="form-section-title">Gestaltung</h4>
-        <div class="fld">
-          <span class="fld-label">Akzentfarbe</span>
+        <div class="fld"><span class="fld-label">Akzentfarbe</span>
           <div class="accent-row">
-            <button v-for="p in accentPresets" :key="p.value" class="accent-swatch"
-              :class="{ active: accent === p.value }" :style="{ background: p.value }"
-              :title="p.name" @click="accent = p.value"></button>
+            <button v-for="p in accentPresets" :key="p.value" class="accent-swatch" :class="{ active: accent === p.value }" :style="{ background: p.value }" :title="p.name" @click="accent = p.value"></button>
           </div>
         </div>
-        <div class="fld">
-          <span class="fld-label">Theme</span>
+        <div class="fld"><span class="fld-label">Theme</span>
           <div class="theme-row">
             <button :class="['theme-btn', { active: theme === 'dark' }]" @click="theme = 'dark'">Dark</button>
             <button :class="['theme-btn', { active: theme === 'light' }]" @click="theme = 'light'">Light</button>
@@ -163,11 +122,9 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </aside>
 
     <section class="designer-preview">
-      <div class="preview-header">
-        <span class="preview-label">Live-Vorschau · 1920 × 1080</span>
-      </div>
-      <div class="preview-frame" ref="previewFrame">
-        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+      <div class="preview-header"><span class="preview-label">Live-Vorschau · fluid</span></div>
+      <div class="preview-frame">
+        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
           <div class="block block-kicker"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
           <div class="block block-headline">{{ headline }}</div>
           <div class="block block-media">
@@ -198,7 +155,6 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .fld { display: block; margin-bottom: 12px; }
 .fld-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--gray-700); margin-bottom: 4px; }
 .fld-input { width: 100%; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; font-family: inherit; box-sizing: border-box; }
-.fld-input:focus { outline: none; border-color: var(--blickle-navy); box-shadow: 0 0 0 3px rgba(22, 58, 108, 0.08); }
 .fld-textarea-sm { resize: vertical; min-height: 50px; }
 .fld-file { padding: 4px; font-size: 0.75rem; }
 .fld-hint { display: block; font-size: 0.7rem; color: var(--gray-400); margin-top: 3px; font-style: italic; }
@@ -211,39 +167,38 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .theme-btn.active { background: var(--blickle-navy); color: #fff; border-color: var(--blickle-navy); }
 .designer-preview { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06); background: #000; }
+.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06); background: #000; container-type: size; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
-
-.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 28px; padding: 56px 72px; font-family: var(--font-body); box-sizing: border-box; align-content: space-between; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: calc(28 * var(--u)); padding: calc(56 * var(--u)) calc(72 * var(--u)); font-family: var(--font-body); box-sizing: border-box; align-content: space-between; }
 .canvas.theme-dark { background: linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
 
-.block-kicker { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
-.kicker-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 16px var(--accent); }
-.block-headline { grid-column: 1 / 13; font-family: var(--font-display); font-size: 96px; font-weight: 700; line-height: 1.02; letter-spacing: -0.02em; }
+.block-kicker { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); font-family: var(--font-display); font-size: calc(24 * var(--u)); font-weight: 700; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
+.kicker-dot { width: calc(14 * var(--u)); height: calc(14 * var(--u)); border-radius: 50%; background: var(--accent); box-shadow: 0 0 calc(16 * var(--u)) var(--accent); }
+.block-headline { grid-column: 1 / 13; font-family: var(--font-display); font-size: calc(96 * var(--u)); font-weight: 700; line-height: 1.02; letter-spacing: -0.02em; }
 .theme-dark .block-headline { color: #fff; }
 .theme-light .block-headline { color: #0B1F3A; }
-.block-media { grid-column: 1 / 7; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: rgba(0,0,0,0.2); position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.35); }
+.block-media { grid-column: 1 / 7; aspect-ratio: 16 / 9; border-radius: calc(14 * var(--u)); overflow: hidden; background: rgba(0,0,0,0.2); position: relative; box-shadow: 0 calc(12 * var(--u)) calc(40 * var(--u)) rgba(0,0,0,0.35); }
 .media-video, .media-placeholder img { width: 100%; height: 100%; object-fit: cover; }
-.media-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); flex-direction: column; gap: 8px; }
+.media-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); flex-direction: column; gap: calc(8 * var(--u)); }
 .theme-light .media-placeholder { background: rgba(0,0,0,0.04); }
 .media-placeholder img { width: 30%; height: auto; opacity: 0.45; object-fit: contain; }
-.media-hint { font-size: 0.85rem; color: rgba(255,255,255,0.45); font-style: italic; }
+.media-hint { font-size: calc(18 * var(--u)); color: rgba(255,255,255,0.45); font-style: italic; }
 .theme-light .media-hint { color: rgba(0,0,0,0.4); }
-.block-qr { grid-column: 7 / 10; display: flex; flex-direction: column; align-items: center; gap: 14px; justify-content: center; }
+.block-qr { grid-column: 7 / 10; display: flex; flex-direction: column; align-items: center; gap: calc(14 * var(--u)); justify-content: center; }
 .block-qr-2 { grid-column: 10 / 13; }
-.qr-box { aspect-ratio: 1; width: 100%; background: #fff; border-radius: 14px; padding: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 28px rgba(0,0,0,0.3); box-sizing: border-box; }
+.qr-box { aspect-ratio: 1; width: 100%; background: #fff; border-radius: calc(14 * var(--u)); padding: calc(18 * var(--u)); display: flex; align-items: center; justify-content: center; box-shadow: 0 calc(8 * var(--u)) calc(28 * var(--u)) rgba(0,0,0,0.3); box-sizing: border-box; }
 .qr-box img { width: 100%; height: 100%; object-fit: contain; }
-.qr-label { font-family: var(--font-display); font-size: 28px; font-weight: 700; text-align: center; color: var(--accent); letter-spacing: 0.04em; }
-.block-body { grid-column: 1 / 13; font-size: 34px; line-height: 1.35; font-weight: 400; max-width: 85%; }
+.qr-label { font-family: var(--font-display); font-size: calc(28 * var(--u)); font-weight: 700; text-align: center; color: var(--accent); letter-spacing: 0.04em; }
+.block-body { grid-column: 1 / 13; font-size: calc(34 * var(--u)); line-height: 1.35; font-weight: 400; max-width: 85%; }
 .theme-dark .block-body { color: rgba(255,255,255,0.82); }
 .theme-light .block-body { color: rgba(11, 31, 58, 0.78); }
-.block-footer { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 18px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+.block-footer { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); padding-top: calc(18 * var(--u)); border-top: 1px solid rgba(255,255,255,0.1); font-size: calc(18 * var(--u)); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
 .theme-light .block-footer { border-top-color: rgba(0,0,0,0.1); color: rgba(11, 31, 58, 0.6); }
 .theme-dark .block-footer { color: rgba(255,255,255,0.55); }
 .dot-sep { opacity: 0.6; }
 .footer-spacer { flex: 1; }
-.footer-logo { height: 32px; filter: brightness(0) invert(1); opacity: 0.85; }
+.footer-logo { height: calc(32 * var(--u)); filter: brightness(0) invert(1); opacity: 0.85; }
 .theme-light .footer-logo { filter: none; opacity: 0.7; }
 </style>

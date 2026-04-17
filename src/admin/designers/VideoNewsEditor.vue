@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -44,27 +44,11 @@ const formattedUntil = computed(() => {
     return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(validUntil.value))
   } catch { return validUntil.value }
 })
-
-const previewFrame = ref(null)
-const scale = ref(0.4)
-function recomputeScale() {
-  if (!previewFrame.value) return
-  scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080)
-}
-let ro = null
-onMounted(() => {
-  recomputeScale()
-  if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(recomputeScale)
-    if (previewFrame.value) ro.observe(previewFrame.value)
-  }
-})
-onUnmounted(() => { if (ro) ro.disconnect() })
 </script>
 
 <template>
-  <div v-if="displayMode" class="display-wrap" ref="previewFrame">
-    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+  <div v-if="displayMode" class="display-wrap">
+    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
       <div class="kicker-row"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
       <div class="headline">{{ headline }}</div>
       <div class="media-row">
@@ -118,9 +102,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
         <h4 class="fs-title">Gestaltung</h4>
         <div class="fld"><span class="fld-label">Akzentfarbe</span>
           <div class="accent-row">
-            <button v-for="p in accentPresets" :key="p.value" class="accent-swatch"
-              :class="{ active: accent === p.value }" :style="{ background: p.value }"
-              :title="p.name" @click="accent = p.value"></button>
+            <button v-for="p in accentPresets" :key="p.value" class="accent-swatch" :class="{ active: accent === p.value }" :style="{ background: p.value }" :title="p.name" @click="accent = p.value"></button>
           </div>
         </div>
         <div class="fld"><span class="fld-label">Theme</span>
@@ -133,9 +115,9 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </aside>
 
     <section class="vn-preview">
-      <div class="preview-header"><span>Live-Vorschau · 1920 × 1080</span></div>
-      <div class="preview-frame" ref="previewFrame">
-        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+      <div class="preview-header"><span>Live-Vorschau · fluid</span></div>
+      <div class="preview-frame">
+        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
           <div class="kicker-row"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
           <div class="headline">{{ headline }}</div>
           <div class="media-row">
@@ -168,7 +150,6 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .fld { display: block; margin-bottom: 12px; }
 .fld-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--gray-700); margin-bottom: 4px; }
 .fld-input { width: 100%; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; font-family: inherit; box-sizing: border-box; }
-.fld-input:focus { outline: none; border-color: var(--blickle-navy); box-shadow: 0 0 0 3px rgba(22, 58, 108, 0.08); }
 .fld-small { min-height: 50px; resize: vertical; }
 .fld-file { padding: 4px; font-size: 0.75rem; }
 .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -181,33 +162,33 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .theme-btn.active { background: var(--blickle-navy); color: #fff; border-color: var(--blickle-navy); }
 .vn-preview { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06); background: #000; }
-.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
+.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06); background: #000; container-type: size; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto auto 1fr auto auto; gap: 32px; padding: 60px 80px; box-sizing: border-box; font-family: var(--font-body); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto auto 1fr auto auto; gap: calc(32 * var(--u)); padding: calc(60 * var(--u)) calc(80 * var(--u)); box-sizing: border-box; font-family: var(--font-body); }
 .canvas.theme-dark { background: linear-gradient(135deg, #0A1A33 0%, #0B2442 40%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
-.kicker-row { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
-.kicker-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 18px var(--accent); }
-.headline { grid-column: 1 / 13; font-family: var(--font-display); font-size: 108px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.kicker-row { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); font-family: var(--font-display); font-size: calc(26 * var(--u)); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+.kicker-dot { width: calc(14 * var(--u)); height: calc(14 * var(--u)); border-radius: 50%; background: var(--accent); box-shadow: 0 0 calc(18 * var(--u)) var(--accent); }
+.headline { grid-column: 1 / 13; font-family: var(--font-display); font-size: calc(108 * var(--u)); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
 .theme-dark .headline { color: #fff; } .theme-light .headline { color: #0B1F3A; }
 .media-row { grid-column: 1 / 13; align-self: stretch; min-height: 0; }
-.media-box { position: relative; width: 100%; height: 100%; min-height: 440px; border-radius: 18px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.45); background: rgba(0,0,0,0.3); }
+.media-box { position: relative; width: 100%; height: 100%; min-height: calc(440 * var(--u)); border-radius: calc(18 * var(--u)); overflow: hidden; box-shadow: 0 calc(30 * var(--u)) calc(60 * var(--u)) rgba(0,0,0,0.45); background: rgba(0,0,0,0.3); }
 .media-video, .media-placeholder img { width: 100%; height: 100%; object-fit: cover; }
-.media-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(255,255,255,0.04); }
+.media-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(12 * var(--u)); background: rgba(255,255,255,0.04); }
 .theme-light .media-placeholder { background: rgba(0,0,0,0.04); }
 .media-placeholder img { width: 20%; height: auto; opacity: 0.5; object-fit: contain; }
-.media-hint { font-size: 22px; color: rgba(255,255,255,0.5); font-style: italic; }
+.media-hint { font-size: calc(22 * var(--u)); color: rgba(255,255,255,0.5); font-style: italic; }
 .media-vignette { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.55) 100%); pointer-events: none; }
-.quote-overlay { position: absolute; bottom: 36px; right: 36px; max-width: 42%; background: rgba(10, 26, 51, 0.82); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); border-left: 5px solid var(--accent); border-radius: 14px; padding: 24px 30px 22px; display: flex; gap: 18px; box-shadow: 0 16px 40px rgba(0,0,0,0.45); }
-.quote-mark { font-family: Georgia, serif; font-size: 64px; color: var(--accent); line-height: 0.6; font-weight: 700; margin-top: 8px; }
-.quote-text { font-family: var(--font-display); font-size: 28px; font-weight: 500; color: #fff; line-height: 1.3; font-style: italic; }
-.quote-author { margin-top: 8px; font-family: var(--font-body); font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.03em; }
-.body { grid-column: 1 / 13; font-size: 38px; line-height: 1.3; font-weight: 400; max-width: 82%; }
+.quote-overlay { position: absolute; bottom: calc(36 * var(--u)); right: calc(36 * var(--u)); max-width: 42%; background: rgba(10, 26, 51, 0.82); backdrop-filter: blur(calc(16 * var(--u))); border: 1px solid rgba(255,255,255,0.12); border-left: calc(5 * var(--u)) solid var(--accent); border-radius: calc(14 * var(--u)); padding: calc(24 * var(--u)) calc(30 * var(--u)) calc(22 * var(--u)); display: flex; gap: calc(18 * var(--u)); box-shadow: 0 calc(16 * var(--u)) calc(40 * var(--u)) rgba(0,0,0,0.45); }
+.quote-mark { font-family: Georgia, serif; font-size: calc(64 * var(--u)); color: var(--accent); line-height: 0.6; font-weight: 700; margin-top: calc(8 * var(--u)); }
+.quote-text { font-family: var(--font-display); font-size: calc(28 * var(--u)); font-weight: 500; color: #fff; line-height: 1.3; font-style: italic; }
+.quote-author { margin-top: calc(8 * var(--u)); font-family: var(--font-body); font-size: calc(16 * var(--u)); font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.03em; }
+.body { grid-column: 1 / 13; font-size: calc(38 * var(--u)); line-height: 1.3; font-weight: 400; max-width: 82%; }
 .theme-dark .body { color: rgba(255,255,255,0.82); } .theme-light .body { color: rgba(11, 31, 58, 0.78); }
-.footer { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 18px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+.footer { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); padding-top: calc(18 * var(--u)); border-top: 1px solid rgba(255,255,255,0.1); font-size: calc(18 * var(--u)); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
 .theme-dark .footer { color: rgba(255,255,255,0.55); } .theme-light .footer { border-top-color: rgba(0,0,0,0.1); color: rgba(11,31,58,0.6); }
 .dot { opacity: 0.6; } .spacer { flex: 1; }
-.footer-logo { height: 32px; filter: brightness(0) invert(1); opacity: 0.85; }
+.footer-logo { height: calc(32 * var(--u)); filter: brightness(0) invert(1); opacity: 0.85; }
 .theme-light .footer-logo { filter: none; opacity: 0.7; }
 </style>
