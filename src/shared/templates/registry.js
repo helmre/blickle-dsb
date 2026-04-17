@@ -254,6 +254,69 @@ export const DESIGNER_TEMPLATES = [
       accent: '#163A6C',
     }
   },
+  {
+    id: 'designer-news-compact',
+    name: 'Kurznachrichten',
+    description: 'Drei kompakte News-Karten auf einer Seite. Ideal fuer wochentliche Updates.',
+    category: 'kommunikation',
+    renderer: 'component',
+    editorComponent: 'NewsCompactEditor',
+    displayComponent: 'NewsCompactEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    defaultParams: {
+      kicker: 'NEWS · KURZ & KNACKIG',
+      titel: 'Kurznachrichten',
+      news1_titel: '', news1_text: '',
+      news2_titel: '', news2_text: '',
+      news3_titel: '', news3_text: '',
+      authorLabel: 'Blickle Redaktion',
+      accent: '#B5CC18',
+      theme: 'dark',
+    }
+  },
+  {
+    id: 'designer-project-showcase',
+    name: 'Projekt-Showcase',
+    description: 'Grosse Bildflaeche mit Kategorie-Pill und Ueberschrift. Perfekt fuer Success-Stories.',
+    category: 'kommunikation',
+    renderer: 'component',
+    editorComponent: 'ProjectShowcaseEditor',
+    displayComponent: 'ProjectShowcaseEditor',
+    thumbnailBg: 'linear-gradient(135deg, #064E3B 0%, #10B981 100%)',
+    thumbnailAccent: '#10B981',
+    defaultParams: {
+      kicker: 'PROJEKT-SHOWCASE',
+      kategorie: 'NACHHALTIGKEIT',
+      projektname: '',
+      beschreibung: '',
+      imageUrl: '',
+      authorLabel: 'Blickle Team',
+      accent: '#10B981',
+      theme: 'dark',
+    }
+  },
+  {
+    id: 'designer-kpi-dashboard',
+    name: 'KPI-Dashboard',
+    description: 'Drei grosse Kennzahlen mit Trend-Indikatoren. Fuer Produktion und Management.',
+    category: 'produktion',
+    renderer: 'component',
+    editorComponent: 'KpiDashboardEditor',
+    displayComponent: 'KpiDashboardEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #0B2442 50%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    defaultParams: {
+      kicker: 'DASHBOARD · KW 16',
+      titel: 'Produktionskennzahlen',
+      wert1: '98.5%', label1: 'Qualitaetsrate', trend1: 'up',
+      wert2: '1.247', label2: 'Stueck/Tag', trend2: 'up',
+      wert3: '0', label3: 'Unfaelle', trend3: 'flat',
+      authorLabel: 'Produktion · Auto-Feed',
+      accent: '#B5CC18',
+      theme: 'dark',
+    }
+  },
 ]
 
 export function getDesignerTemplate(id) {
@@ -443,6 +506,48 @@ export const LEGACY_DISPLAY_ALIASES = {
         readingTime: '',
       }
     }
+  },
+  'tpl-news-compact': {
+    displayComponent: 'NewsCompactEditor',
+    mapParams: (p = {}) => ({
+      kicker: 'NEWS · KURZ & KNACKIG',
+      titel: p.titel || 'Kurznachrichten',
+      news1_titel: p.news1_titel || '',
+      news1_text: p.news1_text || '',
+      news2_titel: p.news2_titel || '',
+      news2_text: p.news2_text || '',
+      news3_titel: p.news3_titel || '',
+      news3_text: p.news3_text || '',
+      authorLabel: 'Blickle Redaktion',
+      accent: '#B5CC18',
+      theme: 'dark',
+    })
+  },
+  'tpl-project': {
+    displayComponent: 'ProjectShowcaseEditor',
+    mapParams: (p = {}) => ({
+      kicker: 'PROJEKT-SHOWCASE',
+      kategorie: p.kategorie || 'PROJEKT',
+      projektname: p.projektname || '',
+      beschreibung: p.beschreibung || '',
+      imageUrl: p.bild || '',
+      authorLabel: 'Blickle Team',
+      accent: '#10B981',
+      theme: 'dark',
+    })
+  },
+  'tpl-kpi': {
+    displayComponent: 'KpiDashboardEditor',
+    mapParams: (p = {}) => ({
+      kicker: 'KENNZAHLEN · AKTUELL',
+      titel: p.titel || 'Kennzahlen',
+      wert1: p.wert1 || '', label1: p.label1 || '', trend1: 'up',
+      wert2: p.wert2 || '', label2: p.label2 || '', trend2: 'up',
+      wert3: p.wert3 || '', label3: p.label3 || '', trend3: 'flat',
+      authorLabel: 'Blickle',
+      accent: '#B5CC18',
+      theme: 'dark',
+    })
   },
 }
 

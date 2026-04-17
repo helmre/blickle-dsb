@@ -13,6 +13,9 @@ export const editorRegistry = {
   VisitorAlertEditor: defineAsyncComponent(() => import('../../admin/designers/VisitorAlertEditor.vue')),
   CeoQuoteEditor: defineAsyncComponent(() => import('../../admin/designers/CeoQuoteEditor.vue')),
   EmployeeSpotlightEditor: defineAsyncComponent(() => import('../../admin/designers/EmployeeSpotlightEditor.vue')),
+  NewsCompactEditor: defineAsyncComponent(() => import('../../admin/designers/NewsCompactEditor.vue')),
+  ProjectShowcaseEditor: defineAsyncComponent(() => import('../../admin/designers/ProjectShowcaseEditor.vue')),
+  KpiDashboardEditor: defineAsyncComponent(() => import('../../admin/designers/KpiDashboardEditor.vue')),
 }
 
 export function getEditor(name) {
