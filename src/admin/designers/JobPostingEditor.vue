@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -40,28 +40,13 @@ const deptIcons = [
   { key: 'flask',   label: 'Qualitaet',   svg: '<path d="M24 4v20L12 48c-2 4 1 8 5 8h30c4 0 7-4 5-8L40 24V4Z"/><path d="M20 4h24"/><path d="M18 34h28"/>' },
 ]
 
-function updateBullet(i, value) {
-  const arr = [...(bullets.value || [])]
-  arr[i] = value
-  update('bullets', arr)
-}
-function addBullet() {
-  const arr = [...(bullets.value || [])]
-  if (arr.length >= 6) return
-  arr.push('Neue Anforderung')
-  update('bullets', arr)
-}
-function removeBullet(i) {
-  const arr = [...(bullets.value || [])]
-  arr.splice(i, 1)
-  update('bullets', arr)
-}
+function updateBullet(i, value) { const arr = [...(bullets.value || [])]; arr[i] = value; update('bullets', arr) }
+function addBullet() { const arr = [...(bullets.value || [])]; if (arr.length >= 6) return; arr.push('Neue Anforderung'); update('bullets', arr) }
+function removeBullet(i) { const arr = [...(bullets.value || [])]; arr.splice(i, 1); update('bullets', arr) }
 
 const formattedUntil = computed(() => {
   if (!validUntil.value) return ''
-  try {
-    return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(validUntil.value))
-  } catch { return validUntil.value }
+  try { return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(validUntil.value)) } catch { return validUntil.value }
 })
 
 function qrSrc(url) {
@@ -70,33 +55,17 @@ function qrSrc(url) {
 }
 
 const currentDeptIcon = computed(() => deptIcons.find(i => i.key === departmentIcon.value) || deptIcons[0])
-
-const previewFrame = ref(null)
-const scale = ref(0.4)
-function recomputeScale() {
-  if (!previewFrame.value) return
-  scale.value = Math.min(previewFrame.value.clientWidth / 1920, (previewFrame.value.clientHeight || Infinity) / 1080)
-}
-let ro = null
-onMounted(() => {
-  recomputeScale()
-  if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(recomputeScale)
-    if (previewFrame.value) ro.observe(previewFrame.value)
-  }
-})
-onUnmounted(() => { if (ro) ro.disconnect() })
 </script>
 
 <template>
-  <div v-if="displayMode" class="display-wrap" ref="previewFrame">
-    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+  <div v-if="displayMode" class="display-wrap">
+    <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
       <div class="kicker-row"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
       <div class="title">{{ jobTitle }}</div>
       <div class="subtitle">{{ department }}</div>
       <div class="main-row">
         <div class="icon-card">
-          <div class="icon-wrap" v-html="`<svg viewBox='0 0 64 64' width='140' height='140' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>${currentDeptIcon.svg}</svg>`"></div>
+          <div class="icon-wrap" v-html="`<svg viewBox='0 0 64 64' width='100%' height='100%' preserveAspectRatio='xMidYMid meet' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='max-width: 140px'>${currentDeptIcon.svg}</svg>`"></div>
           <div class="icon-label">{{ currentDeptIcon.label }}</div>
         </div>
         <div class="bullets-card">
@@ -137,8 +106,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
         <div class="fld">
           <span class="fld-label">Icon</span>
           <div class="icon-row">
-            <button v-for="i in deptIcons" :key="i.key" class="icon-btn"
-              :class="{ active: departmentIcon === i.key }" :title="i.label" @click="departmentIcon = i.key"
+            <button v-for="i in deptIcons" :key="i.key" class="icon-btn" :class="{ active: departmentIcon === i.key }" :title="i.label" @click="departmentIcon = i.key"
               v-html="`<svg viewBox='0 0 64 64' width='24' height='24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>${i.svg}</svg>`"></button>
           </div>
         </div>
@@ -169,9 +137,7 @@ onUnmounted(() => { if (ro) ro.disconnect() })
         <label class="fld"><span class="fld-label">Gueltig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
         <div class="fld"><span class="fld-label">Akzentfarbe</span>
           <div class="accent-row">
-            <button v-for="p in accentPresets" :key="p.value" class="accent-swatch"
-              :class="{ active: accent === p.value }" :style="{ background: p.value }"
-              @click="accent = p.value"></button>
+            <button v-for="p in accentPresets" :key="p.value" class="accent-swatch" :class="{ active: accent === p.value }" :style="{ background: p.value }" @click="accent = p.value"></button>
           </div>
         </div>
         <div class="fld"><span class="fld-label">Theme</span>
@@ -184,15 +150,15 @@ onUnmounted(() => { if (ro) ro.disconnect() })
     </aside>
 
     <section class="jp-preview">
-      <div class="preview-header"><span>Live-Vorschau · 1920 × 1080</span></div>
-      <div class="preview-frame" ref="previewFrame">
-        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent, transform: `scale(${scale})` }">
+      <div class="preview-header"><span>Live-Vorschau · fluid</span></div>
+      <div class="preview-frame">
+        <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
           <div class="kicker-row"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
           <div class="title">{{ jobTitle }}</div>
           <div class="subtitle">{{ department }}</div>
           <div class="main-row">
             <div class="icon-card">
-              <div class="icon-wrap" v-html="`<svg viewBox='0 0 64 64' width='140' height='140' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>${currentDeptIcon.svg}</svg>`"></div>
+              <div class="icon-wrap" v-html="`<svg viewBox='0 0 64 64' width='100%' height='100%' preserveAspectRatio='xMidYMid meet' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='max-width: 140px'>${currentDeptIcon.svg}</svg>`"></div>
               <div class="icon-label">{{ currentDeptIcon.label }}</div>
             </div>
             <div class="bullets-card">
@@ -234,7 +200,6 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .fld { display: block; margin-bottom: 12px; }
 .fld-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--gray-700); margin-bottom: 4px; }
 .fld-input { width: 100%; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; font-family: inherit; box-sizing: border-box; }
-.fld-input:focus { outline: none; border-color: var(--blickle-navy); box-shadow: 0 0 0 3px rgba(22, 58, 108, 0.08); }
 .fld-small { min-height: 50px; resize: vertical; }
 .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .icon-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
@@ -252,49 +217,50 @@ onUnmounted(() => { if (ro) ro.disconnect() })
 .theme-btn.active { background: var(--blickle-navy); color: #fff; border-color: var(--blickle-navy); }
 .jp-preview { background: var(--blickle-white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); }
 .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.7rem; color: var(--gray-500); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06); background: #000; }
-.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; background: #000; }
+.preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06); background: #000; container-type: size; }
+.display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.canvas { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px; transform-origin: center center; display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: 24px; padding: 56px 72px; box-sizing: border-box; font-family: var(--font-body); align-content: start; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto; gap: calc(24 * var(--u)); padding: calc(56 * var(--u)) calc(72 * var(--u)); box-sizing: border-box; font-family: var(--font-body); align-content: start; }
 .canvas.theme-dark { background: radial-gradient(ellipse at 85% 0%, rgba(181, 204, 24, 0.1) 0%, transparent 55%), linear-gradient(135deg, #0A1A33 0%, #0B2442 40%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
-.kicker-row { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
-.kicker-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 18px var(--accent); }
-.title { grid-column: 1 / 13; font-family: var(--font-display); font-size: 88px; font-weight: 700; line-height: 1.02; letter-spacing: -0.02em; }
+.kicker-row { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); font-family: var(--font-display); font-size: calc(24 * var(--u)); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+.kicker-dot { width: calc(14 * var(--u)); height: calc(14 * var(--u)); border-radius: 50%; background: var(--accent); box-shadow: 0 0 calc(18 * var(--u)) var(--accent); }
+.title { grid-column: 1 / 13; font-family: var(--font-display); font-size: calc(88 * var(--u)); font-weight: 700; line-height: 1.02; letter-spacing: -0.02em; }
 .theme-dark .title { color: #fff; } .theme-light .title { color: #0B1F3A; }
-.subtitle { grid-column: 1 / 13; font-family: var(--font-display); font-size: 32px; font-weight: 500; color: var(--accent); margin-bottom: 14px; }
-.main-row { grid-column: 1 / 13; display: grid; grid-template-columns: 3fr 6fr 3fr; gap: 24px; align-items: stretch; }
-.icon-card { background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: 18px; border: 1px solid rgba(255,255,255,0.12); padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; position: relative; overflow: hidden; }
-.icon-wrap { color: var(--accent); filter: drop-shadow(0 0 28px var(--accent)); }
-.icon-label { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 0.05em; text-transform: uppercase; }
+.subtitle { grid-column: 1 / 13; font-family: var(--font-display); font-size: calc(32 * var(--u)); font-weight: 500; color: var(--accent); margin-bottom: calc(14 * var(--u)); }
+.main-row { grid-column: 1 / 13; display: grid; grid-template-columns: 3fr 6fr 3fr; gap: calc(24 * var(--u)); align-items: stretch; }
+.icon-card { background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: calc(18 * var(--u)); border: 1px solid rgba(255,255,255,0.12); padding: calc(40 * var(--u)) calc(20 * var(--u)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(16 * var(--u)); position: relative; overflow: hidden; }
+.icon-wrap { color: var(--accent); filter: drop-shadow(0 0 calc(28 * var(--u)) var(--accent)); width: calc(140 * var(--u)); height: calc(140 * var(--u)); display: flex; align-items: center; justify-content: center; }
+.icon-wrap :deep(svg) { width: 100%; height: 100%; }
+.icon-label { font-family: var(--font-display); font-size: calc(22 * var(--u)); font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 0.05em; text-transform: uppercase; }
 .theme-light .icon-label { color: rgba(11, 31, 58, 0.75); }
-.bullets-card { background: rgba(255,255,255,0.04); border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); border-top: 6px solid var(--accent); padding: 32px 40px; display: flex; flex-direction: column; gap: 16px; }
-.bullets-header { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
-.bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-.bullets li { display: flex; gap: 14px; align-items: flex-start; font-size: 26px; line-height: 1.3; color: rgba(255,255,255,0.88); font-weight: 400; }
+.bullets-card { background: rgba(255,255,255,0.04); border-radius: calc(18 * var(--u)); border: 1px solid rgba(255,255,255,0.1); border-top: calc(6 * var(--u)) solid var(--accent); padding: calc(32 * var(--u)) calc(40 * var(--u)); display: flex; flex-direction: column; gap: calc(16 * var(--u)); }
+.bullets-header { font-family: var(--font-display); font-size: calc(22 * var(--u)); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: calc(10 * var(--u)); flex: 1; }
+.bullets li { display: flex; gap: calc(14 * var(--u)); align-items: flex-start; font-size: calc(26 * var(--u)); line-height: 1.3; color: rgba(255,255,255,0.88); font-weight: 400; }
 .theme-light .bullets li { color: rgba(11, 31, 58, 0.88); }
-.check { color: var(--accent); font-weight: 800; flex-shrink: 0; width: 30px; font-size: 28px; }
-.perks { padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 18px; color: rgba(255,255,255,0.6); font-weight: 500; }
+.check { color: var(--accent); font-weight: 800; flex-shrink: 0; width: calc(30 * var(--u)); font-size: calc(28 * var(--u)); }
+.perks { padding-top: calc(14 * var(--u)); border-top: 1px solid rgba(255,255,255,0.1); font-size: calc(18 * var(--u)); color: rgba(255,255,255,0.6); font-weight: 500; }
 .theme-light .perks { border-top-color: rgba(0,0,0,0.1); color: rgba(11, 31, 58, 0.6); }
-.qr-card { background: rgba(255,255,255,0.04); border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.qr-box { width: 100%; aspect-ratio: 1; background: #fff; border-radius: 14px; padding: 14px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
+.qr-card { background: rgba(255,255,255,0.04); border-radius: calc(18 * var(--u)); border: 1px solid rgba(255,255,255,0.1); padding: calc(24 * var(--u)); display: flex; flex-direction: column; align-items: center; gap: calc(14 * var(--u)); }
+.qr-box { width: 100%; aspect-ratio: 1; background: #fff; border-radius: calc(14 * var(--u)); padding: calc(14 * var(--u)); box-sizing: border-box; display: flex; align-items: center; justify-content: center; box-shadow: 0 calc(12 * var(--u)) calc(32 * var(--u)) rgba(0,0,0,0.35); }
 .qr-box img { width: 100%; height: 100%; object-fit: contain; }
-.qr-label { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 0.04em; }
-.qr-sub { font-size: 16px; color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+.qr-label { font-family: var(--font-display); font-size: calc(28 * var(--u)); font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 0.04em; }
+.qr-sub { font-size: calc(16 * var(--u)); color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
 .theme-light .qr-sub { color: rgba(11, 31, 58, 0.55); }
-.contact-strip { grid-column: 1 / 13; display: flex; align-items: center; gap: 28px; padding: 20px 28px; margin-top: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; }
-.contact-label { font-size: 14px; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+.contact-strip { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(28 * var(--u)); padding: calc(20 * var(--u)) calc(28 * var(--u)); margin-top: calc(8 * var(--u)); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: calc(14 * var(--u)); }
+.contact-label { font-size: calc(14 * var(--u)); color: rgba(255,255,255,0.5); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; margin-bottom: calc(2 * var(--u)); }
 .theme-light .contact-label { color: rgba(11, 31, 58, 0.5); }
-.contact-name { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+.contact-name { font-family: var(--font-display); font-size: calc(28 * var(--u)); font-weight: 700; color: #fff; line-height: 1; }
 .theme-light .contact-name { color: #0B1F3A; }
-.contact-divider { width: 1px; height: 44px; background: rgba(255,255,255,0.15); }
+.contact-divider { width: 1px; height: calc(44 * var(--u)); background: rgba(255,255,255,0.15); }
 .theme-light .contact-divider { background: rgba(0,0,0,0.15); }
-.contact-channels { display: flex; flex-direction: column; gap: 4px; }
-.channel { font-size: 22px; font-weight: 500; color: rgba(255,255,255,0.85); letter-spacing: 0.02em; }
+.contact-channels { display: flex; flex-direction: column; gap: calc(4 * var(--u)); }
+.channel { font-size: calc(22 * var(--u)); font-weight: 500; color: rgba(255,255,255,0.85); letter-spacing: 0.02em; }
 .theme-light .channel { color: rgba(11, 31, 58, 0.85); }
-.footer { grid-column: 1 / 13; display: flex; align-items: center; gap: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 16px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-top: 6px; }
+.footer { grid-column: 1 / 13; display: flex; align-items: center; gap: calc(14 * var(--u)); padding-top: calc(14 * var(--u)); border-top: 1px solid rgba(255,255,255,0.1); font-size: calc(16 * var(--u)); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-top: calc(6 * var(--u)); }
 .theme-light .footer { border-top-color: rgba(0,0,0,0.1); color: rgba(11, 31, 58, 0.55); }
 .spacer { flex: 1; }
-.footer-logo { height: 30px; filter: brightness(0) invert(1); opacity: 0.85; }
+.footer-logo { height: calc(30 * var(--u)); filter: brightness(0) invert(1); opacity: 0.85; }
 .theme-light .footer-logo { filter: none; opacity: 0.7; }
 </style>
