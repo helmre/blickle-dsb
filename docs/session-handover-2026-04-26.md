@@ -258,6 +258,93 @@ Neue/angepasste Logik:
 Fachliche Klarstellung:
 
 - Playlist ist eine **Inhaltsplaylist**, kein Display-Programm.
+
+### 7. Vorlagen-Baukasten statt isolierter Template-Liste
+
+Dateien im Vue-Prototyp:
+
+- `dsb/src/admin/pages/TemplateCatalogPage.vue`
+- `dsb/src/shared/stores/templateStore.js`
+- `dsb/src/shared/templates/registry.js`
+
+Neue Produktlogik:
+
+- Der Reiter **Vorlagen** ist nicht mehr nur ein Katalog zum Anschauen.
+- Er ist der Baukasten fuer wiederverwendbare Inhaltsvorlagen.
+- Redakteure koennen Templates duplizieren, umbenennen, beschreiben, aktivieren/deaktivieren und mit einfachen Design-/Feldoptionen anpassen.
+- Nur aktive eigene Templates erscheinen im Veröffentlichen-Wizard.
+- Systemvorlagen bleiben als Ausgangspunkt erhalten, eigene Varianten koennen daraus entstehen.
+
+Umgesetzte Builder-Funktionen:
+
+- Neue leere Vorlage anlegen
+- Bestehende Vorlage duplizieren
+- Name, Beschreibung und Kategorie pflegen
+- Aktiv/Inaktiv als Schalter fuer die Nutzung beim Veröffentlichen
+- Design-Presets: `classic`, `hero`, `compact`
+- Theme: `dark`, `light`
+- Dichte: `compact`, `normal`, `generous`
+- Akzentfarbe
+- Feldschema mit Key, Label, Typ, Standardwert und Pflichtfeld
+- Typen: `text`, `textarea`, `url`, `image`, `date`
+- Vorschau im Baukasten
+
+Fachliche Regel:
+
+```text
+Vorlage aktiv = im Veröffentlichen auswählbar
+Vorlage inaktiv = bleibt im Baukasten, erscheint aber nicht im Redaktionsfluss
+```
+
+Damit bleibt die Bedienlogik geschlossen:
+
+```text
+Vorlagen = Baukasten
+Veröffentlichen = konkrete Nutzung einer aktiven Vorlage
+Inhaltsbibliothek = entstandene Inhalte verwalten
+Freigaben = entstandene Inhalte pruefen
+```
+
+### 8. WordPress-Plugin: Vorlagen-Baukasten gespiegelt
+
+Lokaler Plugin-Pfad:
+
+- `/Users/reinholdhelm/Desktop/Digitales Schwarzes Brett_Codex/dsb-wordpress-plugin`
+
+Geaenderte Plugin-Dateien:
+
+- `admin/views/templates.php`
+- `admin/css/dsb-admin.css`
+- `includes/post-types/class-dsb-template-post-type.php`
+
+WordPress-Paritaet zur Vue-Version:
+
+- Neue Admin-Seite **Vorlagen-Baukasten**
+- Template-Liste mit Aktiv/Inaktiv-Status
+- Vorlage duplizieren
+- Neue Vorlage als Entwurf erstellen
+- Vorlage speichern mit Name, Beschreibung, Kategorie und Icon
+- Aktiv/Inaktiv wird ueber WordPress-Status abgebildet:
+  - `publish` = aktiv und im Content-Editor auswählbar
+  - `draft` = inaktiv und nur im Baukasten sichtbar
+- Felder/Feldschema werden in `_dsb_parameters` als JSON gespeichert
+- HTML/CSS werden aus den Feld- und Designoptionen generiert
+- Visual Builder bleibt ueber den normalen `dsb_template`-Edit-Link erreichbar
+
+Neue/erweiterte Template-Metafelder:
+
+| Meta Key | Bedeutung |
+|---|---|
+| `_dsb_design_preset` | `classic`, `hero`, `compact` |
+| `_dsb_design_theme` | `dark`, `light` |
+| `_dsb_design_density` | `compact`, `normal`, `generous` |
+| `_dsb_accent_color` | Hex-Farbe fuer Akzent |
+
+Wichtig fuer die WordPress-Architektur:
+
+- Die bestehende Funktion `get_templates_for_js()` in `admin/class-dsb-admin.php` laedt nur `post_status => publish`.
+- Dadurch ist die Aktiv/Inaktiv-Regel ohne zweite Speziallogik bereits mit dem Content-Editor verheiratet.
+- Der Baukasten ist bewusst nicht der Ersatz fuer GrapesJS, sondern der einfache Redakteurs-/Admin-Weg. GrapesJS bleibt der Profi-Modus.
 - Ob und wo eine Playlist laeuft, entscheidet:
   - ein Programm-Baustein
   - optional ein Playlist-Zeitplan

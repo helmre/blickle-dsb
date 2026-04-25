@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { generateId } from '../utils/storage.js'
+import { generateId, now } from '../utils/storage.js'
 import { templateRepository } from '../repositories/appRepositories.js'
 import { commitRef } from './storeCommit.js'
 
@@ -12,7 +12,7 @@ export const useTemplateStore = defineStore('templates', () => {
   function getById(id) { return items.value.find(t => t.id === id) }
 
   function add(template) {
-    const item = { ...template, id: generateId() }
+    const item = { ...template, id: generateId(), createdAt: now(), updatedAt: now() }
     commitRef(items, [...items.value, item], persist)
     return item
   }
@@ -20,7 +20,7 @@ export const useTemplateStore = defineStore('templates', () => {
   function update(id, changes) {
     const idx = items.value.findIndex(t => t.id === id)
     if (idx === -1) return null
-    const updated = { ...items.value[idx], ...changes }
+    const updated = { ...items.value[idx], ...changes, updatedAt: now() }
     commitRef(items, items.value.map((template, templateIdx) => templateIdx === idx ? updated : template), persist)
     return updated
   }

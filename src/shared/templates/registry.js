@@ -850,7 +850,9 @@ export function getAllTemplates() {
     description: t.description || `${t.category || ''} Template`,
     category: t.category || 'allgemein',
     renderer: 'html-params',
-    catalogHidden: HIDDEN_LEGACY_TEMPLATE_IDS.has(t.id),
+    catalogHidden: HIDDEN_LEGACY_TEMPLATE_IDS.has(t.id) || t.catalogHidden === true || t.isActive === false,
+    isActive: t.isActive !== false,
+    design: t.design || null,
     htmlTemplate: t.htmlTemplate,
     cssTemplate: t.cssTemplate,
     parameters: t.parameters || [],
@@ -889,6 +891,9 @@ export function getTemplateById(id) {
     htmlTemplate: legacy.htmlTemplate,
     cssTemplate: legacy.cssTemplate,
     parameters: legacy.parameters || [],
+    isActive: legacy.isActive !== false,
+    catalogHidden: legacy.catalogHidden === true || legacy.isActive === false,
+    design: legacy.design || null,
     defaultParams,
   }
 }
