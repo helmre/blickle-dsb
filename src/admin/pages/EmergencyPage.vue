@@ -4,17 +4,23 @@ import { useEmergencyStore } from '../../shared/stores/emergencyStore.js'
 import { useLocationStore } from '../../shared/stores/locationStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
+import { PERMISSIONS } from '../../shared/auth/policies.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
 
 const emergencyStore = useEmergencyStore()
 const locationStore = useLocationStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const toast = useToastStore()
 
 const message = ref('')
 const severity = ref('warning')
 const duration = ref(60)
 const selectedLocations = ref([])
 const showConfirm = ref(false)
+const canTriggerEmergency = computed(() => userStore.can(PERMISSIONS.EMERGENCY_TRIGGER))
+const activeEmergency = computed(() => emergencyStore.activeEmergency)
 
 function toggleLocation(locId) {
   const idx = selectedLocations.value.indexOf(locId)
@@ -26,27 +32,38 @@ function toggleLocation(locId) {
 }
 
 function selectAllLocations() {
-  if (selectedLocations.value.length === locationStore.items.length) {
+  if (selectedLocations.value.length === locationStore.displayLocations.length) {
     selectedLocations.value = []
   } else {
-    selectedLocations.value = locationStore.items.map(l => l.id)
+    selectedLocations.value = locationStore.displayLocations.map(l => l.id)
   }
 }
 
 function confirmSend() {
-  if (!message.value.trim()) return
+  if (!message.value.trim() || !canTriggerEmergency.value) return
   showConfirm.value = true
 }
 
+function logAudit(action, entityId, details) {
+  safeAuditLog(auditStore, action, 'emergency', entityId, userStore.currentUser.id, details, { toast })
+}
+
 function sendEmergency() {
-  const emergency = emergencyStore.trigger({
-    message: message.value,
-    severity: severity.value,
-    targetLocationIds: selectedLocations.value,
-    displayDuration: duration.value,
-    triggeredBy: userStore.currentUser.id
-  })
-  auditStore.log('emergency.triggered', 'emergency', emergency.id, userStore.currentUser.id, {
+  if (!canTriggerEmergency.value) return
+  let emergency
+  try {
+    emergency = emergencyStore.trigger({
+      message: message.value,
+      severity: severity.value,
+      targetLocationIds: selectedLocations.value,
+      displayDuration: duration.value,
+      triggeredBy: userStore.currentUser.id
+    })
+  } catch (error) {
+    toast.error(error?.message || 'Notfall konnte nicht ausgelöst werden')
+    return
+  }
+  logAudit('emergency.triggered', emergency.id, {
     message: message.value,
     severity: severity.value,
     duration: duration.value
@@ -56,6 +73,22 @@ function sendEmergency() {
   duration.value = 60
   selectedLocations.value = []
   showConfirm.value = false
+}
+
+function dismissActiveEmergency() {
+  if (!activeEmergency.value || !canTriggerEmergency.value) return
+  if (!confirm('Aktiven Notfall wirklich beenden?')) return
+  const emergency = activeEmergency.value
+  try {
+    emergencyStore.dismiss(emergency.id, userStore.currentUser.id)
+  } catch (error) {
+    toast.error(error?.message || 'Notfall konnte nicht beendet werden')
+    return
+  }
+  logAudit('emergency.dismissed', emergency.id, {
+    message: emergency.message,
+    severity: emergency.severity,
+  })
 }
 
 function getUserName(userId) {
@@ -70,6 +103,12 @@ function getLocationNames(ids) {
   }).join(', ')
 }
 
+function getEmergencyState(entry) {
+  if (activeEmergency.value?.id === entry.id) return 'Aktiv'
+  if (entry.acknowledgedAt) return 'Beendet'
+  return 'Abgelaufen'
+}
+
 const historyItems = computed(() => emergencyStore.history)
 </script>
 
@@ -80,18 +119,21 @@ const historyItems = computed(() => emergencyStore.history)
     </div>
 
     <!-- Active Emergency Banner -->
-    <div v-if="emergencyStore.activeEmergency" class="active-banner">
+    <div v-if="activeEmergency" class="active-banner">
       <span class="active-icon">&#9888;</span>
       <div class="active-info">
-        <strong>Aktiver Notfall:</strong> {{ emergencyStore.activeEmergency.message }}
+        <strong>Aktiver Notfall:</strong> {{ activeEmergency.message }}
       </div>
+      <button class="btn-dismiss-emergency" @click="dismissActiveEmergency" :disabled="!canTriggerEmergency">
+        Entwarnen
+      </button>
     </div>
 
     <!-- Emergency Form -->
     <div class="emergency-card">
       <div class="warning-icon">&#9888;</div>
       <h3 class="emergency-title">Notfallnachricht senden</h3>
-      <p class="emergency-subtitle">Diese Nachricht wird sofort auf allen ausgewaehlten Displays angezeigt.</p>
+      <p class="emergency-subtitle">Diese Nachricht wird sofort auf allen ausgewählten Displays angezeigt.</p>
 
       <div class="form-group">
         <label>Nachricht</label>
@@ -125,11 +167,11 @@ const historyItems = computed(() => emergencyStore.history)
         <label>
           Standorte
           <button class="select-all-btn" @click="selectAllLocations">
-            {{ selectedLocations.length === locationStore.items.length ? 'Keine' : 'Alle' }} auswaehlen
+            {{ selectedLocations.length === locationStore.displayLocations.length ? 'Keine' : 'Alle' }} auswählen
           </button>
         </label>
         <div class="location-checkboxes">
-          <label v-for="loc in locationStore.items" :key="loc.id" class="checkbox-label">
+          <label v-for="loc in locationStore.displayLocations" :key="loc.id" class="checkbox-label">
             <input
               type="checkbox"
               :checked="selectedLocations.includes(loc.id)"
@@ -143,7 +185,7 @@ const historyItems = computed(() => emergencyStore.history)
       <button
         class="btn-emergency"
         @click="confirmSend"
-        :disabled="!message.trim()"
+        :disabled="!message.trim() || !canTriggerEmergency"
       >
         &#9888; NOTFALL SENDEN
       </button>
@@ -160,7 +202,8 @@ const historyItems = computed(() => emergencyStore.history)
               <th>Nachricht</th>
               <th>Schweregrad</th>
               <th>Dauer</th>
-              <th>Ausgeloest von</th>
+              <th>Status</th>
+              <th>Ausgelöst von</th>
               <th>Standorte</th>
             </tr>
           </thead>
@@ -174,12 +217,17 @@ const historyItems = computed(() => emergencyStore.history)
                 </span>
               </td>
               <td>{{ entry.displayDuration }}s</td>
+              <td>
+                <span :class="['state-badge', getEmergencyState(entry).toLowerCase()]">
+                  {{ getEmergencyState(entry) }}
+                </span>
+              </td>
               <td>{{ getUserName(entry.triggeredBy) }}</td>
               <td>{{ getLocationNames(entry.targetLocationIds) || 'Alle' }}</td>
             </tr>
           </tbody>
         </table>
-        <p v-if="!historyItems.length" class="empty-text">Keine Notfaelle im Verlauf.</p>
+        <p v-if="!historyItems.length" class="empty-text">Keine Notfälle im Verlauf.</p>
       </div>
     </div>
 
@@ -187,21 +235,21 @@ const historyItems = computed(() => emergencyStore.history)
     <div v-if="showConfirm" class="modal-overlay" @click.self="showConfirm = false">
       <div class="modal confirm-modal">
         <div class="modal-header modal-header-danger">
-          <h3>&#9888; Notfall bestaetigen</h3>
+          <h3>&#9888; Notfall bestätigen</h3>
           <button class="modal-close" @click="showConfirm = false">&times;</button>
         </div>
         <div class="modal-body">
-          <p class="confirm-text">Sind Sie sicher, dass Sie folgende Notfallnachricht senden moechten?</p>
+          <p class="confirm-text">Sind Sie sicher, dass Sie folgende Notfallnachricht senden möchten?</p>
           <div class="confirm-preview">
             <p><strong>Nachricht:</strong> {{ message }}</p>
             <p><strong>Schweregrad:</strong> {{ severity === 'critical' ? 'Kritisch' : 'Warnung' }}</p>
             <p><strong>Dauer:</strong> {{ duration }} Sekunden</p>
-            <p><strong>Standorte:</strong> {{ selectedLocations.length ? getLocationNames(selectedLocations) : 'Keine ausgewaehlt' }}</p>
+            <p><strong>Standorte:</strong> {{ selectedLocations.length ? getLocationNames(selectedLocations) : 'Keine ausgewählt' }}</p>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="showConfirm = false">Abbrechen</button>
-          <button class="btn-danger-solid" @click="sendEmergency">Jetzt senden</button>
+          <button class="btn-danger-solid" @click="sendEmergency" :disabled="!canTriggerEmergency">Jetzt senden</button>
         </div>
       </div>
     </div>
@@ -240,9 +288,21 @@ const historyItems = computed(() => emergencyStore.history)
 }
 .active-icon { font-size: 1.5rem; }
 .active-info {
+  flex: 1;
   font-size: var(--font-size-sm);
   color: var(--color-danger);
 }
+
+.btn-dismiss-emergency {
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: #DC2626;
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+.btn-dismiss-emergency:hover { background: #B91C1C; }
+.btn-dismiss-emergency:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .emergency-card {
   background: var(--blickle-white);
@@ -364,6 +424,17 @@ const historyItems = computed(() => emergencyStore.history)
 }
 .severity-badge.critical { background: #FEE2E2; color: #DC2626; }
 .severity-badge.warning { background: var(--color-warning-light); color: #92400E; }
+.state-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+.state-badge.aktiv { background: #FEE2E2; color: #DC2626; }
+.state-badge.beendet { background: #DCFCE7; color: #166534; }
+.state-badge.abgelaufen { background: var(--gray-100); color: var(--gray-500); }
 
 .form-group {
   margin-bottom: 16px;

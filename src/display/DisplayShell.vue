@@ -1,10 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useEmergencyStore } from '../shared/stores/emergencyStore.js'
 import { useLocationStore } from '../shared/stores/locationStore.js'
 import { useDisplayTheme } from '../shared/composables/useDisplayTheme.js'
 import { useDisplayContent } from '../shared/composables/useDisplayContent.js'
+import { calculateDisplayScale } from './displayScale.js'
+import { isEmergencyTargetedForDisplay } from '../shared/displayEngine/contentEligibility.js'
+import { loadDisplayPreview } from '../shared/utils/displayPreview.js'
 import DisplayHeader from './DisplayHeader.vue'
 import DisplayNav from './DisplayNav.vue'
 import DisplayTicker from './DisplayTicker.vue'
@@ -14,29 +18,30 @@ import './display-themes.css'
 
 const route = useRoute()
 const locationId = computed(() => route.params.locationId || route.query.location || null)
+const previewPayload = ref(null)
+const previewToken = computed(() => {
+  const token = route.query.preview
+  if (Array.isArray(token)) return token[0] || ''
+  return token || ''
+})
+const previewContent = computed(() => previewPayload.value?.content || null)
 
 const emergencyStore = useEmergencyStore()
 const locationStore = useLocationStore()
 const { theme, toggleTheme, navPosition, toggleNavPosition } = useDisplayTheme()
-const { displayPages: pages, tickerMessages, activePlaylist } = useDisplayContent(locationId)
+const { displayPages: pages, navGroups, tickerMessages, activePlaylist } = useDisplayContent(locationId, { previewContent })
+const isPreviewMode = computed(() => !!previewContent.value)
 
 const isEmergencyTargeted = computed(() => {
-  const em = emergencyStore.activeEmergency
-  if (!em) return false
-  const targets = em.targetLocationIds || []
-  if (targets.length === 0) return true
-  const locId = locationId.value
-  if (!locId) return false
-  if (targets.includes(locId)) return true
-  const parentId = locationStore.getById(locId)?.parentId || null
-  if (parentId && targets.includes(parentId)) return true
-  return false
+  return isEmergencyTargetedForDisplay(emergencyStore.activeEmergency, locationId.value, locationStore.items)
 })
 
 const currentPageIndex = ref(0)
 const currentPage = computed(() => pages.value[currentPageIndex.value] || pages.value[0])
+const activeGroupId = computed(() => currentPage.value?.navGroupId || '')
 const transitioning = ref(false)
 const isFullscreen = computed(() => currentPage.value?.layout === 'fullscreen')
+const pageTransition = computed(() => currentPage.value?.transition || 'fade')
 const isFullscreenVideo = computed(() => {
   if (!isFullscreen.value) return false
   const zone = currentPage.value?.zones?.[0]
@@ -48,9 +53,12 @@ const progressDuration = ref(15) // seconds for progress bar animation
 const progressActive = ref(false)
 const progressKey = ref(0) // increment to restart animation
 let cycleTimer = null
+let transitionTimer = null
+let resumeTimer = null
 
 // Offline detection
-const isOffline = ref(!navigator.onLine)
+const canReadOnlineState = typeof navigator !== 'undefined' && 'onLine' in navigator
+const isOffline = ref(canReadOnlineState ? !navigator.onLine : false)
 function onOnline() { isOffline.value = false }
 function onOffline() { isOffline.value = true }
 
@@ -144,29 +152,42 @@ function getPageDuration() {
 }
 
 function setPage(index) {
-  if (index === currentPageIndex.value) return
-  transitioning.value = true
-  setTimeout(() => {
-    currentPageIndex.value = index
-    setTimeout(() => { transitioning.value = false }, 50)
-  }, 300)
+  const pageCount = pages.value.length
+  if (pageCount === 0) return
+  const safeIndex = ((index % pageCount) + pageCount) % pageCount
+  if (safeIndex === currentPageIndex.value) return
+  clearTimeout(transitionTimer)
+  clearTimeout(resumeTimer)
   stopCycle()
-  startCycle()
+  transitioning.value = true
+  transitionTimer = setTimeout(() => {
+    currentPageIndex.value = safeIndex
+    resumeTimer = setTimeout(() => {
+      transitioning.value = false
+      startCycle()
+    }, 50)
+  }, 300)
 }
 
 function nextPage() {
+  if (pages.value.length <= 1) return
   const next = (currentPageIndex.value + 1) % pages.value.length
   setPage(next)
 }
 
+function prevPage() {
+  if (pages.value.length <= 1) return
+  const prev = (currentPageIndex.value - 1 + pages.value.length) % pages.value.length
+  setPage(prev)
+}
+
 function calculateScale() {
-  const sw = window.innerWidth / 1920
-  const sh = window.innerHeight / 1080
-  scale.value = Math.max(sw, sh)
+  scale.value = calculateDisplayScale(window.innerWidth, window.innerHeight)
 }
 
 function startCycle() {
   stopCycle()
+  if (pages.value.length <= 1) return
   const duration = getPageDuration()
   // Start progress bar (not for fullscreen video – those end on video-ended)
   if (!isFullscreenVideo.value) {
@@ -188,6 +209,11 @@ function stopCycle() {
   }
 }
 
+function dismissEmergency(id) {
+  if (!id) return
+  emergencyStore.dismiss(id)
+}
+
 onMounted(() => {
   calculateScale()
   window.addEventListener('resize', calculateScale)
@@ -201,8 +227,21 @@ onUnmounted(() => {
   window.removeEventListener('online', onOnline)
   window.removeEventListener('offline', onOffline)
   stopCycle()
+  clearTimeout(transitionTimer)
+  clearTimeout(resumeTimer)
   clearTimeout(overlayTimer)
 })
+
+watch(() => pages.value.map(page => `${page.id}:${page.duration || 15}`).join('|'), () => {
+  if (currentPageIndex.value >= pages.value.length) currentPageIndex.value = 0
+  startCycle()
+})
+
+watch(previewToken, (token) => {
+  previewPayload.value = loadDisplayPreview(token)
+  currentPageIndex.value = 0
+  startCycle()
+}, { immediate: true })
 </script>
 
 <template>
@@ -221,6 +260,8 @@ onUnmounted(() => {
       <!-- Animated background layers -->
       <div class="bg-gradient"></div>
       <div class="bg-grid"></div>
+
+      <div v-if="isPreviewMode" class="preview-ribbon">Entwurfs-Vorschau</div>
 
       <DisplayHeader
         v-if="!isFullscreen || showFullscreenOverlay"
@@ -242,18 +283,38 @@ onUnmounted(() => {
 
       <div :class="['display-body', `display-body--${navPosition}`, { 'display-body--fullscreen': isFullscreen }]">
         <div
-          :class="['display-content', { 'is-transitioning': transitioning, 'is-fullscreen': isFullscreen }]"
+          :class="['display-content', `transition-${pageTransition}`, { 'is-transitioning': transitioning, 'is-fullscreen': isFullscreen }]"
           :style="swipeOffset ? { transform: `translateX(${swipeOffset}px)` } : null"
           @touchstart.passive="onTouchStart"
           @touchmove.passive="onTouchMove"
           @touchend.passive="onTouchEnd"
         >
           <DisplayGrid :page="currentPage" :mediaPaused="showFullscreenOverlay" @media-ended="onMediaEnded" />
+
+          <!-- Page hint arrows: tap/click to skip to prev/next page -->
+          <button
+            v-if="!isFullscreen"
+            class="page-arrow page-arrow--prev"
+            :class="{ 'page-arrow--sidebar': navPosition === 'sidebar' }"
+            aria-label="Vorherige Seite"
+            @click.stop="prevPage"
+          >
+            <ChevronLeft :size="32" :stroke-width="2.25" />
+          </button>
+          <button
+            v-if="!isFullscreen"
+            class="page-arrow page-arrow--next"
+            :class="{ 'page-arrow--sidebar': navPosition === 'sidebar' }"
+            aria-label="Nächste Seite"
+            @click.stop="nextPage"
+          >
+            <ChevronRight :size="32" :stroke-width="2.25" />
+          </button>
         </div>
         <DisplayNav
           v-if="navPosition === 'sidebar' && !isFullscreen"
-          :pages="pages"
-          :activeIndex="currentPageIndex"
+          :navGroups="navGroups"
+          :activeGroupId="activeGroupId"
           position="sidebar"
           @select="setPage" />
       </div>
@@ -267,8 +328,8 @@ onUnmounted(() => {
 
       <DisplayNav
         v-if="(navPosition === 'bottom' && !isFullscreen) || showFullscreenOverlay"
-        :pages="pages"
-        :activeIndex="currentPageIndex"
+        :navGroups="navGroups"
+        :activeGroupId="activeGroupId"
         position="bottom"
         :class="{ 'overlay-nav': isFullscreen && showFullscreenOverlay }"
         @select="onOverlayNavSelect" />
@@ -278,7 +339,7 @@ onUnmounted(() => {
       <DisplayEmergency
         v-if="emergencyStore.activeEmergency && isEmergencyTargeted"
         :emergency="emergencyStore.activeEmergency"
-        @dismiss="emergencyStore.dismiss(emergencyStore.activeEmergency.id)"
+        @dismiss="dismissEmergency"
       />
     </div>
   </div>
@@ -291,15 +352,15 @@ onUnmounted(() => {
   overflow: hidden;
   background: #000;
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
 }
 
 .display-root {
   width: 1920px;
   height: 1080px;
   flex-shrink: 0;
-  transform-origin: top left;
+  transform-origin: center center;
   overflow: hidden;
   background: var(--d-bg);
   font-family: 'DM Sans', 'Outfit', sans-serif;
@@ -333,6 +394,27 @@ onUnmounted(() => {
   z-index: 0;
 }
 
+.preview-ribbon {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%);
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--d-accent, #B5CC18);
+  color: var(--d-accent-text, #181e00);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
 .display-body {
   flex: 1;
   display: flex;
@@ -355,12 +437,63 @@ onUnmounted(() => {
   flex: 1;
   overflow: hidden;
   padding: 20px 28px;
+  position: relative;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
+
+/* Page skip arrows — float over content, tap to skip prev/next */
+.page-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1px solid var(--d-ghost-border, rgba(255,255,255,0.15));
+  background: var(--d-surface-hover, rgba(22, 58, 108, 0.35));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--d-text, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.25s ease, transform 0.2s ease, background 0.25s ease;
+  padding: 0;
+}
+
+.page-arrow:hover,
+.page-arrow:focus-visible {
+  opacity: 1;
+  background: var(--d-accent, #B5CC18);
+  color: var(--d-accent-text, #181e00);
+  outline: none;
+}
+
+.page-arrow:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.page-arrow--prev { left: 16px; }
+.page-arrow--next { right: 16px; }
+
+/* When sidebar nav is active on the right, nudge the right arrow left */
+.page-arrow--sidebar.page-arrow--next { right: 24px; }
 
 .display-content.is-transitioning {
   opacity: 0;
   transform: translateY(10px);
+}
+
+.display-content.transition-slide.is-transitioning {
+  transform: translateX(-20px);
+}
+
+.display-content.transition-none.is-transitioning {
+  opacity: 1;
+  transform: none;
 }
 
 .display-content.is-fullscreen {

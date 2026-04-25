@@ -12,7 +12,7 @@ const { field, update } = useParamModel(props, emit)
 
 const kicker = field('kicker', 'KARRIERE · BLICKLE')
 const jobTitle = field('jobTitle', 'Produktionsmitarbeiter (m/w/d)')
-const department = field('department', 'Fertigung · Halle 2')
+const department = field('department', 'Fertigung · FB2')
 const departmentIcon = field('departmentIcon', 'gear')
 const bullets = field('bullets', [])
 const perks = field('perks', '38 Std./Woche · Tarif IG Metall')
@@ -25,7 +25,7 @@ const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' },
+  { name: 'Blickle-Grün', value: '#B5CC18' },
   { name: 'Navy', value: '#163A6C' },
   { name: 'Blau', value: '#3B82F6' },
   { name: 'Orange', value: '#F97316' },
@@ -37,7 +37,7 @@ const deptIcons = [
   { key: 'chip',    label: 'IT/Technik',  svg: '<rect x="14" y="14" width="36" height="36" rx="3"/><rect x="22" y="22" width="20" height="20"/><path d="M8 22h6M8 32h6M8 42h6M50 22h6M50 32h6M50 42h6M22 8v6M32 8v6M42 8v6M22 50v6M32 50v6M42 50v6"/>' },
   { key: 'truck',   label: 'Logistik',    svg: '<rect x="4" y="22" width="32" height="22" rx="2"/><path d="M36 28h12l8 8v8H36V28Z"/><circle cx="14" cy="48" r="5"/><circle cx="46" cy="48" r="5"/>' },
   { key: 'people',  label: 'Verwaltung',  svg: '<circle cx="24" cy="22" r="8"/><path d="M8 50c0-9 7-16 16-16s16 7 16 16"/><circle cx="44" cy="26" r="6"/><path d="M48 50c0-6-3-12-8-14"/>' },
-  { key: 'flask',   label: 'Qualitaet',   svg: '<path d="M24 4v20L12 48c-2 4 1 8 5 8h30c4 0 7-4 5-8L40 24V4Z"/><path d="M20 4h24"/><path d="M18 34h28"/>' },
+  { key: 'flask',   label: 'Qualität',   svg: '<path d="M24 4v20L12 48c-2 4 1 8 5 8h30c4 0 7-4 5-8L40 24V4Z"/><path d="M20 4h24"/><path d="M18 34h28"/>' },
 ]
 
 function updateBullet(i, value) { const arr = [...(bullets.value || [])]; arr[i] = value; update('bullets', arr) }
@@ -134,7 +134,7 @@ const currentDeptIcon = computed(() => deptIcons.find(i => i.key === departmentI
       </section>
       <section class="fs">
         <h4 class="fs-title">Meta</h4>
-        <label class="fld"><span class="fld-label">Gueltig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
+        <label class="fld"><span class="fld-label">Gültig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
         <div class="fld"><span class="fld-label">Akzentfarbe</span>
           <div class="accent-row">
             <button v-for="p in accentPresets" :key="p.value" class="accent-swatch" :class="{ active: accent === p.value }" :style="{ background: p.value }" @click="accent = p.value"></button>

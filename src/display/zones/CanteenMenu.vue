@@ -84,7 +84,7 @@ const today = computed(() => data.gerichte[todayIndex])
   font-family: 'Outfit', sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--blickle-navy, #163A6C);
+  color: var(--d-headline, #163A6C);
   margin: 0;
 }
 
@@ -158,7 +158,7 @@ const today = computed(() => data.gerichte[todayIndex])
   font-family: 'Outfit', sans-serif;
   font-size: 1.2rem;
   font-weight: 900;
-  color: var(--blickle-navy, #163A6C);
+  color: var(--d-headline, #163A6C);
   white-space: nowrap;
   margin-left: 12px;
 }

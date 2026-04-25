@@ -12,17 +12,17 @@ const { field } = useParamModel(props, emit)
 const kicker = field('kicker', 'NEWS · KURZ & KNACKIG')
 const titel = field('titel', 'Kurznachrichten')
 const news1_titel = field('news1_titel', '5 Jahre ErgoMove')
-const news1_text = field('news1_text', 'Unser ergonomischer Antrieb feiert 5-jaehriges Jubilaeum. Ueber 10.000 Einheiten weltweit.')
+const news1_text = field('news1_text', 'Unser ergonomischer Antrieb feiert 5-jähriges Jubiläum. Über 10.000 Einheiten weltweit.')
 const news2_titel = field('news2_titel', '100 Jahre Boudrant')
-const news2_text = field('news2_text', 'Unser franzoesischer Partner Boudrant feiert 100-jaehriges Bestehen. Herzlichen Glueckwunsch!')
+const news2_text = field('news2_text', 'Unser französischer Partner Boudrant feiert 100-jähriges Bestehen. Herzlichen Glückwunsch!')
 const news3_titel = field('news3_titel', 'Lean-Arbeitskreis gestartet')
-const news3_text = field('news3_text', 'Der neue Lean-Arbeitskreis trifft sich regelmaessig, um Prozesse zu verbessern.')
+const news3_text = field('news3_text', 'Der neue Lean-Arbeitskreis trifft sich regelmäßig, um Prozesse zu verbessern.')
 const authorLabel = field('authorLabel', 'Blickle Redaktion')
 const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
+  { name: 'Blickle-Grün', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
   { name: 'Blau', value: '#3B82F6' }, { name: 'Orange', value: '#F97316' },
 ]
 </script>

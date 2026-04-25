@@ -15,8 +15,8 @@ const kicker = field('kicker', 'WICHTIGE MITTEILUNG · BETRIEBSRAT')
 const headline = field('headline', 'Neue Betriebsvereinbarung Arbeitszeit')
 const body = field('body', 'Ab dem 01.05.2026 tritt die neue Betriebsvereinbarung in Kraft.')
 const validFrom = field('validFrom', '2026-05-01')
-const source = field('source', 'Betriebsrat & Geschaeftsleitung')
-const ackLabel = field('ackLabel', 'Bitte Kenntnis im Intranet bestaetigen')
+const source = field('source', 'Betriebsrat & Geschäftsleitung')
+const ackLabel = field('ackLabel', 'Bitte Kenntnis im Intranet bestätigen')
 const docRef = field('docRef', 'BV-2026-05 · Version 1.0')
 const readingTime = field('readingTime', 'ca. 3 Min. Lesezeit')
 
@@ -45,13 +45,13 @@ const canvasStyle = computed(() => ({
       <div class="body-wrap">
         <div class="body-inner"><p class="body-text">{{ body }}</p></div>
         <div class="meta-col">
-          <div class="meta-block"><div class="meta-label">Gueltig ab</div><div class="meta-value">{{ formattedFrom }}</div></div>
+          <div class="meta-block"><div class="meta-label">Gültig ab</div><div class="meta-value">{{ formattedFrom }}</div></div>
           <div class="meta-block"><div class="meta-label">Lesezeit</div><div class="meta-value">{{ readingTime }}</div></div>
           <div class="meta-block" v-if="docRef"><div class="meta-label">Dokument</div><div class="meta-value meta-doc">{{ docRef }}</div></div>
         </div>
       </div>
       <div class="ack-strip"><span class="ack-icon">&#9757;</span><span class="ack-text">{{ ackLabel }}</span><span class="spacer"></span><span class="source">{{ source }}</span></div>
-      <div class="footer"><img src="/Blicklelogo.png" alt="" class="footer-logo" /><span class="spacer"></span><span class="footer-note">Aushang gueltig bis zur Aktualisierung</span></div>
+      <div class="footer"><img src="/Blicklelogo.png" alt="" class="footer-logo" /><span class="spacer"></span><span class="footer-note">Aushang gültig bis zur Aktualisierung</span></div>
     </div>
   </div>
 
@@ -66,12 +66,12 @@ const canvasStyle = computed(() => ({
       </section>
       <section class="fs"><h4 class="fs-title">Inhalt</h4>
         <label class="fld"><span class="fld-label">Kicker</span><input v-model="kicker" type="text" class="fld-input" /></label>
-        <label class="fld"><span class="fld-label">Ueberschrift</span><textarea v-model="headline" class="fld-input fld-small" rows="2" /></label>
+        <label class="fld"><span class="fld-label">Überschrift</span><textarea v-model="headline" class="fld-input fld-small" rows="2" /></label>
         <label class="fld"><span class="fld-label">Fliesstext</span><textarea v-model="body" class="fld-input" rows="6" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Formale Angaben</h4>
         <div class="row-2">
-          <label class="fld"><span class="fld-label">Gueltig ab</span><input v-model="validFrom" type="date" class="fld-input" /></label>
+          <label class="fld"><span class="fld-label">Gültig ab</span><input v-model="validFrom" type="date" class="fld-input" /></label>
           <label class="fld"><span class="fld-label">Lesezeit</span><input v-model="readingTime" type="text" class="fld-input" /></label>
         </div>
         <label class="fld"><span class="fld-label">Quelle</span><input v-model="source" type="text" class="fld-input" /></label>
@@ -91,13 +91,13 @@ const canvasStyle = computed(() => ({
           <div class="body-wrap">
             <div class="body-inner"><p class="body-text">{{ body }}</p></div>
             <div class="meta-col">
-              <div class="meta-block"><div class="meta-label">Gueltig ab</div><div class="meta-value">{{ formattedFrom }}</div></div>
+              <div class="meta-block"><div class="meta-label">Gültig ab</div><div class="meta-value">{{ formattedFrom }}</div></div>
               <div class="meta-block"><div class="meta-label">Lesezeit</div><div class="meta-value">{{ readingTime }}</div></div>
               <div class="meta-block" v-if="docRef"><div class="meta-label">Dokument</div><div class="meta-value meta-doc">{{ docRef }}</div></div>
             </div>
           </div>
           <div class="ack-strip"><span class="ack-icon">&#9757;</span><span class="ack-text">{{ ackLabel }}</span><span class="spacer"></span><span class="source">{{ source }}</span></div>
-          <div class="footer"><img src="/Blicklelogo.png" alt="" class="footer-logo" /><span class="spacer"></span><span class="footer-note">Aushang gueltig bis zur Aktualisierung</span></div>
+          <div class="footer"><img src="/Blicklelogo.png" alt="" class="footer-logo" /><span class="spacer"></span><span class="footer-note">Aushang gültig bis zur Aktualisierung</span></div>
         </div>
       </div>
     </section>

@@ -4,11 +4,20 @@ import { useLocationStore } from '../../shared/stores/locationStore.js'
 import { useLayoutStore } from '../../shared/stores/layoutStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useContentStore } from '../../shared/stores/contentStore.js'
+import { useScheduleStore } from '../../shared/stores/scheduleStore.js'
+import { useEmergencyStore } from '../../shared/stores/emergencyStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
 
 const locationStore = useLocationStore()
 const layoutStore = useLayoutStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const contentStore = useContentStore()
+const scheduleStore = useScheduleStore()
+const emergencyStore = useEmergencyStore()
+const toast = useToastStore()
 
 const editingId = ref(null)
 const editName = ref('')
@@ -18,7 +27,7 @@ const newChildName = ref('')
 const newChildLayoutId = ref('')
 const showDeleteConfirm = ref(null)
 
-function buildTree(parentId = null, depth = 0) {
+function buildTree(parentId = 'loc-global', depth = 0) {
   const children = locationStore.items.filter(l => l.parentId === parentId)
   const result = []
   for (const child of children) {
@@ -28,7 +37,12 @@ function buildTree(parentId = null, depth = 0) {
   return result
 }
 
-const locationTree = computed(() => buildTree())
+const locationTree = computed(() => [
+  ...buildTree('loc-global'),
+  ...locationStore.items
+    .filter(location => location.parentId === null && location.id !== 'loc-global')
+    .flatMap(location => [{ ...location, depth: 0 }, ...buildTree(location.id, 1)])
+])
 
 function getLayoutName(layoutId) {
   if (!layoutId) return 'Kein Layout'
@@ -44,7 +58,7 @@ function startEdit(loc) {
 
 function saveEdit(locId) {
   locationStore.update(locId, { name: editName.value, layoutId: editLayoutId.value || null })
-  auditStore.log('location.updated', 'location', locId, userStore.currentUser.id, { name: editName.value })
+  safeAuditLog(auditStore, 'location.updated', 'location', locId, userStore.currentUser.id, { name: editName.value })
   editingId.value = null
 }
 
@@ -54,7 +68,7 @@ function cancelEdit() {
 
 function toggleActive(loc) {
   locationStore.update(loc.id, { isActive: !loc.isActive })
-  auditStore.log('location.toggled', 'location', loc.id, userStore.currentUser.id, { isActive: !loc.isActive })
+  safeAuditLog(auditStore, 'location.toggled', 'location', loc.id, userStore.currentUser.id, { isActive: !loc.isActive })
 }
 
 function openAddChild(parentId) {
@@ -70,25 +84,66 @@ function addChild(parentId) {
     parentId: parentId,
     layoutId: newChildLayoutId.value || null
   })
-  auditStore.log('location.created', 'location', item.id, userStore.currentUser.id, { name: item.name, parentId })
+  safeAuditLog(auditStore, 'location.created', 'location', item.id, userStore.currentUser.id, { name: item.name, parentId })
   showAddChild.value = null
 }
 
 function addRootLocation() {
   const item = locationStore.add({
     name: 'Neuer Standort',
-    parentId: null,
+    parentId: 'loc-global',
     layoutId: null
   })
-  auditStore.log('location.created', 'location', item.id, userStore.currentUser.id, { name: item.name })
+  safeAuditLog(auditStore, 'location.created', 'location', item.id, userStore.currentUser.id, { name: item.name })
   startEdit(item)
+}
+
+function deletionBlockers(id) {
+  const descendantIds = locationStore.getDescendantIds(id)
+  const targetIds = new Set([id, ...descendantIds])
+  const blockers = []
+
+  if (descendantIds.length) blockers.push(`${descendantIds.length} untergeordnete Standorte`)
+
+  const contentCount = contentStore.items.filter(content =>
+    (content.locationIds || []).some(locationId => targetIds.has(locationId))
+  ).length
+  if (contentCount) blockers.push(`${contentCount} Inhalte`)
+
+  const scheduleCount = scheduleStore.items.filter(schedule =>
+    (schedule.locationIds || []).some(locationId => targetIds.has(locationId))
+  ).length
+  if (scheduleCount) blockers.push(`${scheduleCount} Zeitpläne`)
+
+  const userCount = userStore.items.filter(user =>
+    (user.locationAccess || []).some(locationId => targetIds.has(locationId))
+  ).length
+  if (userCount) blockers.push(`${userCount} Benutzerzugriffe`)
+
+  const emergencyCount = emergencyStore.items.filter(emergency =>
+    (emergency.targetLocationIds || []).some(locationId => targetIds.has(locationId))
+  ).length
+  if (emergencyCount) blockers.push(`${emergencyCount} Notfälle`)
+
+  return blockers
 }
 
 function deleteLocation(id) {
   const loc = locationStore.getById(id)
-  locationStore.remove(id)
-  auditStore.log('location.deleted', 'location', id, userStore.currentUser.id, { name: loc?.name })
-  showDeleteConfirm.value = null
+  const blockers = deletionBlockers(id)
+  if (blockers.length) {
+    toast.error(`Standort kann nicht gelöscht werden: ${blockers.join(', ')}`)
+    showDeleteConfirm.value = null
+    return
+  }
+  try {
+    locationStore.remove(id)
+    safeAuditLog(auditStore, 'location.deleted', 'location', id, userStore.currentUser.id, { name: loc?.name }, { toast })
+    toast.success('Standort gelöscht')
+    showDeleteConfirm.value = null
+  } catch (error) {
+    toast.error(error?.message || 'Standort konnte nicht gelöscht werden')
+  }
 }
 </script>
 
@@ -126,7 +181,7 @@ function deleteLocation(id) {
             </button>
             <button class="btn-sm btn-outline" @click="openAddChild(loc.id)">+ Kind</button>
             <button class="btn-sm btn-outline" @click="startEdit(loc)">Bearbeiten</button>
-            <button class="btn-sm btn-danger" @click="showDeleteConfirm = loc.id">Loeschen</button>
+            <button class="btn-sm btn-danger" @click="showDeleteConfirm = loc.id">Löschen</button>
           </div>
         </template>
       </div>
@@ -138,7 +193,7 @@ function deleteLocation(id) {
           <option value="">Kein Layout</option>
           <option v-for="layout in layoutStore.items" :key="layout.id" :value="layout.id">{{ layout.name }}</option>
         </select>
-        <button class="btn-sm btn-save" @click="addChild(showAddChild)">Hinzufuegen</button>
+        <button class="btn-sm btn-save" @click="addChild(showAddChild)">Hinzufügen</button>
         <button class="btn-sm btn-cancel" @click="showAddChild = null">Abbrechen</button>
       </div>
 
@@ -149,15 +204,15 @@ function deleteLocation(id) {
     <div v-if="showDeleteConfirm" class="modal-overlay" @click.self="showDeleteConfirm = null">
       <div class="modal">
         <div class="modal-header">
-          <h3>Standort loeschen</h3>
+          <h3>Standort löschen</h3>
           <button class="modal-close" @click="showDeleteConfirm = null">&times;</button>
         </div>
         <div class="modal-body">
-          <p>Sind Sie sicher, dass Sie diesen Standort loeschen moechten?</p>
+          <p>Sind Sie sicher, dass Sie diesen Standort löschen möchten?</p>
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="showDeleteConfirm = null">Abbrechen</button>
-          <button class="btn-danger-solid" @click="deleteLocation(showDeleteConfirm)">Loeschen</button>
+          <button class="btn-danger-solid" @click="deleteLocation(showDeleteConfirm)">Löschen</button>
         </div>
       </div>
     </div>

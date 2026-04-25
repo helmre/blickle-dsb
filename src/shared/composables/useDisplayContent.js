@@ -1,23 +1,38 @@
-import { computed, unref } from 'vue'
+import { computed, getCurrentScope, onScopeDispose, ref, unref } from 'vue'
 import { useContentStore } from '../stores/contentStore.js'
 import { useScheduleStore } from '../stores/scheduleStore.js'
 import { useLocationStore } from '../stores/locationStore.js'
 import { useLayoutStore } from '../stores/layoutStore.js'
 import { usePlaylistStore } from '../stores/playlistStore.js'
-import { getSeedScheduleData, getSeedCanteenData, getSeedTickerMessages as getSeedTicker, getSeedFullscreenMedia } from '../utils/seedData.js'
-import { isCurrentlyValid } from '../utils/datetime.js'
-import { getDesignerTemplate, hasDisplayAlias } from '../templates/registry.js'
-
-// Content that renders via a full-canvas designer component gets its own
-// fullscreen page instead of being squeezed into an INFOS tile. Legacy
-// templates aliased to a designer (e.g. tpl-urgent → LegalNoticeEditor) are
-// treated the same way.
-function isFullscreenDesigner(content) {
-  if (!content?.templateId) return false
-  if (getDesignerTemplate(content.templateId)) return true
-  if (hasDisplayAlias(content.templateId)) return true
-  return false
-}
+import { useDisplayPageStore } from '../stores/displayPageStore.js'
+import { useDisplayProgramStore } from '../stores/displayProgramStore.js'
+import { getSeedTickerMessages as getSeedTicker, getSeedFullscreenMedia } from '../utils/seedData.js'
+import { getDesignerTemplate } from '../templates/registry.js'
+import { normalizeLayout, zoneGridStyle } from '../utils/layoutSchema.js'
+import {
+  filterLocationContent,
+  filterVisibleContent,
+  getLocationScopeIds,
+  mapTagToCategory,
+  splitDisplayContent,
+} from '../displayEngine/contentEligibility.js'
+import {
+  resolveActivePlaylist,
+  resolvePlaylistDurations,
+  resolvePlaylistPageEntries,
+  sortPlaylistItems,
+} from '../displayEngine/playlistResolver.js'
+import {
+  buildNavGroups,
+  buildPlaylistContentPage,
+  buildPreviewPage,
+} from '../displayEngine/pageBuilder.js'
+import { buildDisplayPageFromConfig } from '../displayEngine/displayPageBuilder.js'
+import {
+  buildProgramPages,
+  getDefaultDisplayPrograms,
+  resolveActiveDisplayProgram,
+} from '../displayEngine/displayProgramRules.js'
 
 /**
  * Composable that builds dynamic display pages from store data.
@@ -28,41 +43,64 @@ function isFullscreenDesigner(content) {
  * - playlistStore: Playlist-driven page rotation with per-page duration
  *
  * @param {string|null} locationId - Optional location filter from route param
+ * @param {{ now?: Date|string|number|import('vue').Ref, previewContent?: Object|import('vue').Ref }} options - Optional simulation clock and draft preview.
  */
-export function useDisplayContent(locationId = null) {
+export function useDisplayContent(locationId = null, options = {}) {
   const contentStore = useContentStore()
   const scheduleStore = useScheduleStore()
   const locationStore = useLocationStore()
   const layoutStore = useLayoutStore()
   const playlistStore = usePlaylistStore()
+  const displayPageStore = useDisplayPageStore()
+  const displayProgramStore = useDisplayProgramStore()
+  const internalNow = ref(Date.now())
+  const usesExternalNow = Object.prototype.hasOwnProperty.call(options, 'now')
+  let clockTimer = null
+
+  if (!usesExternalNow && typeof window !== 'undefined') {
+    clockTimer = window.setInterval(() => {
+      internalNow.value = Date.now()
+    }, options.clockIntervalMs || 30_000)
+
+    if (getCurrentScope()) {
+      onScopeDispose(() => window.clearInterval(clockTimer))
+    }
+  }
+
+  const locationScopeIds = computed(() => getLocationScopeIds(unref(locationId), locationStore.items))
+  const previewContent = computed(() => {
+    const content = unref(options.previewContent)
+    return content && typeof content === 'object' ? content : null
+  })
+  const currentNow = computed(() => {
+    const raw = usesExternalNow ? unref(options.now) : internalNow.value
+    const date = raw ? new Date(raw) : new Date()
+    return Number.isNaN(date.getTime()) ? new Date() : date
+  })
 
   // --- Approved + schedule-filtered content ---
   const visibleContent = computed(() => {
-    const nowTs = Date.now()
-    return contentStore.approved.filter(c => isCurrentlyValid(c.validFrom, c.validUntil, nowTs))
+    return filterVisibleContent({
+      approvedContent: contentStore.approved,
+      schedules: scheduleStore.items,
+      now: currentNow.value,
+      locationScopeIds: locationScopeIds.value,
+    })
   })
 
   // --- Content filtered by location (global + location-specific) ---
   const locationContent = computed(() => {
-    const locId = unref(locationId)
-    if (!locId) return visibleContent.value
-    // Show content that is global (no locationIds or empty array) + content assigned to this location
-    const location = locationStore.items.find(l => l.id === locId)
-    const parentId = location?.parentId || null
-    return visibleContent.value.filter(c => {
-      // No locationIds = global content → show everywhere
-      if (!c.locationIds || c.locationIds.length === 0) return true
-      // Content assigned to this specific location
-      if (c.locationIds.includes(locId)) return true
-      // Content assigned to parent location (inheritance)
-      if (parentId && c.locationIds.includes(parentId)) return true
-      return false
+    return filterLocationContent({
+      visibleContent: visibleContent.value,
+      locationId: unref(locationId),
+      locationScopeIds: locationScopeIds.value,
     })
   })
 
   // --- Content split: designer-based full-canvas vs. tile-suitable ---
-  const designerContent = computed(() => locationContent.value.filter(isFullscreenDesigner))
-  const tileContent = computed(() => locationContent.value.filter(c => !isFullscreenDesigner(c)))
+  const contentBuckets = computed(() => splitDisplayContent(locationContent.value))
+  const designerContent = computed(() => contentBuckets.value.designerContent)
+  const tileContent = computed(() => contentBuckets.value.tileContent)
 
   // --- Build news items from approved content ---
   const newsItems = computed(() => {
@@ -93,88 +131,112 @@ export function useDisplayContent(locationId = null) {
     return fromContent.length > 0 ? [...fromContent, ...base] : base
   })
 
-  // --- Helper: convert layoutStore layout to display grid class ---
-  function layoutToGridClass(layout) {
-    if (!layout) return 'full'
-    const c = layout.gridColumns || 1
-    const r = layout.gridRows || 1
-    return `custom-${c}x${r}`
-  }
-
-  // --- Helper: build CSS grid style from layout ---
-  function layoutToGridStyle(layout) {
-    if (!layout) return null
-    const c = layout.gridColumns || 1
-    const r = layout.gridRows || 1
-    return {
-      display: 'grid',
-      gridTemplateColumns: `repeat(${c}, 1fr)`,
-      gridTemplateRows: `repeat(${r}, 1fr)`,
-      gap: '14px'
-    }
-  }
-
   // --- Active playlist (first one with items, or null) ---
   const activePlaylist = computed(() => {
-    // Prefer playlist with highest priority that has items
-    const sorted = [...playlistStore.items]
-      .filter(p => p.items && p.items.length > 0)
-      .sort((a, b) => (b.priority || 0) - (a.priority || 0))
-    return sorted[0] || null
+    return resolveActivePlaylist({
+      playlists: playlistStore.items,
+      schedules: scheduleStore.items,
+      now: currentNow.value,
+      locationScopeIds: locationScopeIds.value,
+    })
+  })
+
+  const activePlaylistItems = computed(() => sortPlaylistItems(activePlaylist.value))
+
+  const playlistPageEntries = computed(() => {
+    return resolvePlaylistPageEntries({
+      playlistItems: activePlaylistItems.value,
+      locationContent: locationContent.value,
+    })
   })
 
   // --- Playlist-derived page durations (contentId → duration) ---
-  const playlistDurations = computed(() => {
-    if (!activePlaylist.value) return {}
-    const map = {}
-    activePlaylist.value.items.forEach(item => {
-      map[item.contentId] = item.duration || 15
-    })
-    return map
-  })
+  const playlistDurations = computed(() => resolvePlaylistDurations(activePlaylistItems.value))
 
   // --- Available layouts from the Layout Editor ---
   const customLayouts = computed(() => layoutStore.items || [])
 
+  const displayProgramCandidates = computed(() => {
+    return displayProgramStore.items?.length ? displayProgramStore.items : getDefaultDisplayPrograms()
+  })
+
+  const activeDisplayProgram = computed(() => {
+    return resolveActiveDisplayProgram({
+      programs: displayProgramCandidates.value,
+      schedules: scheduleStore.items,
+      now: currentNow.value,
+      locationScopeIds: locationScopeIds.value,
+    })
+  })
+
   // --- Build display pages dynamically ---
-  const displayPages = computed(() => {
-    // Fixed operational pages
-    const pages = [
-      {
-        id: 'home',
-        label: 'HOME',
-        icon: '&#9750;',
-        iconName: 'home',
-        layout: 'custom',
-        noZoneChrome: true,
-        duration: 15,
-        customGrid: { columns: 12, rows: 2 },
-        zones: [
-          { id: 'home-karriere', type: 'karriere', title: 'Karriere bei Blickle', gridColumn: '1 / 8', gridRow: '1 / 2' },
-          { id: 'home-kantine', type: 'canteen-menu', title: 'Heute im s\'Rädle', gridColumn: '8 / 13', gridRow: '1 / 2' },
-          { id: 'home-wetter', type: 'weather', title: 'Wetter', gridColumn: '1 / 5', gridRow: '2 / 3' },
-          { id: 'home-news', type: 'news-feed', title: 'News', gridColumn: '5 / 13', gridRow: '2 / 3' },
-        ]
-      },
-      {
+  const pagePools = computed(() => {
+    // PDF assets behind the KANTINE pages are content-driven: the admin
+    // uploads a replacement PDF via ContentEditor, store persists fileUrl
+    // as data-URL, and the display picks up the new file on next render.
+    // Fallback to the static public file keeps the page usable if the
+    // content item is missing or not yet approved.
+    const speiseplanItem = contentStore.getById('content-speiseplan-aktuell')
+    const snackplanItem  = contentStore.getById('content-snackplan')
+    const visibleSpeiseplanItem = locationContent.value.find(item => item.id === 'content-speiseplan-aktuell')
+    const visibleSnackplanItem = locationContent.value.find(item => item.id === 'content-snackplan')
+    const speiseplanPdfUrl = visibleSpeiseplanItem?.fileUrl || (!speiseplanItem ? '/pdf/speiseplan-aktuell.pdf' : null)
+    const snackplanPdfUrl  = visibleSnackplanItem?.fileUrl || (!snackplanItem ? '/pdf/snackplan.pdf' : null)
+    const visibleContentIds = new Set(locationContent.value.map(content => content.id))
+
+    const displayPagesById = {
+      home: buildDisplayPageFromConfig(displayPageStore.getPageConfig('home', unref(locationId)), { visibleContentIds }),
+    }
+
+    const systemPages = {
+      kantine: {
         id: 'kantine',
-        label: 'S\'RÄDLE',
+        navGroupId: 'kantine',
+        label: 'SPEISEPLAN',
         icon: '&#127860;',
         iconName: 'utensils',
-        layout: 'full',
-        duration: 12,
+        layout: 'fullscreen',
+        duration: 18,
         zones: [
-          { id: 'kantine-full', type: 'canteen-weekly', title: 'Speiseplan der Woche' },
+          { id: 'kantine-pdf', type: 'pdf', title: '', pdfUrl: speiseplanPdfUrl, fit: 'cover-width' },
         ]
       },
-    ]
+      snackplan: {
+        id: 'snackplan',
+        navGroupId: 'kantine',
+        label: 'SNACKPLAN',
+        icon: '&#127849;',
+        iconName: 'coffee',
+        layout: 'fullscreen',
+        duration: 15,
+        zones: [
+          { id: 'snackplan-pdf', type: 'pdf', title: '', pdfUrl: snackplanPdfUrl, fit: 'cover-width' },
+        ]
+      },
+    }
 
-    // INFOS pages: paginate through all approved content
+    const playlistContentIds = new Set()
+    const activePlaylistPages = []
+    playlistPageEntries.value.forEach((entry) => {
+      playlistContentIds.add(entry.content.id)
+      activePlaylistPages.push(buildPlaylistContentPage(entry))
+    })
+    const playlistPagesById = activePlaylist.value
+      ? { [activePlaylist.value.id]: activePlaylistPages }
+      : {}
+
+    // INFOS pages: paginate tile-based announcements (legacy path).
+    // Designer-based content gets its own full-canvas pages below. The tile
+    // pagination is only added if there is actual tile content to show —
+    // otherwise it renders an empty placeholder card that ruins the vibe.
     const announcements = announcementItems.value
+      .map((item, contentIndex) => ({ ...item, contentIndex }))
+      .filter(item => !playlistContentIds.has(item.id))
     const count = announcements.length
     const zonesPerPage = 6 // max 3x2 grid
-    const totalInfoPages = Math.max(Math.ceil(count / zonesPerPage), 1)
+    const totalInfoPages = count > 0 ? Math.ceil(count / zonesPerPage) : 0
 
+    const infoPages = []
     for (let pageIdx = 0; pageIdx < totalInfoPages; pageIdx++) {
       const startIdx = pageIdx * zonesPerPage
       const endIdx = Math.min(startIdx + zonesPerPage, count)
@@ -188,17 +250,20 @@ export function useDisplayContent(locationId = null) {
 
       const infoZones = []
       for (let i = startIdx; i < endIdx; i++) {
+        const announcement = announcements[i]
         infoZones.push({
-          id: `info-${i}`,
+          id: `info-${announcement.id}`,
           type: 'announcement',
           title: '',
-          contentIndex: i
+          contentId: announcement.id,
+          contentIndex: announcement.contentIndex
         })
       }
 
       const pageNum = totalInfoPages > 1 ? ` ${pageIdx + 1}/${totalInfoPages}` : ''
-      pages.push({
+      infoPages.push({
         id: `infos-${pageIdx}`,
+        navGroupId: 'infos',
         label: `INFOS${pageNum}`,
         icon: '&#9432;',
         iconName: 'info',
@@ -210,11 +275,15 @@ export function useDisplayContent(locationId = null) {
 
     // Designer-based content: each gets its own full-canvas page.
     // The 1920x1080 designer is rendered by TemplateRenderer via displayMode.
-    designerContent.value.forEach((c) => {
+    const designerPages = []
+    designerContent.value
+      .filter(c => !playlistContentIds.has(c.id))
+      .forEach((c) => {
       const tpl = getDesignerTemplate(c.templateId)
-      const label = (tpl?.name || c.title || 'DESIGN').toUpperCase().slice(0, 14)
-      pages.push({
+      const label = (c.title || tpl?.name || 'Designer-Inhalt')
+      designerPages.push({
         id: `designer-${c.id}`,
+        navGroupId: 'infos',
         label,
         icon: '&#9733;',
         iconName: 'sparkle',
@@ -227,23 +296,27 @@ export function useDisplayContent(locationId = null) {
       })
     })
 
-    // PRODUKTION page: production news + poster
-    pages.push({
+    // PRODUKTION page: news links (full height) + Poster oben rechts + Video unten rechts
+    systemPages.produktion = {
       id: 'produktion',
+      navGroupId: 'produktion',
       label: 'PRODUKTION',
       icon: '&#9881;',
       iconName: 'factory',
-      layout: '2x1',
+      layout: 'custom',
       duration: 20,
+      customGrid: { columns: 2, rows: 2 },
       zones: [
-        { id: 'prod-left', type: 'produktion-news', title: 'Produktionsnews' },
-        { id: 'prod-right', type: 'fullscreen-media', title: 'Vision 2030', mediaUrl: '/media/Plakat_Produktion2030_V1.jpg', mediaType: 'image' },
+        { id: 'prod-left', type: 'produktion-news', title: 'Produktionsnews', gridColumn: '1 / 2', gridRow: '1 / 3' },
+        { id: 'prod-poster', type: 'fullscreen-media', title: 'Vision 2030', mediaUrl: '/media/Plakat_Produktion2030_V1.jpg', mediaType: 'image', gridColumn: '2 / 3', gridRow: '1 / 2' },
+        { id: 'prod-video', type: 'fullscreen-media', title: 'Meistersitzung', mediaUrl: '/media/Meistersitzung.mp4', mediaType: 'video', gridColumn: '2 / 3', gridRow: '2 / 3' },
       ]
-    })
+    }
 
     // SHOPFLOOR page: full-bleed SFM Board (SQKTPO)
-    pages.push({
+    systemPages.shopfloor = {
       id: 'shopfloor',
+      navGroupId: 'shopfloor',
       label: 'SHOPFLOOR',
       icon: '&#128202;',
       iconName: 'layout',
@@ -253,11 +326,12 @@ export function useDisplayContent(locationId = null) {
       zones: [
         { id: 'shopfloor-board', type: 'shop-floor-board', title: 'Shopfloor Board' },
       ]
-    })
+    }
 
     // SOCIAL page: Facebook + LinkedIn feeds
-    pages.push({
+    systemPages.social = {
       id: 'social',
+      navGroupId: 'social',
       label: 'SOCIAL',
       icon: '&#128240;',
       iconName: 'share',
@@ -266,26 +340,15 @@ export function useDisplayContent(locationId = null) {
       zones: [
         { id: 'social-full', type: 'social-wall', title: 'Social Media' },
       ]
-    })
-
-    // PLAENE page
-    pages.push({
-      id: 'plaene',
-      label: 'PLÄNE',
-      icon: '&#128197;',
-      iconName: 'calendar',
-      layout: 'full',
-      duration: 12,
-      zones: [
-        { id: 'plaene-full', type: 'schedule-weekly', title: 'Schichtplan nächste Woche' },
-      ]
-    })
+    }
 
     // --- Fullscreen media pages (video + posters) ---
+    const mediaPages = []
     const fullscreenMedia = getSeedFullscreenMedia()
     fullscreenMedia.forEach((media) => {
-      pages.push({
+      mediaPages.push({
         id: `media-${media.id}`,
+        navGroupId: 'medien',
         label: media.mediaType === 'video' ? 'VIDEO' : 'POSTER',
         icon: media.mediaType === 'video' ? '&#127909;' : '&#128444;',
         iconName: media.mediaType === 'video' ? 'video' : 'image',
@@ -299,55 +362,69 @@ export function useDisplayContent(locationId = null) {
 
     // --- Custom layout pages from Layout Editor ---
     // Add any custom layouts that aren't the default ones as additional pages
+    const layoutPages = []
     customLayouts.value.forEach((layout, idx) => {
       // Skip the default layouts that we already represent
       if (layout.id === 'layout-default' || layout.id === 'layout-fullwidth') return
+      const normalizedLayout = normalizeLayout(layout)
 
-      const zoneCount = layout.zones?.length || 1
       const zoneComponents = []
 
-      layout.zones?.forEach((zone, zIdx) => {
+      normalizedLayout.zones?.forEach((zone, zIdx) => {
         // Assign content from approved items to custom layout zones
-        const contentIdx = zIdx % Math.max(count, 1)
+        const announcement = count > 0 ? announcements[zIdx % count] : null
+        const gridStyle = zoneGridStyle(zone)
         zoneComponents.push({
           id: `custom-${layout.id}-${zIdx}`,
           type: 'announcement',
           title: zone.name || `Zone ${zIdx + 1}`,
-          contentIndex: contentIdx,
-          // Pass grid positioning for custom layouts
-          gridColumn: `${zone.gridColumnStart} / ${zone.gridColumnEnd}`,
-          gridRow: `${zone.gridRowStart} / ${zone.gridRowEnd}`,
+          contentId: announcement?.id || null,
+          contentIndex: announcement?.contentIndex ?? 0,
+          gridColumn: gridStyle.gridColumn,
+          gridRow: gridStyle.gridRow,
         })
       })
 
-      pages.push({
+      layoutPages.push({
         id: `layout-${layout.id}`,
+        navGroupId: 'layouts',
         label: (layout.name || 'Layout').toUpperCase().slice(0, 12),
         icon: '&#9638;',
         iconName: 'layout',
         layout: 'custom',
         duration: 15,
         customGrid: {
-          columns: layout.gridColumns || 1,
-          rows: layout.gridRows || 1,
+          columns: normalizedLayout.gridColumns,
+          rows: normalizedLayout.gridRows,
         },
         zones: zoneComponents
       })
     })
 
-    // --- Apply playlist durations to pages ---
-    if (activePlaylist.value) {
-      // The playlist items map to pages by order
-      const playlistItems = activePlaylist.value.items
-      playlistItems.forEach((pItem, idx) => {
-        if (idx < pages.length) {
-          pages[idx].duration = pItem.duration || 15
-        }
-      })
+    return {
+      previewPages: previewContent.value ? [buildPreviewPage(previewContent.value)] : [],
+      displayPages: displayPagesById,
+      systemPages,
+      activePlaylistPages,
+      playlistPagesById,
+      autoGroups: {
+        infos: infoPages,
+        designer: designerPages,
+        medien: mediaPages,
+        layouts: layoutPages,
+      },
     }
-
-    return pages
   })
+
+  const displayPages = computed(() => {
+    const programmedPages = buildProgramPages(activeDisplayProgram.value, pagePools.value)
+    return [
+      ...pagePools.value.previewPages,
+      ...programmedPages,
+    ]
+  })
+
+  const navGroups = computed(() => buildNavGroups(displayPages.value))
 
   return {
     visibleContent,
@@ -358,23 +435,15 @@ export function useDisplayContent(locationId = null) {
     announcementItems,
     tickerMessages,
     displayPages,
+    navGroups,
     activePlaylist,
+    activePlaylistItems,
+    playlistPageEntries,
     playlistDurations,
     customLayouts,
+    activeDisplayProgram,
+    previewContent,
+    currentNow,
+    locationScopeIds,
   }
-}
-
-function mapTagToCategory(tags) {
-  if (!tags || tags.length === 0) return 'Allgemein'
-  const tag = tags[0].toLowerCase()
-  if (tag.includes('sicherheit')) return 'Sicherheit'
-  if (tag.includes('produktion')) return 'Produktion'
-  if (tag.includes('event')) return 'Events'
-  if (tag.includes('sozial')) return 'Mitarbeiter'
-  if (tag.includes('neuheit')) return 'Neuheiten'
-  if (tag.includes('allgemein')) return 'Allgemein'
-  if (tag.includes('messe')) return 'Messen'
-  if (tag.includes('nachhaltig')) return 'Nachhaltigkeit'
-  if (tag.includes('organisation')) return 'Organisation'
-  return tags[0].charAt(0).toUpperCase() + tags[0].slice(1)
 }

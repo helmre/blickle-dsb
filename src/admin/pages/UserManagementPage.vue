@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useUserStore } from '../../shared/stores/userStore.js'
 import { useLocationStore } from '../../shared/stores/locationStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
 
 const userStore = useUserStore()
 const locationStore = useLocationStore()
@@ -22,7 +23,7 @@ const formData = ref({
 const roleLabels = {
   viewer: 'Betrachter',
   editor: 'Bearbeiter',
-  reviewer: 'Pruefer',
+  reviewer: 'Prüfer',
   admin: 'Administrator'
 }
 
@@ -76,7 +77,7 @@ function saveUser() {
       role: formData.value.role,
       locationAccess: formData.value.locationAccess
     })
-    auditStore.log('user.updated', 'user', editingUser.value, userStore.currentUser.id, { name: formData.value.name })
+    safeAuditLog(auditStore, 'user.updated', 'user', editingUser.value, userStore.currentUser.id, { name: formData.value.name })
   } else {
     const item = userStore.add({
       name: formData.value.name,
@@ -84,7 +85,7 @@ function saveUser() {
       role: formData.value.role,
       locationAccess: formData.value.locationAccess
     })
-    auditStore.log('user.created', 'user', item.id, userStore.currentUser.id, { name: item.name })
+    safeAuditLog(auditStore, 'user.created', 'user', item.id, userStore.currentUser.id, { name: item.name })
   }
   showModal.value = false
 }
@@ -92,7 +93,7 @@ function saveUser() {
 function deleteUser(id) {
   const user = userStore.getById(id)
   userStore.remove(id)
-  auditStore.log('user.deleted', 'user', id, userStore.currentUser.id, { name: user?.name })
+  safeAuditLog(auditStore, 'user.deleted', 'user', id, userStore.currentUser.id, { name: user?.name })
   showDeleteConfirm.value = null
 }
 </script>
@@ -142,7 +143,7 @@ function deleteUser(id) {
                   class="btn-sm btn-danger"
                   @click="showDeleteConfirm = user.id"
                   :disabled="user.id === userStore.currentUser.id"
-                >Loeschen</button>
+                >Löschen</button>
               </div>
             </td>
           </tr>
@@ -161,7 +162,7 @@ function deleteUser(id) {
         <div class="modal-body">
           <div class="form-group">
             <label>Name</label>
-            <input v-model="formData.name" type="text" class="form-input" placeholder="Vollstaendiger Name..." />
+            <input v-model="formData.name" type="text" class="form-input" placeholder="Vollständiger Name..." />
           </div>
           <div class="form-group">
             <label>E-Mail</label>
@@ -172,14 +173,14 @@ function deleteUser(id) {
             <select v-model="formData.role" class="form-input">
               <option value="viewer">Betrachter</option>
               <option value="editor">Bearbeiter</option>
-              <option value="reviewer">Pruefer</option>
+              <option value="reviewer">Prüfer</option>
               <option value="admin">Administrator</option>
             </select>
           </div>
           <div class="form-group">
             <label>Standortzugriff</label>
             <div class="checkbox-group">
-              <label v-for="loc in locationStore.items" :key="loc.id" class="checkbox-label">
+              <label v-for="loc in locationStore.displayLocations" :key="loc.id" class="checkbox-label">
                 <input
                   type="checkbox"
                   :checked="formData.locationAccess.includes(loc.id)"
@@ -202,15 +203,15 @@ function deleteUser(id) {
     <div v-if="showDeleteConfirm" class="modal-overlay" @click.self="showDeleteConfirm = null">
       <div class="modal">
         <div class="modal-header">
-          <h3>Benutzer loeschen</h3>
+          <h3>Benutzer löschen</h3>
           <button class="modal-close" @click="showDeleteConfirm = null">&times;</button>
         </div>
         <div class="modal-body">
-          <p>Sind Sie sicher, dass Sie diesen Benutzer loeschen moechten?</p>
+          <p>Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?</p>
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="showDeleteConfirm = null">Abbrechen</button>
-          <button class="btn-danger-solid" @click="deleteUser(showDeleteConfirm)">Loeschen</button>
+          <button class="btn-danger-solid" @click="deleteUser(showDeleteConfirm)">Löschen</button>
         </div>
       </div>
     </div>

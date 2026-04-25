@@ -1,9 +1,9 @@
 <template>
-  <div class="gate" v-if="!authenticated">
+  <div class="gate">
     <div class="gate-card">
       <img src="/Blicklelogo.png" alt="Blickle" class="gate-logo" />
       <h1 class="gate-title">Digitales Schwarzes Brett</h1>
-      <p class="gate-subtitle">Zugang nur für autorisierte Personen</p>
+      <p class="gate-subtitle">Demo-Zugang für den Prototyp</p>
       <form @submit.prevent="checkPassword" class="gate-form">
         <input
           v-model="password"
@@ -22,25 +22,18 @@
 
 <script setup>
 import { ref } from 'vue'
+import { markDemoAuthenticated, verifyDemoPassword } from './shared/auth/demoPassword.js'
 
-const HASH = '098785ba601c8040b7eb576204e8ae09febfc1f5253dca1383c39f4ceeda11c7'
+const emit = defineEmits(['authenticated'])
 
-const authenticated = ref(sessionStorage.getItem('dsb_auth') === 'true')
 const password = ref('')
 const error = ref(false)
 
-async function sha256(text) {
-  const data = new TextEncoder().encode(text)
-  const buf = await crypto.subtle.digest('SHA-256', data)
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
 async function checkPassword() {
   error.value = false
-  const hash = await sha256(password.value)
-  if (hash === HASH) {
-    sessionStorage.setItem('dsb_auth', 'true')
-    authenticated.value = true
+  if (await verifyDemoPassword(password.value)) {
+    markDemoAuthenticated()
+    emit('authenticated')
   } else {
     error.value = true
     password.value = ''

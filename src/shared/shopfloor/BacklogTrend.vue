@@ -16,7 +16,7 @@ function h(count) {
 
 <template>
   <div class="backlog-trend">
-    <div class="title">Rueckstaende (letzte {{ days.length }} Tage)</div>
+    <div class="title">Rückstände (letzte {{ days.length }} Tage)</div>
     <div class="bars">
       <div v-for="(day, i) in days" :key="i" class="day-col">
         <div class="stack">

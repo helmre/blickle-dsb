@@ -75,7 +75,7 @@ const categoryColors = {
   font-family: 'Outfit', sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--blickle-navy, #163A6C);
+  color: var(--d-headline, #163A6C);
   margin: 0;
 }
 
@@ -145,7 +145,7 @@ const categoryColors = {
   font-family: 'Outfit', sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--blickle-navy, #163A6C);
+  color: var(--d-headline, #163A6C);
   margin: 2px 0 0;
   line-height: 1.3;
 }

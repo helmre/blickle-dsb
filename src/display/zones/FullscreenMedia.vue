@@ -65,7 +65,7 @@ onUnmounted(() => {
     <!-- Fallback -->
     <div v-else class="fs-fallback">
       <span class="fs-fallback-icon">&#127909;</span>
-      <span>Kein Medium verfuegbar</span>
+      <span>Kein Medium verfügbar</span>
     </div>
 
     <!-- Title overlay -->

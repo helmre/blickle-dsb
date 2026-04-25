@@ -4,7 +4,7 @@ import { STATUS_COLORS } from '../utils/shopfloorSeed.js'
 defineProps({
   yellow: { type: Number, default: 0 },
   red:    { type: Number, default: 0 },
-  label:  { type: String, default: 'Rueckstaende' },
+  label:  { type: String, default: 'Rückstände' },
 })
 </script>
 

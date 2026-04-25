@@ -1,21 +1,28 @@
 import { generateId } from './storage.js'
+import { getDefaultDisplayPrograms } from '../displayEngine/displayProgramRules.js'
 
 export function getSeedUsers() {
   return [
     { id: 'user-admin', name: 'Admin Blickle', email: 'admin@blickle.com', role: 'admin', locationAccess: ['loc-global'], avatar: null },
-    { id: 'user-redakteur', name: 'Julia Meier', email: 'j.meier@blickle.com', role: 'editor', locationAccess: ['loc-halle1', 'loc-halle2'], avatar: null },
-    { id: 'user-pruefer', name: 'Thomas Braun', email: 't.braun@blickle.com', role: 'reviewer', locationAccess: ['loc-global'], avatar: null },
+    { id: 'user-redakteur', name: 'Julia Meier', email: 'j.meier@blickle.com', role: 'editor', locationAccess: ['loc-halle1', 'loc-halle2', 'loc-fb3'], avatar: null },
+    { id: 'user-prüfer', name: 'Thomas Braun', email: 't.braun@blickle.com', role: 'reviewer', locationAccess: ['loc-global'], avatar: null },
     { id: 'user-viewer', name: 'Produktionsmitarbeiter', email: 'display@blickle.com', role: 'viewer', locationAccess: ['loc-halle1'], avatar: null },
   ]
 }
 
 export function getSeedLocations() {
   return [
-    { id: 'loc-global', name: 'Blickle Global', parentId: null, layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
-    { id: 'loc-halle1', name: 'Produktionshalle 1', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
-    { id: 'loc-halle2', name: 'Produktionshalle 2', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
-    { id: 'loc-verwaltung', name: 'Verwaltungsgebäude', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-global', name: 'Alle Standorte', parentId: null, layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-halle1', name: 'FB1', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-halle2', name: 'FB2', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-fb3', name: 'FB3', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-fb4', name: 'FB4', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-fb5', name: 'FB5', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-logistikzentrum', name: 'Logistikzentrum', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-h30', name: 'H30', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-verwaltung', name: 'Verwaltung', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
     { id: 'loc-kantine', name: 's\'Rädle', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
+    { id: 'loc-zentrale', name: 'Zentrale', parentId: 'loc-global', layoutId: 'layout-default', timezone: 'Europe/Berlin', isActive: true, zoneAssignments: [] },
   ]
 }
 
@@ -52,8 +59,8 @@ export function getSeedContent() {
   return [
     // ── Bestehende Basis-Inhalte ─────────────────────
     {
-      id: 'content-1', title: 'Willkommen bei Blickle', description: 'Begrüßung für alle Mitarbeiter',
-      type: 'text', tags: ['allgemein'], status: 'approved',
+      id: 'content-1', title: 'Willkommen bei Blickle (Entwurf)', description: 'Begrüßung für alle Mitarbeiter',
+      type: 'text', tags: ['allgemein'], status: 'draft',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: null, templateParams: null, metadata: {}
@@ -64,6 +71,106 @@ export function getSeedContent() {
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-safety', templateParams: { titel: 'PSA-Pflicht in der Produktion', hinweis: 'In allen Produktionsbereichen gilt: Schutzbrille, Sicherheitsschuhe und Gehörschutz sind Pflicht. Bitte achten Sie auf Ihre Sicherheit und die Ihrer Kolleginnen und Kollegen. Bei Fragen wenden Sie sich an Ihre Führungskraft.' }, metadata: {}
+    },
+
+    // ── Kantine-PDFs (vom Admin pflegbar, Replace-Workflow) ──
+    {
+      id: 'content-speiseplan-aktuell', title: 'Speiseplan', description: 'Wochenspeiseplan s\'Rädle. Wöchentliches PDF vom Betriebsrestaurant — über Upload austauschbar.',
+      type: 'pdf', tags: ['kantine', 'speiseplan'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null,
+      fileUrl: '/pdf/speiseplan-aktuell.pdf', mimeType: 'application/pdf', fileSizeBytes: 63200, fileName: 'speiseplan-aktuell.pdf', thumbnailUrl: null,
+      templateId: null, templateParams: null, metadata: {}
+    },
+    {
+      id: 'content-snackplan', title: 'Snackplan', description: 'Frühstück & Snacks im s\'Rädle. PDF vom Betriebsrestaurant — über Upload austauschbar.',
+      type: 'pdf', tags: ['kantine', 'snacks'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null,
+      fileUrl: '/pdf/snackplan.pdf', mimeType: 'application/pdf', fileSizeBytes: 81656, fileName: 'snackplan.pdf', thumbnailUrl: null,
+      templateId: null, templateParams: null, metadata: {}
+    },
+
+    // ── Praesi-Inhalte (2026-04-18) ──────────────────
+
+    // A. Samstags-Wertschätzung von David Blickle
+    {
+      id: 'content-samstag-gruss', title: 'Danke, dass ihr heute da seid', description: 'Samstags-Botschaft von David Blickle an alle Kolleginnen und Kollegen in der Samstagsschicht.',
+      type: 'text', tags: ['allgemein', 'mitarbeiter'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'designer-ceo-quote', templateParams: {
+        kicker: 'GRUSS AUS DER GESCHAEFTSLEITUNG',
+        quote: 'Danke, dass ihr heute da seid. Euer Einsatz am Samstag hält vieles in Bewegung, was unsere Kundinnen und Kunden am Montag brauchen. Ich wünsche euch einen guten Tag, gute Gespräche und einen sicheren Heimweg.',
+        authorName: 'David Blickle',
+        authorPosition: 'Geschäftsführung',
+        photoUrl: '',
+        accent: '#B5CC18',
+        theme: 'dark',
+      }, metadata: {}
+    },
+
+    // C. Reinhold-Blickle-Zitat (Wandbild im Unternehmen)
+    {
+      id: 'content-reinhold-zitat', title: 'Leitsatz Reinhold Blickle', description: 'Unternehmens-Leitsatz des Senior-Chefs, an den Wänden bei Blickle.',
+      type: 'text', tags: ['allgemein'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'designer-ceo-quote', templateParams: {
+        kicker: 'UNSER LEITSATZ',
+        quote: 'Success is never owned; it is only rented, and the rent is due every day.',
+        authorName: 'Reinhold Blickle',
+        authorPosition: 'Senior Chef · Firmengründer',
+        photoUrl: '',
+        accent: '#B5CC18',
+        theme: 'dark',
+      }, metadata: {}
+    },
+
+    // D. Mitarbeiter-Motivationsindex: Video + QR zur Umfrage
+    {
+      id: 'content-motivationsindex', title: 'Mitarbeiter-Motivationsindex 2026', description: 'Geschäftsleitungs-Video und Umfrage zur Mitarbeiter-Motivation.',
+      type: 'text', tags: ['allgemein', 'mitarbeiter'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'designer-demo', templateParams: {
+        kicker: 'HR · MITARBEITER-MOTIVATION',
+        headline: 'Wie geht es dir gerade?',
+        body: 'Die Geschäftsleitung erklärt im Video, worum es geht. Anschließend: anonyme 3-Minuten-Umfrage. Deine Meinung zählt und gestaltet mit, wie wir bei Blickle zusammenarbeiten.',
+        videoUrl: '',
+        videoPoster: '/Blicklelogo.png',
+        qr1Url: 'https://blickle.com/gl-video',
+        qr1Label: 'Zum Video',
+        qr2Url: 'https://blickle.com/umfrage-motivation',
+        qr2Label: 'Zur Umfrage',
+        validUntil: '2026-06-30',
+        authorLabel: 'HR Blickle',
+        accent: '#B5CC18',
+        theme: 'dark',
+      }, metadata: {}
+    },
+
+    // E. Entgeltanpassung 2026: Kurz-Mitteilung + QR zu PDF
+    {
+      id: 'content-entgeltanpassung', title: 'Neue Mitteilung der Geschäftsleitung', description: 'Informationen zur Entgeltanpassung 2026 — Anschreiben als PDF per QR-Code.',
+      type: 'text', tags: ['allgemein', 'mitarbeiter'], status: 'approved',
+      createdBy: 'user-admin', createdAt: now, updatedAt: now,
+      validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
+      templateId: 'designer-demo', templateParams: {
+        kicker: 'NEUE MITTEILUNG · GESCHAEFTSLEITUNG',
+        headline: 'Entgeltanpassung 2026',
+        body: 'Das Anschreiben der Geschäftsleitung zur Entgeltanpassung 2026 ist veröffentlicht. Scanne den QR-Code mit deinem Smartphone, um das PDF direkt zu öffnen — auch ohne Bildschirmarbeitsplatz.',
+        videoUrl: '',
+        videoPoster: '/Blicklelogo.png',
+        qr1Url: 'https://blickle.com/mitteilungen/entgeltanpassung-2026.pdf',
+        qr1Label: 'PDF öffnen',
+        qr2Url: 'mailto:personal@blickle.com',
+        qr2Label: 'Fragen? Personalabteilung',
+        validUntil: '2026-12-31',
+        authorLabel: 'Geschäftsleitung',
+        accent: '#163A6C',
+        theme: 'dark',
+      }, metadata: {}
     },
 
     // ── Einblickle-Magazin Inhalte ───────────────────
@@ -124,13 +231,13 @@ export function getSeedContent() {
 
     // 5. Sommerfest & Weihnachtsfeier (S.27) → tpl-event
     {
-      id: 'content-sommerfest', title: 'Blickle Sommerfest 2025', description: 'Save the Date: 10. Juli 2025',
+      id: 'content-sommerfest', title: 'Blickle Sommerfest 2026', description: 'Save the Date: 10. Juli 2026',
       type: 'text', tags: ['events', 'soziales'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-event', templateParams: {
         titel: 'Blickle Sommerfest',
-        datum: '10. Juli 2025, ab 15:00 Uhr',
+        datum: '10.07.2026 15:00',
         ort: 'Blickle Hauptsitz Rosenfeld',
         beschreibung: 'Für alle Mitarbeiterinnen und Mitarbeiter mit Familie. Essen, Trinken, Live-Musik und gute Laune!'
       }, metadata: {}
@@ -144,7 +251,7 @@ export function getSeedContent() {
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
       templateId: 'tpl-event', templateParams: {
         titel: 'Firmenlauf Balingen',
-        datum: '2025',
+        datum: '08.03.2026 09:00',
         ort: 'Balingen',
         beschreibung: 'Mit über 60 Läuferinnen und Läufern war Blickle stark vertreten. Highlight: HBW-Sieg in der Firmenwertung! Danke an alle Teilnehmer!'
       }, metadata: {}
@@ -266,12 +373,16 @@ export function getSeedPlaylists() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       items: [
-        { id: 'pi-1', contentId: 'content-1', duration: 20, order: 1, transition: 'fade' },
-        { id: 'pi-2', contentId: 'content-2', duration: 15, order: 2, transition: 'fade' },
-        { id: 'pi-3', contentId: 'content-3', duration: 15, order: 3, transition: 'fade' },
+        { id: 'pi-1', contentId: 'content-2', duration: 15, order: 1, transition: 'fade' },
+        { id: 'pi-2', contentId: 'content-speiseplan-aktuell', duration: 18, order: 2, transition: 'fade' },
+        { id: 'pi-3', contentId: 'content-samstag-gruss', duration: 18, order: 3, transition: 'fade' },
       ]
     }
   ]
+}
+
+export function getSeedDisplayPrograms() {
+  return getDefaultDisplayPrograms()
 }
 
 export function getSeedTemplates() {
@@ -344,7 +455,7 @@ export function getSeedTemplates() {
       cssTemplate: '.tpl-production { height:100%; display:flex; flex-direction:column; padding:2rem 3rem; font-family:"DM Sans",sans-serif; } .tpl-production .tpl-section-title { font-family:"Outfit",sans-serif; font-size:0.85rem; font-weight:700; color:var(--d-text-faint, rgba(232,236,244,0.4)); letter-spacing:0.1em; margin:0 0 1.5rem; } .tpl-production .tpl-status-card { flex:1; display:flex; align-items:center; gap:2rem; background:var(--d-surface, rgba(255,255,255,0.03)); border:1px solid var(--d-border, rgba(255,255,255,0.06)); border-radius:14px; padding:2rem 2.5rem; } .tpl-production .tpl-status-indicator { width:20px; height:20px; border-radius:50%; flex-shrink:0; box-shadow:0 0 20px currentColor; } .tpl-production .tpl-status-gruen { background:#10B981; color:#10B981; } .tpl-production .tpl-status-gelb { background:#F59E0B; color:#F59E0B; } .tpl-production .tpl-status-rot { background:#EF4444; color:#EF4444; } .tpl-production h1 { font-family:"Outfit",sans-serif; font-size:2rem; font-weight:800; color:var(--d-text, #E8ECF4); margin:0 0 0.3rem; } .tpl-production .tpl-status-label { font-size:1.1rem; color:var(--d-text-muted, rgba(232,236,244,0.6)); margin:0; } .tpl-production .tpl-reason { font-size:1rem; color:var(--d-text-faint, rgba(232,236,244,0.4)); margin:0.5rem 0 0; } .tpl-production .tpl-footer { margin-top:1rem; padding-top:0.8rem; border-top:1px solid var(--d-border-subtle, rgba(255,255,255,0.06)); } .tpl-production .tpl-date { font-size:0.8rem; color:var(--d-text-faint, rgba(232,236,244,0.3)); }',
       parameters: [
         { key: 'linie', label: 'Linienname', type: 'text', defaultValue: 'Linie 3', required: true },
-        { key: 'status', label: 'Status (gruen/gelb/rot)', type: 'select', options: ['gruen','gelb','rot'], defaultValue: 'gruen', required: true },
+        { key: 'status', label: 'Status (grün/gelb/rot)', type: 'select', options: ['gruen','gelb','rot'], defaultValue: 'gruen', required: true },
         { key: 'statusText', label: 'Status-Text', type: 'text', defaultValue: 'Läuft', required: true },
         { key: 'grund', label: 'Grund/Details', type: 'text', defaultValue: '', required: false },
         { key: 'zeitpunkt', label: 'Zeitpunkt', type: 'text', defaultValue: '', required: false },
@@ -612,8 +723,8 @@ export function getSeedCanteenData() {
 
 export function getSeedNewsData() {
   return [
-    { id: 'news-1', title: 'Unterweisung Arbeitssicherheit 2024', text: 'Bitte denken Sie an den fristgerechten Abschluss der jährlichen Sicherheitsunterweisung im E-Learning Portal bis zum 30.06.', datum: '15.03.2026', kategorie: 'Sicherheit', imageUrl: '/content/karriere/blickle-fertigung.jpg', imageAlt: 'Arbeitssicherheit Unterweisung' },
-    { id: 'news-2', title: 'Wartungsarbeiten in Halle 4', text: 'Am kommenden Wochenende werden planmäßige Instandsetzungsarbeiten an der Hauptmontagelinie durchgeführt. Zugang nur für befugtes Personal.', datum: '12.03.2026', kategorie: 'Produktion', imageUrl: '/content/karriere/blickle-produktion.jpg', imageAlt: 'Wartungsarbeiten Halle 4' },
+    { id: 'news-1', title: 'Unterweisung Arbeitssicherheit 2026', text: 'Bitte denken Sie an den fristgerechten Abschluss der jährlichen Sicherheitsunterweisung im E-Learning Portal bis zum 30.06.', datum: '15.03.2026', kategorie: 'Sicherheit', imageUrl: '/content/karriere/blickle-fertigung.jpg', imageAlt: 'Arbeitssicherheit Unterweisung' },
+    { id: 'news-2', title: 'Wartungsarbeiten in FB4', text: 'Am kommenden Wochenende werden planmäßige Instandsetzungsarbeiten an der Hauptmontagelinie durchgeführt. Zugang nur für befugtes Personal.', datum: '12.03.2026', kategorie: 'Produktion', imageUrl: '/content/karriere/blickle-produktion.jpg', imageAlt: 'Wartungsarbeiten FB4' },
     { id: 'news-3', title: '#TeamBlickle Kollektion im S\'LÄDLE', text: 'Die neue Kleidungskollektion ist da! Hoodies, T-Shirts und Caps im Blickle-Design.', datum: '10.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/teamwear/400/240', imageAlt: 'TeamBlickle Kollektion' },
     { id: 'news-4', title: 'Firmenlauf Balingen: 60+ Läufer!', text: 'Blickle war mit über 60 Läuferinnen und Läufern stark vertreten. Highlight: HBW-Sieg!', datum: '08.03.2026', kategorie: 'Events', imageUrl: 'https://picsum.photos/seed/running/400/240', imageAlt: 'Firmenlauf Balingen' },
     { id: 'news-5', title: 'DKMS: Kollege rettet Leben', text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet.', datum: '11.03.2026', kategorie: 'Mitarbeiter', imageUrl: 'https://picsum.photos/seed/health/400/240', imageAlt: 'DKMS Stammzellspende' },

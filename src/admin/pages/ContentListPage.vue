@@ -2,17 +2,28 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useContentStore } from '../../shared/stores/contentStore.js'
+import { useScheduleStore } from '../../shared/stores/scheduleStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
+import { PERMISSIONS } from '../../shared/auth/policies.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
 
 const router = useRouter()
 const contentStore = useContentStore()
+const scheduleStore = useScheduleStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const toast = useToastStore()
 
 const searchQuery = ref('')
 const filterStatus = ref('all')
 const filterTag = ref('all')
+const canCreate = computed(() => userStore.can(PERMISSIONS.CONTENT_CREATE))
+const canRead = computed(() => userStore.can(PERMISSIONS.CONTENT_READ))
+const canEdit = computed(() => userStore.can(PERMISSIONS.CONTENT_EDIT))
+const canDelete = computed(() => userStore.can(PERMISSIONS.CONTENT_DELETE))
+const canSubmit = computed(() => userStore.can(PERMISSIONS.CONTENT_SUBMIT))
 
 const allTags = computed(() => {
   const tags = new Set()
@@ -32,20 +43,54 @@ const filtered = computed(() => {
 })
 
 function deleteContent(id) {
-  contentStore.remove(id)
-  auditStore.log('content.deleted', 'content', id, userStore.currentUser.id)
+  if (!canDelete.value) return
+  let removedSchedules = 0
+  try {
+    contentStore.remove(id)
+  } catch (error) {
+    toast.error(error?.message || 'Inhalt konnte nicht gelöscht werden')
+    return
+  }
+  try {
+    removedSchedules = scheduleStore.removeForTarget('content', id)
+  } catch (error) {
+    console.warn('[ContentList] Zeitplan-Bereinigung fehlgeschlagen:', error)
+    toast.warning('Inhalt gelöscht, aber abhängige Zeitpläne konnten nicht bereinigt werden')
+  }
+  safeAuditLog(auditStore, 'content.deleted', 'content', id, userStore.currentUser.id, { removedSchedules }, { toast })
+  toast.success(removedSchedules ? `Inhalt und ${removedSchedules} Zeitplan-Regeln gelöscht` : 'Inhalt gelöscht')
 }
 
 function submitForReview(id) {
-  contentStore.setStatus(id, 'in_review')
-  auditStore.log('content.submitted_for_review', 'content', id, userStore.currentUser.id)
+  if (!canSubmit.value) return
+  try {
+    contentStore.submitForReview(id, userStore.currentUser)
+    safeAuditLog(auditStore, 'content.submitted_for_review', 'content', id, userStore.currentUser.id, {}, { toast })
+    toast.success('Zur Prüfung eingereicht')
+  } catch (error) {
+    toast.error(error?.issues?.[0]?.message || error?.message || 'Inhalt konnte nicht eingereicht werden')
+  }
+}
+
+function latestRejectedComment(content) {
+  return [...(content.reviewEvents || [])]
+    .reverse()
+    .find(event => event.type === 'rejected' && event.comment)?.comment || ''
 }
 
 const statusLabels = {
   draft: 'Entwurf',
-  in_review: 'In Pruefung',
+  in_review: 'In Prüfung',
   approved: 'Freigegeben',
-  rejected: 'Abgelehnt'
+  rejected: 'Abgelehnt',
+  archived: 'Archiviert'
+}
+
+function formatSize(bytes) {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 </script>
 
@@ -70,8 +115,10 @@ const statusLabels = {
           <select v-model="filterStatus" class="filter-select">
             <option value="all">Alle Status</option>
             <option value="draft">Entwurf</option>
-            <option value="in_review">In Pruefung</option>
+            <option value="in_review">In Prüfung</option>
             <option value="approved">Freigegeben</option>
+            <option value="rejected">Abgelehnt</option>
+            <option value="archived">Archiviert</option>
           </select>
         </div>
         <div class="filter-wrap">
@@ -81,11 +128,11 @@ const statusLabels = {
           </select>
         </div>
       </div>
-      <button class="btn-create" @click="router.push({ name: 'admin-templates' })">
+      <button v-if="canCreate" class="btn-create" @click="router.push({ name: 'admin-publish' })">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M8 3v10M3 8h10"/>
         </svg>
-        Neuer Inhalt
+        Assistent starten
       </button>
     </div>
 
@@ -143,12 +190,15 @@ const statusLabels = {
           </template>
         </div>
 
-        <div class="card-body" @click="router.push('/admin/content/' + content.id)">
+        <div class="card-body" :class="{ 'card-body--readonly': !canEdit }" @click="canRead && router.push('/admin/content/' + content.id)">
           <div class="card-top-row">
             <h4 class="card-title">{{ content.title }}</h4>
             <span :class="['status-pill', content.status]">{{ statusLabels[content.status] }}</span>
           </div>
-          <p class="card-desc">{{ content.description }}</p>
+	          <p class="card-desc">{{ content.description }}</p>
+          <p v-if="content.status === 'rejected' && latestRejectedComment(content)" class="review-note">
+            {{ latestRejectedComment(content) }}
+          </p>
           <div class="card-meta">
             <span v-for="tag in content.tags" :key="tag" class="tag-chip">{{ tag }}</span>
             <span v-if="content.templateId" class="template-chip">
@@ -164,19 +214,20 @@ const statusLabels = {
 
         <div class="card-actions">
           <button
-            v-if="content.status === 'draft'"
+            v-if="content.status === 'draft' && canSubmit"
             class="btn-action btn-review"
             @click.stop="submitForReview(content.id)"
-            title="Zur Pruefung einreichen"
+            title="Zur Prüfung einreichen"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
               <path d="M2 8l4 4 8-8"/>
             </svg>
           </button>
           <button
+            v-if="canDelete && !contentStore.isLocked(content)"
             class="btn-action btn-delete"
             @click.stop="deleteContent(content.id)"
-            title="Loeschen"
+            title="Löschen"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
               <path d="M3 4h10M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M6 7v5M10 7v5"/>
@@ -390,16 +441,31 @@ const statusLabels = {
   text-overflow: ellipsis;
 }
 
-.card-desc {
+	.card-desc {
   font-size: var(--font-size-sm);
   color: var(--gray-500);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.4;
-}
+	}
 
-.card-meta {
+  .review-note {
+    margin: 6px 0 0;
+    padding: 7px 9px;
+    border-left: 3px solid var(--color-danger);
+    border-radius: 6px;
+    background: var(--color-danger-light);
+    color: #991b1b;
+    font-size: var(--font-size-xs);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+	.card-meta {
   display: flex;
   gap: 6px;
   margin-top: 6px;
@@ -421,6 +487,7 @@ const statusLabels = {
 .status-pill.in_review { background: var(--color-warning-light); color: #92400E; }
 .status-pill.draft { background: var(--gray-100); color: var(--gray-500); }
 .status-pill.rejected { background: var(--color-danger-light); color: #991B1B; }
+.status-pill.archived { background: rgba(100,116,139,0.16); color: #475569; }
 
 .tag-chip {
   font-size: 0.625rem;
@@ -517,4 +584,3 @@ const statusLabels = {
   color: var(--gray-400);
 }
 </style>
-

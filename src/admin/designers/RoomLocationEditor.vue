@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -9,28 +10,37 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field, update } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'NEU BEI BLICKLE')
-const headline = field('headline', 'Raum fuer Arbeitskleidung')
-const subHeadline = field('subHeadline', 'Anprobe jederzeit moeglich')
-const body = field('body', 'Ab sofort koennen alle Mitarbeiterinnen und Mitarbeiter ihre Arbeitskleidung im neuen Anprobe-Raum testen.')
+const headline = field('headline', 'Raum für Arbeitskleidung')
+const subHeadline = field('subHeadline', 'Anprobe jederzeit möglich')
+const body = field('body', 'Ab sofort können alle Mitarbeiterinnen und Mitarbeiter ihre Arbeitskleidung im neuen Anprobe-Raum testen.')
 const imageUrl = field('imageUrl', '/Blicklelogo.png')
-const buildingName = field('buildingName', 'Gebaeude 2 · Verwaltung')
+const buildingName = field('buildingName', 'Gebäude 2 · Verwaltung')
 const floor = field('floor', 'Erdgeschoss')
 const roomLabel = field('roomLabel', 'Raum EG-12')
 const openingHours = field('openingHours', [])
-const directionHint = field('directionHint', 'Vom Haupteingang rechts, 2. Tuer links')
+const directionHint = field('directionHint', 'Vom Haupteingang rechts, 2. Tür links')
 const authorLabel = field('authorLabel', 'Personalabteilung')
 const validUntil = field('validUntil', '2026-12-31')
 const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Gruen', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
+  { name: 'Grün', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
   { name: 'Blau', value: '#3B82F6' }, { name: 'Orange', value: '#F97316' },
 ]
 
-function onImagePick(e) { const file = e.target.files?.[0]; if (!file) return; imageUrl.value = URL.createObjectURL(file) }
+async function onImagePick(e) {
+  await pickDesignerMedia(e, {
+    kind: 'image',
+    errorMessage: 'Bild konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      imageUrl.value = dataUrl
+    },
+  })
+}
 function addHour() { const a = [...(openingHours.value || [])]; if (a.length >= 4) return; a.push({ day: '', time: '' }); update('openingHours', a) }
 function removeHour(i) { const a = [...(openingHours.value || [])]; a.splice(i, 1); update('openingHours', a) }
 function setHour(i, k, v) { const a = [...(openingHours.value || [])]; a[i] = { ...a[i], [k]: v }; update('openingHours', a) }
@@ -51,7 +61,7 @@ const formattedUntil = computed(() => { if (!validUntil.value) return ''; try { 
         <div class="wayfinder">
           <div class="wayfinder-top"><div class="way-label">So findest du hin</div></div>
           <div class="way-lines">
-            <div class="way-line"><div class="way-num">1</div><div class="way-body"><div class="way-hdr">Gebaeude</div><div class="way-val">{{ buildingName }}</div></div></div>
+            <div class="way-line"><div class="way-num">1</div><div class="way-body"><div class="way-hdr">Gebäude</div><div class="way-val">{{ buildingName }}</div></div></div>
             <div class="way-line"><div class="way-num">2</div><div class="way-body"><div class="way-hdr">Etage</div><div class="way-val">{{ floor }}</div></div></div>
             <div class="way-line"><div class="way-num">3</div><div class="way-body"><div class="way-hdr">Raum</div><div class="way-val">{{ roomLabel }}</div></div></div>
           </div>
@@ -61,11 +71,11 @@ const formattedUntil = computed(() => { if (!validUntil.value) return ''; try { 
       <div class="bottom-row">
         <div class="body-text">{{ body }}</div>
         <div class="hours-card">
-          <div class="hours-title">Oeffnungszeiten</div>
+          <div class="hours-title">Öffnungszeiten</div>
           <div class="hours-list"><div v-for="(oh, i) in openingHours" :key="i" class="hour-item"><span class="hour-day">{{ oh.day }}</span><span class="hour-dots"></span><span class="hour-time">{{ oh.time }}</span></div></div>
         </div>
       </div>
-      <div class="footer"><span>Gueltig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
+      <div class="footer"><span>Gültig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
     </div>
   </div>
 
@@ -73,20 +83,20 @@ const formattedUntil = computed(() => { if (!validUntil.value) return ''; try { 
     <aside class="form" v-if="!readonly">
       <section class="fs"><h4 class="fs-title">Kernaussage</h4>
         <label class="fld"><span class="fld-label">Kicker</span><input v-model="kicker" type="text" class="fld-input" /></label>
-        <label class="fld"><span class="fld-label">Ueberschrift</span><textarea v-model="headline" class="fld-input fld-small" rows="2" /></label>
+        <label class="fld"><span class="fld-label">Überschrift</span><textarea v-model="headline" class="fld-input fld-small" rows="2" /></label>
         <label class="fld"><span class="fld-label">Unterzeile</span><input v-model="subHeadline" type="text" class="fld-input" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Foto</h4>
-        <label class="fld"><span class="fld-label">Bild waehlen</span><input type="file" accept="image/*" class="fld-input fld-file" @change="onImagePick" /></label>
+        <label class="fld"><span class="fld-label">Bild wählen</span><input type="file" accept="image/*" class="fld-input fld-file" @change="onImagePick" /></label>
         <label class="fld"><span class="fld-label">Pfad (Fallback)</span><input v-model="imageUrl" type="text" class="fld-input" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Wegweiser</h4>
-        <label class="fld"><span class="fld-label">Gebaeude</span><input v-model="buildingName" type="text" class="fld-input" /></label>
+        <label class="fld"><span class="fld-label">Gebäude</span><input v-model="buildingName" type="text" class="fld-input" /></label>
         <label class="fld"><span class="fld-label">Etage</span><input v-model="floor" type="text" class="fld-input" /></label>
         <label class="fld"><span class="fld-label">Raum</span><input v-model="roomLabel" type="text" class="fld-input" /></label>
         <label class="fld"><span class="fld-label">Wegbeschreibung</span><input v-model="directionHint" type="text" class="fld-input" /></label>
       </section>
-      <section class="fs"><h4 class="fs-title">Oeffnungszeiten</h4>
+      <section class="fs"><h4 class="fs-title">Öffnungszeiten</h4>
         <div v-for="(oh, i) in openingHours" :key="i" class="hour-row">
           <input :value="oh.day" @input="e => setHour(i, 'day', e.target.value)" type="text" class="fld-input hour-day" placeholder="Mo – Fr" />
           <input :value="oh.time" @input="e => setHour(i, 'time', e.target.value)" type="text" class="fld-input hour-time" placeholder="07:00 – 17:00" />
@@ -97,7 +107,7 @@ const formattedUntil = computed(() => { if (!validUntil.value) return ''; try { 
       <section class="fs"><h4 class="fs-title">Details &amp; Gestaltung</h4>
         <label class="fld"><span class="fld-label">Begleittext</span><textarea v-model="body" class="fld-input" rows="3" /></label>
         <div class="row-2">
-          <label class="fld"><span class="fld-label">Gueltig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
+          <label class="fld"><span class="fld-label">Gültig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
           <label class="fld"><span class="fld-label">Autor</span><input v-model="authorLabel" type="text" class="fld-input" /></label>
         </div>
         <div class="fld"><span class="fld-label">Akzent</span>
@@ -123,7 +133,7 @@ const formattedUntil = computed(() => { if (!validUntil.value) return ''; try { 
             <div class="wayfinder">
               <div class="wayfinder-top"><div class="way-label">So findest du hin</div></div>
               <div class="way-lines">
-                <div class="way-line"><div class="way-num">1</div><div class="way-body"><div class="way-hdr">Gebaeude</div><div class="way-val">{{ buildingName }}</div></div></div>
+                <div class="way-line"><div class="way-num">1</div><div class="way-body"><div class="way-hdr">Gebäude</div><div class="way-val">{{ buildingName }}</div></div></div>
                 <div class="way-line"><div class="way-num">2</div><div class="way-body"><div class="way-hdr">Etage</div><div class="way-val">{{ floor }}</div></div></div>
                 <div class="way-line"><div class="way-num">3</div><div class="way-body"><div class="way-hdr">Raum</div><div class="way-val">{{ roomLabel }}</div></div></div>
               </div>
@@ -133,11 +143,11 @@ const formattedUntil = computed(() => { if (!validUntil.value) return ''; try { 
           <div class="bottom-row">
             <div class="body-text">{{ body }}</div>
             <div class="hours-card">
-              <div class="hours-title">Oeffnungszeiten</div>
+              <div class="hours-title">Öffnungszeiten</div>
               <div class="hours-list"><div v-for="(oh, i) in openingHours" :key="i" class="hour-item"><span class="hour-day">{{ oh.day }}</span><span class="hour-dots"></span><span class="hour-time">{{ oh.time }}</span></div></div>
             </div>
           </div>
-          <div class="footer"><span>Gueltig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
+          <div class="footer"><span>Gültig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
         </div>
       </div>
     </section>

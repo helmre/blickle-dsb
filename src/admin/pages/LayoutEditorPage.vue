@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { useLayoutStore } from '../../shared/stores/layoutStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { formatGridLine, getLayoutGridSize, normalizeLayout, parseGridLine, zoneGridStyle } from '../../shared/utils/layoutSchema.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
 
 const layoutStore = useLayoutStore()
 const auditStore = useAuditStore()
@@ -26,8 +28,9 @@ function selectLayout(id) {
   selectedLayoutId.value = id
   const layout = layoutStore.getById(id)
   if (layout) {
-    editColumns.value = layout.columns || 2
-    editRows.value = layout.rows || 2
+    const grid = getLayoutGridSize(layout)
+    editColumns.value = grid.columns || 2
+    editRows.value = grid.rows || 2
   }
 }
 
@@ -39,19 +42,21 @@ function createLayout() {
       zones.push({
         id: `zone-${r}-${c}`,
         name: `Zone ${r * newLayoutColumns.value + c + 1}`,
-        gridColumn: `${c + 1} / ${c + 2}`,
-        gridRow: `${r + 1} / ${r + 2}`,
+        gridColumnStart: c + 1,
+        gridColumnEnd: c + 2,
+        gridRowStart: r + 1,
+        gridRowEnd: r + 2,
         type: 'content'
       })
     }
   }
   const item = layoutStore.add({
     name: newLayoutName.value,
-    columns: newLayoutColumns.value,
-    rows: newLayoutRows.value,
+    gridColumns: newLayoutColumns.value,
+    gridRows: newLayoutRows.value,
     zones
   })
-  auditStore.log('layout.created', 'layout', item.id, userStore.currentUser.id, { name: item.name })
+  safeAuditLog(auditStore, 'layout.created', 'layout', item.id, userStore.currentUser.id, { name: item.name })
   newLayoutName.value = ''
   newLayoutColumns.value = 2
   newLayoutRows.value = 2
@@ -62,10 +67,10 @@ function createLayout() {
 function updateLayoutGrid() {
   if (!selectedLayout.value) return
   layoutStore.update(selectedLayoutId.value, {
-    columns: editColumns.value,
-    rows: editRows.value
+    gridColumns: editColumns.value,
+    gridRows: editRows.value
   })
-  auditStore.log('layout.updated', 'layout', selectedLayoutId.value, userStore.currentUser.id, {
+  safeAuditLog(auditStore, 'layout.updated', 'layout', selectedLayoutId.value, userStore.currentUser.id, {
     columns: editColumns.value,
     rows: editRows.value
   })
@@ -79,6 +84,21 @@ function updateZone(zoneIndex, field, value) {
   layoutStore.update(selectedLayoutId.value, { zones })
 }
 
+function updateZoneGridLine(zoneIndex, axis, value) {
+  const layout = selectedLayout.value
+  if (!layout) return
+  const zones = [...layout.zones]
+  const normalized = normalizeLayout(layout).zones[zoneIndex]
+  const fallbackStart = axis === 'column' ? normalized.gridColumnStart : normalized.gridRowStart
+  const fallbackEnd = axis === 'column' ? normalized.gridColumnEnd : normalized.gridRowEnd
+  const parsed = parseGridLine(value, fallbackStart, fallbackEnd)
+  const patch = axis === 'column'
+    ? { gridColumnStart: parsed.start, gridColumnEnd: parsed.end, gridColumn: undefined }
+    : { gridRowStart: parsed.start, gridRowEnd: parsed.end, gridRow: undefined }
+  zones[zoneIndex] = { ...zones[zoneIndex], ...patch }
+  layoutStore.update(selectedLayoutId.value, { zones })
+}
+
 function addZone() {
   const layout = selectedLayout.value
   if (!layout) return
@@ -87,8 +107,10 @@ function addZone() {
   zones.push({
     id: `zone-${Date.now()}`,
     name: `Zone ${idx + 1}`,
-    gridColumn: '1 / 2',
-    gridRow: '1 / 2',
+    gridColumnStart: 1,
+    gridColumnEnd: 2,
+    gridRowStart: 1,
+    gridRowEnd: 2,
     type: 'content'
   })
   layoutStore.update(selectedLayoutId.value, { zones })
@@ -105,7 +127,7 @@ function removeZone(zoneIndex) {
 function deleteLayout(id) {
   const layout = layoutStore.getById(id)
   layoutStore.remove(id)
-  auditStore.log('layout.deleted', 'layout', id, userStore.currentUser.id, { name: layout?.name })
+  safeAuditLog(auditStore, 'layout.deleted', 'layout', id, userStore.currentUser.id, { name: layout?.name })
   if (selectedLayoutId.value === id) {
     selectedLayoutId.value = null
   }
@@ -135,14 +157,13 @@ const zoneColors = ['#163A6C', '#B5CC18', '#2563EB', '#DC2626', '#059669', '#D97
             <button class="btn-sm btn-danger" @click.stop="deleteLayout(layout.id)">&#128465;</button>
           </div>
           <!-- Mini Preview -->
-          <div class="mini-preview" :style="{ gridTemplateColumns: `repeat(${layout.columns || 2}, 1fr)`, gridTemplateRows: `repeat(${layout.rows || 2}, 1fr)` }">
+          <div class="mini-preview" :style="{ gridTemplateColumns: `repeat(${getLayoutGridSize(layout).columns || 2}, 1fr)`, gridTemplateRows: `repeat(${getLayoutGridSize(layout).rows || 2}, 1fr)` }">
             <div
-              v-for="(zone, zi) in (layout.zones || [])"
+              v-for="(zone, zi) in normalizeLayout(layout).zones"
               :key="zone.id"
               class="mini-zone"
               :style="{
-                gridColumn: zone.gridColumn,
-                gridRow: zone.gridRow,
+                ...zoneGridStyle(zone),
                 background: zoneColors[zi % zoneColors.length]
               }"
             >
@@ -151,7 +172,7 @@ const zoneColors = ['#163A6C', '#B5CC18', '#2563EB', '#DC2626', '#059669', '#D97
           </div>
           <div class="card-meta-row">
             <span class="meta-text">{{ (layout.zones || []).length }} Zonen</span>
-            <span class="meta-text">{{ layout.columns || 2 }}x{{ layout.rows || 2 }}</span>
+            <span class="meta-text">{{ getLayoutGridSize(layout).columns || 2 }}x{{ getLayoutGridSize(layout).rows || 2 }}</span>
           </div>
         </div>
         <p v-if="!layoutStore.items.length" class="empty-text">Keine Layouts vorhanden.</p>
@@ -176,12 +197,11 @@ const zoneColors = ['#163A6C', '#B5CC18', '#2563EB', '#DC2626', '#059669', '#D97
           <!-- Large Preview -->
           <div class="large-preview" :style="{ gridTemplateColumns: `repeat(${editColumns}, 1fr)`, gridTemplateRows: `repeat(${editRows}, 1fr)` }">
             <div
-              v-for="(zone, zi) in (selectedLayout.zones || [])"
+              v-for="(zone, zi) in normalizeLayout(selectedLayout).zones"
               :key="zone.id"
               class="preview-zone"
               :style="{
-                gridColumn: zone.gridColumn,
-                gridRow: zone.gridRow,
+                ...zoneGridStyle(zone),
                 background: zoneColors[zi % zoneColors.length]
               }"
             >
@@ -202,24 +222,24 @@ const zoneColors = ['#163A6C', '#B5CC18', '#2563EB', '#DC2626', '#059669', '#D97
               <label class="zone-field">
                 <span>Spalte:</span>
                 <input
-                  :value="zone.gridColumn"
+                  :value="formatGridLine(normalizeLayout(selectedLayout).zones[zi].gridColumnStart, normalizeLayout(selectedLayout).zones[zi].gridColumnEnd)"
                   class="form-input zone-pos-input"
-                  @change="updateZone(zi, 'gridColumn', $event.target.value)"
+                  @change="updateZoneGridLine(zi, 'column', $event.target.value)"
                   placeholder="1 / 2"
                 />
               </label>
               <label class="zone-field">
                 <span>Zeile:</span>
                 <input
-                  :value="zone.gridRow"
+                  :value="formatGridLine(normalizeLayout(selectedLayout).zones[zi].gridRowStart, normalizeLayout(selectedLayout).zones[zi].gridRowEnd)"
                   class="form-input zone-pos-input"
-                  @change="updateZone(zi, 'gridRow', $event.target.value)"
+                  @change="updateZoneGridLine(zi, 'row', $event.target.value)"
                   placeholder="1 / 2"
                 />
               </label>
               <button class="btn-sm btn-danger" @click="removeZone(zi)">&times;</button>
             </div>
-            <button class="btn-sm btn-outline add-zone-btn" @click="addZone">+ Zone hinzufuegen</button>
+            <button class="btn-sm btn-outline add-zone-btn" @click="addZone">+ Zone hinzufügen</button>
           </div>
         </div>
       </div>

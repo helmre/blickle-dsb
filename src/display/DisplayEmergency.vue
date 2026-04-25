@@ -1,25 +1,50 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   emergency: { type: Object, required: true }
 })
 
 const emit = defineEmits(['dismiss'])
-const remainingSeconds = ref(props.emergency.displayDuration)
+const nowTs = ref(Date.now())
 let timer = null
+let autoDismissed = false
+
+const expiresAt = computed(() => {
+  const explicit = Date.parse(props.emergency.expiresAt || '')
+  if (!Number.isNaN(explicit)) return explicit
+  const triggeredAt = Date.parse(props.emergency.triggeredAt || '')
+  if (Number.isNaN(triggeredAt)) return Date.now() + Number(props.emergency.displayDuration || 0) * 1000
+  return triggeredAt + Number(props.emergency.displayDuration || 0) * 1000
+})
+
+const remainingSeconds = computed(() => {
+  return Math.max(0, Math.ceil((expiresAt.value - nowTs.value) / 1000))
+})
+
+watch(() => props.emergency.id, () => {
+  autoDismissed = false
+  nowTs.value = Date.now()
+}, { immediate: true })
 
 onMounted(() => {
   timer = setInterval(() => {
-    remainingSeconds.value--
-    if (remainingSeconds.value <= 0) {
-      emit('dismiss')
-    }
+    nowTs.value = Date.now()
   }, 1000)
 })
 
 onUnmounted(() => {
-  if (timer) clearInterval(timer)
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
+})
+
+watch(remainingSeconds, (seconds) => {
+  if (seconds <= 0 && !autoDismissed) {
+    autoDismissed = true
+    emit('dismiss', props.emergency.id)
+  }
 })
 </script>
 

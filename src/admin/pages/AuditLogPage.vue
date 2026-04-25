@@ -69,7 +69,7 @@ const entityTypeLabels = {
   <div class="audit-page">
     <div class="page-toolbar">
       <h2 class="page-title">Audit-Protokoll</h2>
-      <span class="entry-count">{{ filteredEntries.length }} Eintraege</span>
+      <span class="entry-count">{{ filteredEntries.length }} Einträge</span>
     </div>
 
     <div class="filter-bar">
@@ -95,7 +95,7 @@ const entityTypeLabels = {
               Zeitstempel {{ sortDirection === 'desc' ? '&darr;' : '&uarr;' }}
             </th>
             <th>Aktion</th>
-            <th>Entitaetstyp</th>
+            <th>Entitätstyp</th>
             <th>Benutzer</th>
             <th>Details</th>
           </tr>
@@ -114,7 +114,7 @@ const entityTypeLabels = {
           </tr>
         </tbody>
       </table>
-      <p v-if="!filteredEntries.length" class="empty-text">Keine Eintraege gefunden.</p>
+      <p v-if="!filteredEntries.length" class="empty-text">Keine Einträge gefunden.</p>
     </div>
   </div>
 </template>

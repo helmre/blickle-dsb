@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -9,10 +10,11 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'HR · MITARBEITER-FOKUS')
 const headline = field('headline', 'Wie geht es dir gerade?')
-const body = field('body', 'Anonyme 3-Minuten-Umfrage. Deine Meinung zaehlt.')
+const body = field('body', 'Anonyme 3-Minuten-Umfrage. Deine Meinung zählt.')
 const videoUrl = field('videoUrl', '')
 const videoPoster = field('videoPoster', '/Blicklelogo.png')
 const qr1Url = field('qr1Url', 'https://blickle.com/motivationsindex-video')
@@ -25,7 +27,7 @@ const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' },
+  { name: 'Blickle-Grün', value: '#B5CC18' },
   { name: 'Navy', value: '#163A6C' },
   { name: 'Signal-Rot', value: '#EF4444' },
   { name: 'Orange', value: '#F97316' },
@@ -37,11 +39,35 @@ function qrSrc(url) {
   return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=400x400&margin=4`
 }
 
-function onVideoPick(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  videoUrl.value = URL.createObjectURL(file)
-  videoPoster.value = ''
+// Detect YouTube / Vimeo URLs so we can embed via iframe instead of <video>
+function youtubeId(url) {
+  if (!url) return ''
+  const m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/)
+  return m ? m[1] : ''
+}
+function vimeoId(url) {
+  if (!url) return ''
+  const m = String(url).match(/vimeo\.com\/(\d+)/)
+  return m ? m[1] : ''
+}
+const embedUrl = computed(() => {
+  const yt = youtubeId(videoUrl.value)
+  if (yt) return `https://www.youtube.com/embed/${yt}?autoplay=1&mute=1&loop=1&playlist=${yt}&controls=0&modestbranding=1&rel=0&playsinline=1`
+  const vm = vimeoId(videoUrl.value)
+  if (vm) return `https://player.vimeo.com/video/${vm}?autoplay=1&muted=1&loop=1&background=1`
+  return ''
+})
+const isEmbed = computed(() => !!embedUrl.value)
+
+async function onVideoPick(e) {
+  await pickDesignerMedia(e, {
+    kind: 'video',
+    errorMessage: 'Video konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      videoUrl.value = dataUrl
+      videoPoster.value = ''
+    },
+  })
 }
 
 const formattedUntil = computed(() => {
@@ -58,14 +84,15 @@ const formattedUntil = computed(() => {
       <div class="block block-kicker"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
       <div class="block block-headline">{{ headline }}</div>
       <div class="block block-media">
-        <video v-if="videoUrl" :src="videoUrl" :poster="videoPoster || undefined" autoplay loop muted playsinline class="media-video"></video>
+        <iframe v-if="isEmbed" :src="embedUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="media-video"></iframe>
+        <video v-else-if="videoUrl" :src="videoUrl" :poster="videoPoster || undefined" autoplay loop muted playsinline class="media-video"></video>
         <div v-else class="media-placeholder"><img v-if="videoPoster" :src="videoPoster" alt="" /></div>
       </div>
       <div class="block block-qr"><div class="qr-box"><img v-if="qr1Url" :src="qrSrc(qr1Url)" alt="" /></div><div class="qr-label">{{ qr1Label }}</div></div>
       <div class="block block-qr block-qr-2"><div class="qr-box"><img v-if="qr2Url" :src="qrSrc(qr2Url)" alt="" /></div><div class="qr-label">{{ qr2Label }}</div></div>
       <div class="block block-body">{{ body }}</div>
       <div class="block block-footer">
-        <span>Gueltig bis {{ formattedUntil }}</span>
+        <span>Gültig bis {{ formattedUntil }}</span>
         <span class="dot-sep">·</span>
         <span>{{ authorLabel }}</span>
         <span class="footer-spacer"></span>
@@ -78,13 +105,14 @@ const formattedUntil = computed(() => {
     <aside class="designer-form" v-if="!readonly">
       <div class="form-section">
         <h4 class="form-section-title">Inhalt</h4>
-        <label class="fld"><span class="fld-label">Kicker / Ueberzeile</span><input v-model="kicker" type="text" class="fld-input" /><span class="fld-hint">Kurz, GROSS, Akzentfarbe.</span></label>
+        <label class="fld"><span class="fld-label">Kicker / Überzeile</span><input v-model="kicker" type="text" class="fld-input" /><span class="fld-hint">Kurz, GROSS, Akzentfarbe.</span></label>
         <label class="fld"><span class="fld-label">Headline</span><textarea v-model="headline" class="fld-input fld-textarea-sm" rows="2" /></label>
         <label class="fld"><span class="fld-label">Begleittext</span><textarea v-model="body" class="fld-input" rows="3" /></label>
       </div>
       <div class="form-section">
         <h4 class="form-section-title">Video</h4>
-        <label class="fld"><span class="fld-label">Datei waehlen</span><input type="file" accept="video/*" class="fld-input fld-file" @change="onVideoPick" /></label>
+        <label class="fld"><span class="fld-label">YouTube- oder Vimeo-URL</span><input v-model="videoUrl" type="url" class="fld-input" placeholder="https://youtube.com/watch?v=..." /><span class="fld-hint">Oder lokale Datei unten hochladen.</span></label>
+        <label class="fld"><span class="fld-label">Datei wählen</span><input type="file" accept="video/*" class="fld-input fld-file" @change="onVideoPick" /></label>
         <label class="fld"><span class="fld-label">Poster-Bild (Fallback)</span><input v-model="videoPoster" type="text" class="fld-input" /></label>
       </div>
       <div class="form-section">
@@ -101,7 +129,7 @@ const formattedUntil = computed(() => {
       <div class="form-section">
         <h4 class="form-section-title">Meta</h4>
         <div class="qr-fields">
-          <label class="fld"><span class="fld-label">Gueltig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
+          <label class="fld"><span class="fld-label">Gültig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
           <label class="fld"><span class="fld-label">Autor</span><input v-model="authorLabel" type="text" class="fld-input" /></label>
         </div>
       </div>
@@ -128,14 +156,15 @@ const formattedUntil = computed(() => {
           <div class="block block-kicker"><span class="kicker-dot"></span><span class="kicker-text">{{ kicker }}</span></div>
           <div class="block block-headline">{{ headline }}</div>
           <div class="block block-media">
-            <video v-if="videoUrl" :src="videoUrl" :poster="videoPoster || undefined" autoplay loop muted playsinline class="media-video"></video>
+            <iframe v-if="isEmbed" :src="embedUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="media-video"></iframe>
+            <video v-else-if="videoUrl" :src="videoUrl" :poster="videoPoster || undefined" autoplay loop muted playsinline class="media-video"></video>
             <div v-else class="media-placeholder"><img v-if="videoPoster" :src="videoPoster" alt="" /><div class="media-hint">Video hier ablegen</div></div>
           </div>
           <div class="block block-qr"><div class="qr-box"><img v-if="qr1Url" :src="qrSrc(qr1Url)" alt="" /></div><div class="qr-label">{{ qr1Label }}</div></div>
           <div class="block block-qr block-qr-2"><div class="qr-box"><img v-if="qr2Url" :src="qrSrc(qr2Url)" alt="" /></div><div class="qr-label">{{ qr2Label }}</div></div>
           <div class="block block-body">{{ body }}</div>
           <div class="block block-footer">
-            <span>Gueltig bis {{ formattedUntil }}</span>
+            <span>Gültig bis {{ formattedUntil }}</span>
             <span class="dot-sep">·</span>
             <span>{{ authorLabel }}</span>
             <span class="footer-spacer"></span>

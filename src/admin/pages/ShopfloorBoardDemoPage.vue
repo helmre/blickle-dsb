@@ -48,7 +48,7 @@ const activeColData = computed(() => store.board.columns[activeCol.value])
         <p class="page-sub">Live-Editor links, 1920×1080-Vorschau rechts. Identisches Rendering wie auf dem Display.</p>
       </div>
       <div class="toolbar-actions">
-        <button class="btn-ghost" @click="store.reset()">Auf Mock zuruecksetzen</button>
+        <button class="btn-ghost" @click="store.reset()">Auf Mock zurücksetzen</button>
         <button
           class="btn-primary"
           @click="isRunning = !isRunning"
@@ -91,7 +91,7 @@ const activeColData = computed(() => store.board.columns[activeCol.value])
         </section>
 
         <section class="fs">
-          <h4 class="fs-title">Spalte waehlen</h4>
+          <h4 class="fs-title">Spalte wählen</h4>
           <div class="col-tabs">
             <button
               v-for="k in COLUMN_ORDER"
@@ -119,7 +119,7 @@ const activeColData = computed(() => store.board.columns[activeCol.value])
               {{ i + 1 }}
             </button>
           </div>
-          <p class="editor-hint">Gruen &middot; Gelb &middot; Rot &middot; Leer &mdash; Klick zykliert</p>
+          <p class="editor-hint">Grün &middot; Gelb &middot; Rot &middot; Leer &mdash; Klick zykliert</p>
         </section>
 
         <section class="fs" v-if="activeColData">

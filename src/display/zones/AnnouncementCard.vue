@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useContentStore } from '../../shared/stores/contentStore.js'
-import { useDisplayContent } from '../../shared/composables/useDisplayContent.js'
 import TemplateRenderer from './TemplateRenderer.vue'
 
 const props = defineProps({
@@ -9,27 +8,48 @@ const props = defineProps({
   zoneId: String,
   contentId: { type: String, default: null },
   contentIndex: { type: Number, default: null },
+  contentData: { type: Object, default: null },
 })
 
 const contentStore = useContentStore()
-const { announcementItems } = useDisplayContent()
 
-// Determine which content to show
-const zoneIndex = computed(() => {
-  if (props.contentIndex !== null) return props.contentIndex
-  return parseInt(props.zoneId?.split('-').pop()) || 0
+function mapTagToCategory(tags) {
+  if (!tags || tags.length === 0) return 'Allgemein'
+  const tag = tags[0].toLowerCase()
+  if (tag.includes('sicherheit')) return 'Sicherheit'
+  if (tag.includes('produktion')) return 'Produktion'
+  if (tag.includes('event')) return 'Events'
+  if (tag.includes('sozial')) return 'Mitarbeiter'
+  if (tag.includes('neuheit')) return 'Neuheiten'
+  if (tag.includes('allgemein')) return 'Allgemein'
+  if (tag.includes('messe')) return 'Messen'
+  if (tag.includes('nachhaltig')) return 'Nachhaltigkeit'
+  if (tag.includes('organisation')) return 'Organisation'
+  return tags[0].charAt(0).toUpperCase() + tags[0].slice(1)
+}
+
+const directContent = computed(() => {
+  if (props.contentData) return props.contentData
+  return props.contentId ? contentStore.getById(props.contentId) : null
 })
 
-const item = computed(() =>
-  announcementItems.value[zoneIndex.value % Math.max(announcementItems.value.length, 1)]
-  || { title: 'Keine Inhalte', text: 'Erstellen Sie Inhalte im Admin-Bereich.', datum: '', kategorie: 'Allgemein' }
-)
+const item = computed(() => {
+  if (directContent.value) {
+    return {
+      id: directContent.value.id,
+      title: directContent.value.title,
+      text: directContent.value.description || '',
+      datum: new Date(directContent.value.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      kategorie: mapTagToCategory(directContent.value.tags)
+    }
+  }
+  return { title: 'Keine Inhalte', text: 'Erstellen Sie Inhalte im Admin-Bereich.', datum: '', kategorie: 'Allgemein' }
+})
 
 // Check if the underlying content has rich data (template, media, embed)
 const fullContent = computed(() => {
-  const id = props.contentId || item.value?.id
-  if (!id) return null
-  return contentStore.getById(id)
+  if (directContent.value) return directContent.value
+  return null
 })
 
 const isRichContent = computed(() => {
@@ -56,7 +76,7 @@ const categoryColors = {
   <!-- Delegate to TemplateRenderer for rich content (templates, media, embeds) -->
   <TemplateRenderer
     v-if="isRichContent"
-    :contentId="fullContent.id"
+    :contentData="fullContent"
     :zoneId="zoneId"
   />
 

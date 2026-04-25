@@ -30,6 +30,15 @@
   --d-text-faint: rgba(232, 236, 244, 0.3);
   --d-text-body: rgba(232, 236, 244, 0.65);
 
+  /* Headline – theme-aware replacement for hardcoded --blickle-navy.
+     Why: navy #163A6C is unreadable on the dark --d-bg. */
+  --d-headline: #FFFFFF;
+  --d-headline-muted: rgba(255, 255, 255, 0.82);
+  --d-headline-on-accent: #081226;
+
+  /* Hero image opacity (Karriere etc.) – brighter on dark to compensate. */
+  --d-hero-image-opacity: 0.55;
+
   /* Accent */
   --d-accent: #B5CC18;
   --d-accent-muted: rgba(181, 204, 24, 0.7);
@@ -135,6 +144,14 @@
   --d-text-muted: #6B6C68;
   --d-text-faint: #9B9C98;
   --d-text-body: #4B4C48;
+
+  /* Headline – Blickle CI navy, works on light surface. */
+  --d-headline: #163A6C;
+  --d-headline-muted: rgba(22, 58, 108, 0.85);
+  --d-headline-on-accent: #163A6C;
+
+  /* Hero image opacity (Karriere etc.) – softer on white card. */
+  --d-hero-image-opacity: 0.32;
 
   /* Accent */
   --d-accent: #B5CC18;

@@ -1,47 +1,82 @@
 <script setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useContentStore } from '../shared/stores/contentStore.js'
+import { useUserStore } from '../shared/stores/userStore.js'
+import { PERMISSIONS } from '../shared/auth/policies.js'
 
 const route = useRoute()
 const contentStore = useContentStore()
+const userStore = useUserStore()
 
 const navSections = [
   {
+    label: '',
     items: [
-      { label: 'Dashboard', icon: 'dashboard', to: '/admin', name: 'admin-dashboard' },
-      { label: 'Inhalte', icon: 'content', to: '/admin/content', name: 'admin-content' },
-      { label: 'Playlists', icon: 'playlist', to: '/admin/playlists', name: 'admin-playlists' },
-      { label: 'Zeitplanung', icon: 'schedule', to: '/admin/schedule', name: 'admin-schedule' },
-      { label: 'Notfall', icon: 'emergency', to: '/admin/emergency', name: 'admin-emergency' },
+      { label: 'Dashboard', icon: 'dashboard', to: '/admin', name: 'admin-dashboard', permission: PERMISSIONS.ADMIN_ACCESS },
     ]
   },
   {
+    label: 'Inhalte',
     items: [
-      { label: 'Vorlagen-Katalog', icon: 'template', to: '/admin/templates', name: 'admin-templates' },
-      { label: 'Standorte', icon: 'location', to: '/admin/locations', name: 'admin-locations' },
-      { label: 'Layouts', icon: 'layout', to: '/admin/layouts', name: 'admin-layouts' },
-      { label: 'Shopfloor', icon: 'shopfloor', to: '/admin/shopfloor-demo', name: 'admin-shopfloor-demo' },
+      { label: 'Veröffentlichen', icon: 'publish', to: '/admin/publish', name: 'admin-publish', permission: PERMISSIONS.CONTENT_CREATE },
+      { label: 'Inhaltsbibliothek', icon: 'content', to: '/admin/content', name: 'admin-content', permission: PERMISSIONS.CONTENT_READ },
+      { label: 'Freigaben', icon: 'approval', to: '/admin/approvals', name: 'admin-approvals', badge: true, permission: PERMISSIONS.CONTENT_APPROVE },
+      { label: 'Vorlagen', icon: 'template', to: '/admin/templates', name: 'admin-templates', permission: PERMISSIONS.CONTENT_CREATE },
     ]
   },
   {
+    label: 'Display',
     items: [
-      { label: 'Freigaben', icon: 'approval', to: '/admin/approvals', name: 'admin-approvals', badge: true },
-      { label: 'Benutzer', icon: 'users', to: '/admin/users', name: 'admin-users' },
-      { label: 'Audit-Log', icon: 'audit', to: '/admin/audit-log', name: 'admin-audit-log' },
+      { label: 'Programme', icon: 'programs', to: '/admin/display-programs', name: 'admin-display-programs', permission: PERMISSIONS.DISPLAY_PROGRAMS_MANAGE },
+      { label: 'Display-Seiten', icon: 'displayPages', to: '/admin/display-pages', name: 'admin-display-pages', permission: PERMISSIONS.DISPLAY_PAGES_MANAGE },
+      { label: 'Playlists', icon: 'playlist', to: '/admin/playlists', name: 'admin-playlists', permission: PERMISSIONS.PLAYLISTS_READ },
+      { label: 'Zeitplanung', icon: 'schedule', to: '/admin/schedule', name: 'admin-schedule', permission: PERMISSIONS.SCHEDULE_READ },
+      { label: 'Ausspielung prüfen', icon: 'display', to: '/admin/display-simulation', name: 'admin-display-simulation', permission: PERMISSIONS.DISPLAY_PREVIEW },
+      { label: 'Layouts', icon: 'layout', to: '/admin/layouts', name: 'admin-layouts', permission: PERMISSIONS.LAYOUTS_MANAGE },
+    ]
+  },
+  {
+    label: 'Produktion',
+    items: [
+      { label: 'Shopfloor-Board', icon: 'shopfloor', to: '/admin/shopfloor-demo', name: 'admin-shopfloor-demo', permission: PERMISSIONS.SHOPFLOOR_READ },
+    ]
+  },
+  {
+    label: 'System',
+    items: [
+      { label: 'Standorte', icon: 'location', to: '/admin/locations', name: 'admin-locations', permission: PERMISSIONS.LOCATIONS_MANAGE },
+      { label: 'Notfall', icon: 'emergency', to: '/admin/emergency', name: 'admin-emergency', permission: PERMISSIONS.EMERGENCY_TRIGGER },
+      { label: 'Benutzer', icon: 'users', to: '/admin/users', name: 'admin-users', permission: PERMISSIONS.USERS_MANAGE },
+      { label: 'Audit-Log', icon: 'audit', to: '/admin/audit-log', name: 'admin-audit-log', permission: PERMISSIONS.AUDIT_READ },
     ]
   }
 ]
+
+const visibleNavSections = computed(() => {
+  return navSections
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => !item.permission || userStore.can(item.permission))
+    }))
+    .filter(section => section.items.length > 0)
+})
 
 function isActive(item) {
   if (route.name === item.name) return true
   if (item.name === 'admin-content' && route.name === 'admin-content-detail') return true
   if (item.name === 'admin-playlists' && route.name === 'admin-playlist-editor') return true
+  if (item.name === 'admin-templates' && route.name === 'admin-template-editor') return true
   return false
 }
 
 const icons = {
   dashboard: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="8" rx="2"/><rect x="11" y="2" width="7" height="5" rx="2"/><rect x="2" y="12" width="7" height="6" rx="2"/><rect x="11" y="9" width="7" height="9" rx="2"/></svg>`,
   content: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7Z"/><path d="M12 2v5h5"/><path d="M7 11h6M7 14h4"/></svg>`,
+  publish: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 16 3l-3.5 14-2.3-5.4L4 10.5Z"/><path d="M10.2 11.6 16 3"/></svg>`,
+  display: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="11" rx="2"/><path d="M7 18h6M10 14v4"/><path d="M6 7h8M6 10h5"/></svg>`,
+  programs: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="11" rx="2"/><path d="M6 18h8M10 14v4"/><path d="M5 7h4M11 7h4M5 10h2M9 10h6"/></svg>`,
+  displayPages: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="11" rx="2"/><path d="M5 7h4v3H5zM11 7h4v3h-4zM7 18h6M10 14v4"/></svg>`,
   playlist: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M3 9h7"/><path d="M3 13h5"/><circle cx="15" cy="13" r="3"/><path d="M18 13V6"/></svg>`,
   schedule: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="15" rx="2"/><path d="M6 1v4M14 1v4M2 8h16"/><circle cx="10" cy="13" r="1.5" fill="currentColor" stroke="none"/></svg>`,
   emergency: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L1.5 17h17L10 2Z"/><path d="M10 8v4"/><circle cx="10" cy="14.5" r="0.7" fill="currentColor" stroke="none"/></svg>`,
@@ -66,8 +101,9 @@ const icons = {
 
     <!-- Navigation -->
     <nav class="sidebar-nav">
-      <div v-for="(section, si) in navSections" :key="si" class="nav-section">
+      <div v-for="(section, si) in visibleNavSections" :key="si" class="nav-section">
         <div v-if="si > 0" class="nav-divider"></div>
+        <span v-if="section.label" class="nav-section-label">{{ section.label }}</span>
         <router-link
           v-for="item in section.items"
           :key="item.name"
@@ -170,7 +206,16 @@ const icons = {
 .nav-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 30%, rgba(255,255,255,0.07) 70%, transparent 100%);
-  margin: 10px 10px;
+  margin: 12px 10px 10px;
+}
+
+.nav-section-label {
+  padding: 0 14px 7px;
+  color: rgba(255, 255, 255, 0.34);
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .nav-item {

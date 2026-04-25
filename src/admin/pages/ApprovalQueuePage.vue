@@ -3,13 +3,20 @@ import { ref, computed } from 'vue'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
+import { PERMISSIONS } from '../../shared/auth/policies.js'
+import { getTemplateById } from '../../shared/templates/registry.js'
+import { validateContentForPublication } from '../../shared/templates/templateValidation.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
+import ReviewTimeline from '../components/ReviewTimeline.vue'
 
 const contentStore = useContentStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const toast = useToastStore()
 
 const showConfirm = ref(null) // { id, action, comment }
-const rejectComment = ref('')
+const canApprove = computed(() => userStore.can(PERMISSIONS.CONTENT_APPROVE))
 
 const pendingItems = computed(() => contentStore.inReview)
 
@@ -18,38 +25,117 @@ function getUserName(userId) {
   return u ? u.name : userId || 'Unbekannt'
 }
 
+function publicationIssues(item) {
+  const template = item?.templateId ? getTemplateById(item.templateId) : null
+  return validateContentForPublication(item, template)
+}
+
+function isPublishable(item) {
+  return publicationIssues(item).length === 0
+}
+
+function formatDate(value) {
+  if (!value) return '-'
+  try {
+    return new Date(value).toLocaleDateString('de-DE')
+  } catch {
+    return value
+  }
+}
+
+function formatDateTime(value) {
+  if (!value) return ''
+  try {
+    return new Intl.DateTimeFormat('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value))
+  } catch {
+    return value
+  }
+}
+
+function latestSubmission(item) {
+  return [...(item.reviewEvents || [])].reverse().find(event => event.type === 'submitted')
+}
+
+function reviewNoteFor(item) {
+  return item.reviewNote || latestSubmission(item)?.comment || ''
+}
+
+function reviewFacts(item) {
+  const context = item.reviewContext || {}
+  return [
+    { label: 'Zielgruppe', value: context.locationLabel },
+    { label: 'Zeitraum', value: context.validityLabel },
+    { label: 'Vorschau', value: context.previewLocationLabel },
+    { label: 'Display geprüft', value: formatDateTime(context.previewCheckedAt) },
+  ].filter(fact => fact.value)
+}
+
 function confirmApprove(id) {
+  if (!canApprove.value) return
+  const item = contentStore.getById(id)
+  const issues = publicationIssues(item)
+  if (issues.length) {
+    toast.error('Dieser Inhalt ist noch nicht freigabefähig')
+    return
+  }
   showConfirm.value = { id, action: 'approve', comment: '' }
 }
 
 function confirmReject(id) {
+  if (!canApprove.value) return
   showConfirm.value = { id, action: 'reject', comment: '' }
-  rejectComment.value = ''
+}
+
+function logAudit(action, entityType, entityId, userId, details) {
+  safeAuditLog(auditStore, action, entityType, entityId, userId, details, { toast })
 }
 
 function executeAction() {
-  if (!showConfirm.value) return
-  const { id, action } = showConfirm.value
+  if (!showConfirm.value || !canApprove.value) return
+  const { id, action, comment } = showConfirm.value
+  const cleanComment = comment.trim()
+
+  if (action === 'reject' && !cleanComment) {
+    toast.error('Bitte einen Änderungswunsch oder Ablehnungsgrund eintragen')
+    return
+  }
 
   if (action === 'approve') {
-    contentStore.setStatus(id, 'approved')
-    auditStore.log('content.approved', 'content', id, userStore.currentUser.id, {
-      approvedBy: userStore.currentUser.name
+    try {
+      contentStore.approve(id, userStore.currentUser, cleanComment)
+    } catch (error) {
+      toast.error(error?.issues?.[0]?.message || error?.message || 'Inhalt konnte nicht freigegeben werden')
+      return
+    }
+    logAudit('content.approved', 'content', id, userStore.currentUser.id, {
+      approvedBy: userStore.currentUser.name,
+      comment: cleanComment
     })
+    toast.success('Inhalt freigegeben')
   } else {
-    contentStore.setStatus(id, 'rejected')
-    auditStore.log('content.rejected', 'content', id, userStore.currentUser.id, {
+    try {
+      contentStore.reject(id, userStore.currentUser, cleanComment)
+    } catch (error) {
+      toast.error(error?.message || 'Inhalt konnte nicht abgelehnt werden')
+      return
+    }
+    logAudit('content.rejected', 'content', id, userStore.currentUser.id, {
       rejectedBy: userStore.currentUser.name,
-      comment: rejectComment.value
+      comment: cleanComment
     })
+    toast.info('Änderungswunsch wurde gespeichert')
   }
   showConfirm.value = null
-  rejectComment.value = ''
 }
 
 function cancelAction() {
   showConfirm.value = null
-  rejectComment.value = ''
 }
 </script>
 
@@ -67,15 +153,37 @@ function cancelAction() {
           <p class="card-desc">{{ item.description || 'Keine Beschreibung' }}</p>
           <div class="card-meta">
             <span class="meta-item">Erstellt von: <strong>{{ getUserName(item.createdBy) }}</strong></span>
-            <span class="meta-item">Eingereicht: {{ new Date(item.updatedAt || item.createdAt).toLocaleDateString('de-DE') }}</span>
+            <span class="meta-item">Eingereicht: {{ formatDate(item.submittedAt || item.updatedAt || item.createdAt) }}</span>
+            <span v-if="item.reviewVersion" class="meta-item">Version: {{ item.reviewVersion }}</span>
             <span class="meta-item">Typ: {{ item.type }}</span>
           </div>
           <div class="card-tags" v-if="item.tags && item.tags.length">
             <span v-for="tag in item.tags" :key="tag" class="tag-badge">{{ tag }}</span>
           </div>
+          <section v-if="reviewNoteFor(item) || reviewFacts(item).length" class="review-brief">
+            <div class="review-brief-head">
+              <strong>Prüfauftrag</strong>
+              <span v-if="latestSubmission(item)?.userName">{{ latestSubmission(item).userName }}</span>
+            </div>
+            <p v-if="reviewNoteFor(item)">{{ reviewNoteFor(item) }}</p>
+            <dl v-if="reviewFacts(item).length">
+              <div v-for="fact in reviewFacts(item)" :key="fact.label">
+                <dt>{{ fact.label }}</dt>
+                <dd>{{ fact.value }}</dd>
+              </div>
+            </dl>
+          </section>
+          <div v-if="publicationIssues(item).length" class="validation-block">
+            <strong>Nicht freigabefähig</strong>
+            <ul>
+              <li v-for="issue in publicationIssues(item)" :key="issue.key">{{ issue.message }}</li>
+            </ul>
+          </div>
+          <ReviewTimeline v-if="item.reviewEvents?.length" :events="item.reviewEvents" compact class="card-timeline" />
         </div>
         <div class="card-actions">
-          <button class="btn-approve" @click="confirmApprove(item.id)">Freigeben</button>
+          <router-link class="btn-outline" :to="{ name: 'admin-content-detail', params: { id: item.id } }">Prüfen</router-link>
+          <button class="btn-approve" :disabled="!isPublishable(item)" @click="confirmApprove(item.id)">Freigeben</button>
           <button class="btn-reject" @click="confirmReject(item.id)">Ablehnen</button>
         </div>
       </div>
@@ -96,23 +204,31 @@ function cancelAction() {
         <div class="modal-body">
           <p class="confirm-text">
             {{ showConfirm.action === 'approve'
-              ? 'Sind Sie sicher, dass Sie diesen Inhalt freigeben moechten?'
-              : 'Sind Sie sicher, dass Sie diesen Inhalt ablehnen moechten?' }}
+              ? 'Sind Sie sicher, dass Sie diesen Inhalt freigeben möchten?'
+              : 'Sind Sie sicher, dass Sie diesen Inhalt ablehnen möchten?' }}
           </p>
-          <div v-if="showConfirm.action === 'reject'" class="form-group">
-            <label>Kommentar (optional)</label>
+          <div v-if="showConfirm.action === 'approve' && publicationIssues(contentStore.getById(showConfirm.id)).length" class="validation-block modal-validation">
+            <strong>Nicht freigabefähig</strong>
+            <ul>
+              <li v-for="issue in publicationIssues(contentStore.getById(showConfirm.id))" :key="issue.key">{{ issue.message }}</li>
+            </ul>
+          </div>
+          <div class="form-group">
+            <label>{{ showConfirm.action === 'approve' ? 'Kommentar (optional)' : 'Änderungswunsch / Ablehnungsgrund' }}</label>
             <textarea
-              v-model="rejectComment"
+              v-model="showConfirm.comment"
               class="form-input"
-              rows="3"
-              placeholder="Grund fuer die Ablehnung..."
+              rows="4"
+              :placeholder="showConfirm.action === 'approve' ? 'Optionaler Hinweis zur Freigabe...' : 'Was muss geändert werden, bevor der Inhalt freigegeben werden kann?'"
             ></textarea>
+            <p v-if="showConfirm.action === 'reject'" class="field-hint">Der Kommentar wird für den Redakteur im Inhalt sichtbar.</p>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="cancelAction">Abbrechen</button>
           <button
             :class="showConfirm.action === 'approve' ? 'btn-approve-solid' : 'btn-danger-solid'"
+            :disabled="showConfirm.action === 'reject' && !showConfirm.comment.trim()"
             @click="executeAction"
           >
             {{ showConfirm.action === 'approve' ? 'Freigeben' : 'Ablehnen' }}
@@ -164,7 +280,7 @@ function cancelAction() {
   border-left: 4px solid var(--color-warning);
 }
 
-.card-info { flex: 1; min-width: 0; }
+	.card-info { flex: 1; min-width: 0; }
 
 .card-title {
   font-size: var(--font-size-base);
@@ -200,12 +316,116 @@ function cancelAction() {
   border-radius: 4px;
 }
 
-.card-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
+.review-brief {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(22, 58, 108, 0.12);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(22, 58, 108, 0.04), rgba(181, 204, 24, 0.07));
 }
+
+.review-brief-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.review-brief-head strong {
+  color: var(--blickle-navy);
+  font-size: 0.82rem;
+}
+
+.review-brief-head span {
+  color: var(--gray-500);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.review-brief p {
+  margin: 0;
+  color: var(--gray-700);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.review-brief dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.review-brief dl div {
+  display: grid;
+  gap: 2px;
+}
+
+.review-brief dt {
+  color: var(--gray-500);
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.review-brief dd {
+  margin: 0;
+  color: var(--gray-800);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.validation-block {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.045);
+}
+
+.validation-block strong {
+  display: block;
+  color: #991b1b;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+
+.validation-block ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--gray-600);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.modal-validation {
+  margin: 0 0 14px;
+}
+
+	.card-actions {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 8px;
+	  flex-shrink: 0;
+    min-width: 128px;
+	}
+
+  .card-timeline { margin-top: 12px; }
+
+  .btn-outline {
+    padding: 8px 20px;
+    background: #fff;
+    color: var(--blickle-navy);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--color-border);
+    text-align: center;
+    text-decoration: none;
+  }
 
 .btn-approve {
   padding: 8px 20px;
@@ -216,6 +436,10 @@ function cancelAction() {
   font-size: var(--font-size-sm);
 }
 .btn-approve:hover { opacity: 0.9; }
+.btn-approve:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 .btn-reject {
   padding: 8px 20px;
@@ -267,14 +491,18 @@ function cancelAction() {
   font-weight: 600;
   font-size: var(--font-size-sm);
 }
-.btn-danger-solid {
+	.btn-danger-solid {
   padding: 8px 20px;
   background: var(--color-danger);
   color: white;
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: var(--font-size-sm);
-}
+	}
+  .btn-danger-solid:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 
 .form-group { margin-bottom: 16px; }
 .form-group label {
@@ -291,11 +519,16 @@ function cancelAction() {
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
 }
-.form-input:focus {
+	.form-input:focus {
   outline: none;
   border-color: var(--blickle-navy);
   box-shadow: 0 0 0 2px rgba(22, 58, 108, 0.1);
-}
+	}
+  .field-hint {
+    margin: 6px 0 0;
+    color: var(--gray-500);
+    font-size: var(--font-size-xs);
+  }
 
 .confirm-text {
   font-size: var(--font-size-sm);

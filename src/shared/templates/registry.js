@@ -20,27 +20,98 @@ export const CATEGORY_LABELS = {
   hinweis: 'Hinweise',
   empfang: 'Empfang',
   recht: 'Rechtliches',
+  dokumente: 'Dokumente',
+  feedback: 'Feedback',
+  kantine: 'Kantine',
   allgemein: 'Allgemein',
   projekte: 'Projekte',
   sonstiges: 'Sonstiges',
 }
 
+export const CATALOG_TEMPLATE_ORDER = [
+  'designer-announcement',
+  'designer-legal-notice',
+  'designer-ceo-quote',
+  'designer-safety-notice',
+  'designer-maintenance-alert',
+  'designer-meeting-callout',
+  'designer-document-qr',
+  'designer-demo',
+  'designer-canteen-plan',
+  'designer-employee-moment',
+  'designer-job-posting',
+  'designer-kpi-dashboard',
+  'designer-visitor-alert',
+]
+
+const HIDDEN_LEGACY_TEMPLATE_IDS = new Set([
+  'tpl-announcement',
+  'tpl-urgent',
+  'tpl-ceo',
+  'tpl-safety',
+  'tpl-production',
+  'tpl-kpi',
+  'tpl-job',
+  'tpl-welcome',
+  'tpl-jubilee',
+  'tpl-event',
+  'tpl-countdown',
+  'tpl-training',
+  'tpl-embed',
+  'tpl-spotlight',
+  'tpl-news-compact',
+  'tpl-project',
+])
+
 // Designer templates — editable via Vue component
 export const DESIGNER_TEMPLATES = [
   {
-    id: 'designer-demo',
-    name: 'QR-Ankuendigung',
-    description: 'Video + 2 QR-Codes + grosse Ueberschrift. Fuer Ankuendigungen mit Aktions-Links.',
+    id: 'designer-announcement',
+    name: 'Mitteilung',
+    description: 'Allgemeine Unternehmensmitteilung mit klarer Überschrift, Text und Handlungshinweis.',
     category: 'kommunikation',
+    renderer: 'component',
+    editorComponent: 'LegalNoticeEditor',
+    displayComponent: 'LegalNoticeEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
+    thumbnailAccent: '#3B82F6',
+    requiredFields: [
+      { key: 'headline', label: 'Titel' },
+      { key: 'body', label: 'Mitteilungstext' },
+      { key: 'source', label: 'Quelle' },
+    ],
+    defaultParams: {
+      variant: 'info',
+      kicker: 'MITTEILUNG · BLICKLE',
+      headline: 'Neue Information für alle Mitarbeitenden',
+      body: 'Hier steht die kurze, verständliche Mitteilung. Wichtig: eine Botschaft pro Anzeige.',
+      validFrom: '',
+      source: 'Blickle Redaktion',
+      ackLabel: 'Bitte beachten',
+      docRef: '',
+      readingTime: 'ca. 1 Min. Lesezeit',
+    }
+  },
+  {
+    id: 'designer-demo',
+    name: 'Umfrage / Feedback',
+    description: 'Zwei QR-Codes mit erklärendem Text. Für Feedback, Umfragen und Beteiligungsaktionen.',
+    category: 'feedback',
     renderer: 'component',
     editorComponent: 'DemoEditor',
     displayComponent: 'DemoEditor',
     thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    requiredFields: [
+      { key: 'headline', label: 'Headline' },
+      { key: 'body', label: 'Begleittext' },
+      { key: 'qr1Url', label: 'QR 1 URL', type: 'url' },
+      { key: 'qr2Url', label: 'QR 2 URL', type: 'url' },
+    ],
     defaultParams: {
       kicker: 'HR · MITARBEITER-FOKUS',
       headline: 'Wie geht es dir gerade?',
-      body: 'Anonyme 3-Minuten-Umfrage. Deine Meinung zaehlt und hilft uns, die Zusammenarbeit bei Blickle noch besser zu machen.',
+      body: 'Anonyme 3-Minuten-Umfrage. Deine Meinung zählt und hilft uns, die Zusammenarbeit bei Blickle noch besser zu machen.',
       videoUrl: '',
       videoPoster: '/Blicklelogo.png',
       qr1Url: 'https://blickle.com/motivationsindex-video',
@@ -56,20 +127,21 @@ export const DESIGNER_TEMPLATES = [
   {
     id: 'designer-video-news',
     name: 'Video-News',
-    description: 'Hero-Video mit Kicker, Headline und optionalem Zitat-Overlay. Fuer Bereichs-Ankuendigungen mit Handy-Video.',
+    description: 'Hero-Video mit Kicker, Headline und optionalem Zitat-Overlay. Für Bereichs-Ankündigungen mit Handy-Video.',
     category: 'produktion',
     renderer: 'component',
     editorComponent: 'VideoNewsEditor',
     displayComponent: 'VideoNewsEditor',
+    catalogHidden: true,
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
     defaultParams: {
       kicker: 'PRODUKTION · NEUE MASCHINE',
-      headline: 'Neue Kantenpresse Halle 1',
+      headline: 'Neue Kantenpresse FB1',
       body: 'Ab heute im Einsatz. 40 % schneller, 30 % leiser. Demo auf Anfrage bei Meister Huber.',
       videoUrl: '',
       videoPoster: '/Blicklelogo.png',
-      quote: 'Damit fahren wir endlich zweischichtig ohne Kapazitaetsgrenze.',
+      quote: 'Damit fahren wir endlich zweischichtig ohne Kapazitätsgrenze.',
       quoteAuthor: 'Bernd Maier, Abteilungsleiter',
       showQuote: true,
       validUntil: '2026-05-15',
@@ -91,12 +163,12 @@ export const DESIGNER_TEMPLATES = [
     defaultParams: {
       kicker: 'KARRIERE · BLICKLE',
       jobTitle: 'Produktionsmitarbeiter (m/w/d)',
-      department: 'Fertigung · Halle 2',
+      department: 'Fertigung · FB2',
       departmentIcon: 'gear',
       bullets: [
         'Bedienung automatisierter Pressen und Stanzen',
-        'Qualitaetspruefung nach Werkstandard',
-        'Selbststaendiges Arbeiten im 3-Schicht-System',
+        'Qualitätsprüfung nach Werkstandard',
+        'Selbstständiges Arbeiten im 3-Schicht-System',
         'Teamorientiertes Arbeiten in der Fertigungsgruppe',
       ],
       perks: '38 Std./Woche · Tarif IG Metall · Betriebliche Altersvorsorge',
@@ -111,8 +183,8 @@ export const DESIGNER_TEMPLATES = [
   },
   {
     id: 'designer-meeting-callout',
-    name: 'Termin-Hinweis',
-    description: 'Meeting-Callout mit prominenter Uhrzeit, Ort und Live-Countdown.',
+    name: 'Termin / Veranstaltung',
+    description: 'Terminanzeige mit Uhrzeit, Ort, Zielgruppe und optionalem Countdown.',
     category: 'events',
     renderer: 'component',
     editorComponent: 'MeetingCalloutEditor',
@@ -121,23 +193,28 @@ export const DESIGNER_TEMPLATES = [
     thumbnailAccent: '#B5CC18',
     status: 'in-migration',
     legacyRoute: '/admin/designer-meeting-callout',
+    requiredFields: [
+      { key: 'topic', label: 'Thema' },
+      { key: 'location', label: 'Ort' },
+      { key: 'body', label: 'Beschreibung' },
+    ],
     defaultParams: {
       kicker: 'EINLADUNG · BETRIEBSVERSAMMLUNG',
       topic: 'GF-Ansprache: Q2-Ausblick',
       location: 'Betriebsrestaurant',
-      body: 'Alle Mitarbeiterinnen und Mitarbeiter sind herzlich eingeladen. Ca. 30 Minuten, anschliessend Mittagessen.',
+      body: 'Alle Mitarbeiterinnen und Mitarbeiter sind herzlich eingeladen. Ca. 30 Minuten, anschließend Mittagessen.',
       audienceNote: 'Alle MA · Schichten bitte informieren',
       showCountdown: true,
-      authorLabel: 'Geschaeftsleitung',
+      authorLabel: 'Geschäftsleitung',
       accent: '#B5CC18',
       theme: 'dark',
     }
   },
   {
     id: 'designer-legal-notice',
-    name: 'Rechtliche Mitteilung',
-    description: 'Formale Mitteilung mit Warn-Icon, Geltungsbereich und Quelle. 3 Varianten (Info/Warnung/Dringend).',
-    category: 'recht',
+    name: 'Wichtiger Hinweis',
+    description: 'Formale Mitteilung mit Varianten für Information, Warnung und Dringend.',
+    category: 'kommunikation',
     renderer: 'component',
     editorComponent: 'LegalNoticeEditor',
     displayComponent: 'LegalNoticeEditor',
@@ -145,14 +222,19 @@ export const DESIGNER_TEMPLATES = [
     thumbnailAccent: '#F59E0B',
     status: 'in-migration',
     legacyRoute: '/admin/designer-legal-notice',
+    requiredFields: [
+      { key: 'headline', label: 'Titel' },
+      { key: 'body', label: 'Mitteilungstext' },
+      { key: 'source', label: 'Quelle' },
+    ],
     defaultParams: {
       variant: 'warn',
       kicker: 'WICHTIGE MITTEILUNG · BETRIEBSRAT',
       headline: 'Neue Betriebsvereinbarung Arbeitszeit',
       body: 'Ab dem 01.05.2026 tritt die neue Betriebsvereinbarung zum Thema Gleitzeit und mobiles Arbeiten in Kraft.',
       validFrom: '2026-05-01',
-      source: 'Betriebsrat & Geschaeftsleitung',
-      ackLabel: 'Bitte Kenntnis im Intranet bestaetigen',
+      source: 'Betriebsrat & Geschäftsleitung',
+      ackLabel: 'Bitte Kenntnis im Intranet bestätigen',
       docRef: 'BV-2026-05 · Version 1.0',
       readingTime: 'ca. 3 Min. Lesezeit',
     }
@@ -160,25 +242,26 @@ export const DESIGNER_TEMPLATES = [
   {
     id: 'designer-room-location',
     name: 'Raum-Hinweis',
-    description: 'Ankuendigung mit Foto, Wegweiser-Karte und Oeffnungszeiten.',
+    description: 'Ankündigung mit Foto, Wegweiser-Karte und Öffnungszeiten.',
     category: 'hinweis',
     renderer: 'component',
     editorComponent: 'RoomLocationEditor',
     displayComponent: 'RoomLocationEditor',
+    catalogHidden: true,
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
     status: 'in-migration',
     legacyRoute: '/admin/designer-room-location',
     defaultParams: {
       kicker: 'NEU BEI BLICKLE',
-      headline: 'Raum fuer Arbeitskleidung',
-      subHeadline: 'Anprobe jederzeit moeglich',
-      body: 'Ab sofort koennen alle Mitarbeiterinnen und Mitarbeiter ihre Arbeitskleidung im neuen Anprobe-Raum testen und tauschen.',
+      headline: 'Raum für Arbeitskleidung',
+      subHeadline: 'Anprobe jederzeit möglich',
+      body: 'Ab sofort können alle Mitarbeiterinnen und Mitarbeiter ihre Arbeitskleidung im neuen Anprobe-Raum testen und tauschen.',
       imageUrl: '/Blicklelogo.png',
-      buildingName: 'Gebaeude 2 · Verwaltung',
+      buildingName: 'Gebäude 2 · Verwaltung',
       floor: 'Erdgeschoss',
       roomLabel: 'Raum EG-12',
-      directionHint: 'Vom Haupteingang rechts, 2. Tuer links',
+      directionHint: 'Vom Haupteingang rechts, 2. Tür links',
       openingHours: [
         { day: 'Mo – Fr', time: '07:00 – 17:00' },
         { day: 'Sa', time: '08:00 – 12:00' },
@@ -192,19 +275,20 @@ export const DESIGNER_TEMPLATES = [
   {
     id: 'designer-employee-spotlight',
     name: 'Mitarbeiter-Spotlight',
-    description: 'Portrait-Foto plus Zitat und Hobby. Fuer die Serie #MenschenBeiBlickle.',
+    description: 'Portrait-Foto plus Zitat und Hobby. Für die Serie #MenschenBeiBlickle.',
     category: 'mitarbeiter',
     renderer: 'component',
     editorComponent: 'EmployeeSpotlightEditor',
     displayComponent: 'EmployeeSpotlightEditor',
+    catalogHidden: true,
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
     defaultParams: {
       kicker: 'MITARBEITER-SPOTLIGHT',
       name: 'Daniel Hirschler',
-      department: 'Fertigung · Halle 2',
-      quote: 'Bei Blickle zaehlt nicht nur was du machst, sondern wer du bist.',
-      hobby: 'Motorrad-Touren durch die Schwaebische Alb',
+      department: 'Fertigung · FB2',
+      quote: 'Bei Blickle zählt nicht nur was du machst, sondern wer du bist.',
+      hobby: 'Motorrad-Touren durch die Schwäbische Alb',
       since: '2011',
       photoUrl: '',
       accent: '#B5CC18',
@@ -213,19 +297,24 @@ export const DESIGNER_TEMPLATES = [
   },
   {
     id: 'designer-ceo-quote',
-    name: 'Geschaeftsleitungs-Zitat',
-    description: 'Hochwertiges Zitat-Design mit grosser Typografie und optionalem Portrait. Fuer Botschaften der Geschaeftsleitung.',
+    name: 'Geschäftsleitungs-Botschaft',
+    description: 'Hochwertiges Statement mit großer Typografie und optionalem Portrait.',
     category: 'kommunikation',
     renderer: 'component',
     editorComponent: 'CeoQuoteEditor',
     displayComponent: 'CeoQuoteEditor',
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    requiredFields: [
+      { key: 'quote', label: 'Botschaft' },
+      { key: 'authorName', label: 'Name' },
+      { key: 'authorPosition', label: 'Funktion' },
+    ],
     defaultParams: {
       kicker: 'BOTSCHAFT DER GESCHAEFTSLEITUNG',
-      quote: 'Unser Erfolg ist kein Zufall — er entsteht, weil wir als Team jeden Tag Verantwortung uebernehmen und fuereinander einstehen.',
+      quote: 'Unser Erfolg ist kein Zufall — er entsteht, weil wir als Team jeden Tag Verantwortung übernehmen und füreinander einstehen.',
       authorName: 'David Blickle',
-      authorPosition: 'Geschaeftsfuehrung',
+      authorPosition: 'Geschäftsführung',
       photoUrl: '',
       accent: '#B5CC18',
       theme: 'dark',
@@ -233,8 +322,8 @@ export const DESIGNER_TEMPLATES = [
   },
   {
     id: 'designer-visitor-alert',
-    name: 'Besucher-Anzeige',
-    description: 'Sachlicher Hinweis auf externe Gaeste fuer Empfang und oeffentliche Bereiche.',
+    name: 'Besucher / Empfang',
+    description: 'Sachlicher Hinweis auf externe Gäste für Empfang, Verwaltung und öffentliche Bereiche.',
     category: 'empfang',
     renderer: 'component',
     editorComponent: 'VisitorAlertEditor',
@@ -244,11 +333,15 @@ export const DESIGNER_TEMPLATES = [
     thumbnailTheme: 'light',
     status: 'in-migration',
     legacyRoute: '/admin/designer-visitor-alert',
+    requiredFields: [
+      { key: 'welcome', label: 'Willkommenszeile' },
+      { key: 'visitors', label: 'Besucher', type: 'list' },
+    ],
     defaultParams: {
       kicker: 'GAESTE HEUTE',
       dateLabel: '2026-04-16',
       welcome: 'Willkommen in Rosenfeld',
-      subline: 'Bitte freundlich gruessen',
+      subline: 'Bitte freundlich grüßen',
       visitors: [],
       theme: 'light',
       accent: '#163A6C',
@@ -257,11 +350,12 @@ export const DESIGNER_TEMPLATES = [
   {
     id: 'designer-news-compact',
     name: 'Kurznachrichten',
-    description: 'Drei kompakte News-Karten auf einer Seite. Ideal fuer wochentliche Updates.',
+    description: 'Drei kompakte News-Karten auf einer Seite. Ideal für wochentliche Updates.',
     category: 'kommunikation',
     renderer: 'component',
     editorComponent: 'NewsCompactEditor',
     displayComponent: 'NewsCompactEditor',
+    catalogHidden: true,
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
     defaultParams: {
@@ -278,11 +372,12 @@ export const DESIGNER_TEMPLATES = [
   {
     id: 'designer-project-showcase',
     name: 'Projekt-Showcase',
-    description: 'Grosse Bildflaeche mit Kategorie-Pill und Ueberschrift. Perfekt fuer Success-Stories.',
+    description: 'Große Bildfläche mit Kategorie-Pill und Überschrift. Perfekt für Success-Stories.',
     category: 'kommunikation',
     renderer: 'component',
     editorComponent: 'ProjectShowcaseEditor',
     displayComponent: 'ProjectShowcaseEditor',
+    catalogHidden: true,
     thumbnailBg: 'linear-gradient(135deg, #064E3B 0%, #10B981 100%)',
     thumbnailAccent: '#10B981',
     defaultParams: {
@@ -298,23 +393,175 @@ export const DESIGNER_TEMPLATES = [
   },
   {
     id: 'designer-kpi-dashboard',
-    name: 'KPI-Dashboard',
-    description: 'Drei grosse Kennzahlen mit Trend-Indikatoren. Fuer Produktion und Management.',
+    name: 'KPI / Produktionsstatus',
+    description: 'Drei große Kennzahlen mit Trend-Indikatoren für Produktion, Management oder Shopfloor.',
     category: 'produktion',
     renderer: 'component',
     editorComponent: 'KpiDashboardEditor',
     displayComponent: 'KpiDashboardEditor',
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #0B2442 50%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    requiredFields: [
+      { key: 'titel', label: 'Titel' },
+      { key: 'wert1', label: 'Wert 1' },
+      { key: 'label1', label: 'Label 1' },
+      { key: 'wert2', label: 'Wert 2' },
+      { key: 'label2', label: 'Label 2' },
+      { key: 'wert3', label: 'Wert 3' },
+      { key: 'label3', label: 'Label 3' },
+    ],
     defaultParams: {
       kicker: 'DASHBOARD · KW 16',
       titel: 'Produktionskennzahlen',
-      wert1: '98.5%', label1: 'Qualitaetsrate', trend1: 'up',
-      wert2: '1.247', label2: 'Stueck/Tag', trend2: 'up',
-      wert3: '0', label3: 'Unfaelle', trend3: 'flat',
+      wert1: '98.5%', label1: 'Qualitätsrate', trend1: 'up',
+      wert2: '1.247', label2: 'Stück/Tag', trend2: 'up',
+      wert3: '0', label3: 'Unfälle', trend3: 'flat',
       authorLabel: 'Produktion · Auto-Feed',
       accent: '#B5CC18',
       theme: 'dark',
+    }
+  },
+  {
+    id: 'designer-safety-notice',
+    name: 'Sicherheit / Pflichtunterweisung',
+    description: 'Sicherheitsrelevanter Hinweis mit Warnvariante, Quelle und Handlungshinweis.',
+    category: 'sicherheit',
+    renderer: 'component',
+    editorComponent: 'LegalNoticeEditor',
+    displayComponent: 'LegalNoticeEditor',
+    thumbnailBg: 'linear-gradient(135deg, #78350F 0%, #451A03 100%)',
+    thumbnailAccent: '#F59E0B',
+    requiredFields: [
+      { key: 'headline', label: 'Titel' },
+      { key: 'body', label: 'Sicherheitshinweis' },
+      { key: 'source', label: 'Quelle' },
+    ],
+    defaultParams: {
+      variant: 'warn',
+      kicker: 'SICHERHEIT · PFLICHTHINWEIS',
+      headline: 'PSA-Pflicht in allen Produktionsbereichen',
+      body: 'Schutzbrille, Sicherheitsschuhe und Gehörschutz sind verpflichtend. Bitte achtet auf euch und eure Kolleginnen und Kollegen.',
+      validFrom: '',
+      source: 'Arbeitssicherheit Blickle',
+      ackLabel: 'Bitte Sicherheitsvorschriften beachten',
+      docRef: 'ASA-INFO',
+      readingTime: 'ca. 1 Min. Lesezeit',
+    }
+  },
+  {
+    id: 'designer-maintenance-alert',
+    name: 'Störung / Wartung',
+    description: 'Klare Statusmeldung für Anlagen, Bereiche, Zufahrten oder gesperrte Wege.',
+    category: 'produktion',
+    renderer: 'component',
+    editorComponent: 'LegalNoticeEditor',
+    displayComponent: 'LegalNoticeEditor',
+    thumbnailBg: 'linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%)',
+    thumbnailAccent: '#EF4444',
+    requiredFields: [
+      { key: 'headline', label: 'Titel' },
+      { key: 'body', label: 'Statusmeldung' },
+      { key: 'source', label: 'Quelle' },
+    ],
+    defaultParams: {
+      variant: 'danger',
+      kicker: 'STÖRUNG · WARTUNG',
+      headline: 'Tor 3 vorübergehend gesperrt',
+      body: 'Bitte nutzt bis zur Freigabe die ausgeschilderte Umleitung über Tor 2. Staplerverkehr ist informiert.',
+      validFrom: '',
+      source: 'Instandhaltung',
+      ackLabel: 'Bitte Umleitung beachten',
+      docRef: 'Stand: aktuell',
+      readingTime: 'ca. 1 Min. Lesezeit',
+    }
+  },
+  {
+    id: 'designer-document-qr',
+    name: 'Dokument / PDF mit QR',
+    description: 'Dokumentenhinweis mit QR-Codes für PDF, Intranet oder Rückfragen.',
+    category: 'dokumente',
+    renderer: 'component',
+    editorComponent: 'DemoEditor',
+    displayComponent: 'DemoEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    requiredFields: [
+      { key: 'headline', label: 'Headline' },
+      { key: 'body', label: 'Begleittext' },
+      { key: 'qr1Url', label: 'Dokument-URL', type: 'url' },
+    ],
+    defaultParams: {
+      kicker: 'DOKUMENT · INFORMATION',
+      headline: 'Neues Dokument verfügbar',
+      body: 'Scanne den QR-Code, um das Dokument direkt zu öffnen. Bei Fragen wende dich an die zuständige Abteilung.',
+      videoUrl: '',
+      videoPoster: '/Blicklelogo.png',
+      qr1Url: 'https://blickle.com/dokumente/aushang.pdf',
+      qr1Label: 'PDF öffnen',
+      qr2Url: 'mailto:personal@blickle.com',
+      qr2Label: 'Rückfrage',
+      validUntil: '',
+      authorLabel: 'Blickle Redaktion',
+      accent: '#B5CC18',
+      theme: 'dark',
+    }
+  },
+  {
+    id: 'designer-canteen-plan',
+    name: 'Kantine / Speiseplan',
+    description: 'Hinweis auf Speiseplan, Snackplan oder kurzfristige Änderungen im s’Rädle.',
+    category: 'kantine',
+    renderer: 'component',
+    editorComponent: 'DemoEditor',
+    displayComponent: 'DemoEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    requiredFields: [
+      { key: 'headline', label: 'Headline' },
+      { key: 'body', label: 'Begleittext' },
+      { key: 'qr1Url', label: 'Speiseplan-URL', type: 'url' },
+    ],
+    defaultParams: {
+      kicker: 'S’RÄDLE · AKTUELL',
+      headline: 'Speiseplan der Woche',
+      body: 'Der aktuelle Speiseplan und Snackplan sind per QR-Code abrufbar. Änderungen werden hier kurzfristig ergänzt.',
+      videoUrl: '',
+      videoPoster: '/Blicklelogo.png',
+      qr1Url: 'https://blickle.com/sraedle/speiseplan.pdf',
+      qr1Label: 'Speiseplan',
+      qr2Url: 'https://blickle.com/sraedle/snackplan.pdf',
+      qr2Label: 'Snackplan',
+      validUntil: '',
+      authorLabel: 's’Rädle',
+      accent: '#B5CC18',
+      theme: 'dark',
+    }
+  },
+  {
+    id: 'designer-employee-moment',
+    name: 'Mitarbeiter-Anlass',
+    description: 'Willkommen, Jubiläum, Dankeschön oder interner Glückwunsch ohne extra Spezialtemplate.',
+    category: 'mitarbeiter',
+    renderer: 'component',
+    editorComponent: 'LegalNoticeEditor',
+    displayComponent: 'LegalNoticeEditor',
+    thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
+    thumbnailAccent: '#B5CC18',
+    requiredFields: [
+      { key: 'headline', label: 'Titel' },
+      { key: 'body', label: 'Text' },
+      { key: 'source', label: 'Quelle' },
+    ],
+    defaultParams: {
+      variant: 'info',
+      kicker: 'MENSCHEN BEI BLICKLE',
+      headline: 'Herzlichen Glückwunsch zum Jubiläum',
+      body: 'Vielen Dank für die langjährige Treue, den Einsatz und die Zusammenarbeit im Team.',
+      validFrom: '',
+      source: 'Personalabteilung',
+      ackLabel: 'Wir gratulieren herzlich',
+      docRef: '',
+      readingTime: 'ca. 1 Min. Lesezeit',
     }
   },
 ]
@@ -328,7 +575,7 @@ export function getDesignerTemplate(id) {
 // Bestimmte klassische Templates haben visuelle Pendants unter den Designer-
 // Komponenten. Statt sie komplett zu migrieren, rendern wir sie auf Display-
 // Seite durch den jeweiligen Designer mit transformierten Params. Der
-// Admin-Editor-Flow (html-params Form) bleibt unveraendert.
+// Admin-Editor-Flow (html-params Form) bleibt unverändert.
 
 function parseGermanDateToIso(raw) {
   if (!raw) return ''
@@ -397,7 +644,7 @@ export const LEGACY_DISPLAY_ALIASES = {
     mapParams: (p = {}) => ({
       variant: 'info',
       kicker: 'ANKUENDIGUNG · BLICKLE',
-      headline: p.titel || 'Neue Ankuendigung',
+      headline: p.titel || 'Neue Ankündigung',
       body: p.text || '',
       validFrom: '',
       source: '',
@@ -440,11 +687,11 @@ export const LEGACY_DISPLAY_ALIASES = {
     mapParams: (p = {}) => ({
       variant: 'info',
       kicker: `${p.jahre || '0'} JAHRE · JUBILAEUM`,
-      headline: p.name || 'Herzlichen Glueckwunsch',
-      body: p.text || 'Vielen Dank fuer die Treue und das Engagement!',
+      headline: p.name || 'Herzlichen Glückwunsch',
+      body: p.text || 'Vielen Dank für die Treue und das Engagement!',
       validFrom: '',
-      source: 'Blickle Geschaeftsleitung',
-      ackLabel: 'Herzlichen Glueckwunsch!',
+      source: 'Blickle Geschäftsleitung',
+      ackLabel: 'Herzlichen Glückwunsch!',
       docRef: '',
       readingTime: '',
     })
@@ -484,7 +731,7 @@ export const LEGACY_DISPLAY_ALIASES = {
       kicker: 'BOTSCHAFT DER GESCHAEFTSLEITUNG',
       quote: p.zitat || '',
       authorName: p.name || '',
-      authorPosition: p.position || 'Geschaeftsfuehrung',
+      authorPosition: p.position || 'Geschäftsführung',
       photoUrl: '',
       accent: '#B5CC18',
       theme: 'dark',
@@ -579,6 +826,20 @@ export function hasDisplayAlias(templateId) {
   return !!LEGACY_DISPLAY_ALIASES[templateId]
 }
 
+export function sortTemplatesForCatalog(templates = []) {
+  const order = new Map(CATALOG_TEMPLATE_ORDER.map((id, index) => [id, index]))
+  return [...templates].sort((a, b) => {
+    const aOrder = order.has(a.id) ? order.get(a.id) : Number.MAX_SAFE_INTEGER
+    const bOrder = order.has(b.id) ? order.get(b.id) : Number.MAX_SAFE_INTEGER
+    if (aOrder !== bOrder) return aOrder - bOrder
+    return String(a.name || '').localeCompare(String(b.name || ''), 'de')
+  })
+}
+
+export function filterCatalogTemplates(templates = []) {
+  return sortTemplatesForCatalog(templates.filter(template => template.catalogHidden !== true))
+}
+
 // Unified access — returns an array of all templates (designer + legacy).
 // Use inside a component context only (needs Pinia store).
 export function getAllTemplates() {
@@ -589,6 +850,7 @@ export function getAllTemplates() {
     description: t.description || `${t.category || ''} Template`,
     category: t.category || 'allgemein',
     renderer: 'html-params',
+    catalogHidden: HIDDEN_LEGACY_TEMPLATE_IDS.has(t.id),
     htmlTemplate: t.htmlTemplate,
     cssTemplate: t.cssTemplate,
     parameters: t.parameters || [],
@@ -601,6 +863,10 @@ export function getAllTemplates() {
     }, {}),
   }))
   return [...DESIGNER_TEMPLATES, ...legacyTemplates]
+}
+
+export function getCatalogTemplates() {
+  return filterCatalogTemplates(getAllTemplates())
 }
 
 export function getTemplateById(id) {

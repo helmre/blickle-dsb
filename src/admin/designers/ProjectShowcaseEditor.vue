@@ -1,4 +1,5 @@
 <script setup>
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -8,23 +9,32 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'PROJEKT-SHOWCASE')
 const kategorie = field('kategorie', 'NACHHALTIGKEIT')
 const projektname = field('projektname', 'Frida Hochbeet')
-const beschreibung = field('beschreibung', 'Mitarbeiter haben gemeinsam Hochbeete fuer den Aussenbereich gebaut. Frisches Gemuese und Kraeuter fuers s\'Raedle — nachhaltig und selbst angebaut.')
+const beschreibung = field('beschreibung', 'Mitarbeiter haben gemeinsam Hochbeete für den Außenbereich gebaut. Frisches Gemüse und Kräuter fürs s\'Rädle — nachhaltig und selbst angebaut.')
 const imageUrl = field('imageUrl', '/content/einblickle/projekte.jpg')
 const authorLabel = field('authorLabel', 'Blickle Team')
 const accent = field('accent', '#10B981')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Gruen', value: '#10B981' }, { name: 'Blickle-Gruen', value: '#B5CC18' },
+  { name: 'Grün', value: '#10B981' }, { name: 'Blickle-Grün', value: '#B5CC18' },
   { name: 'Navy', value: '#163A6C' }, { name: 'Orange', value: '#F97316' },
   { name: 'Blau', value: '#3B82F6' },
 ]
 
-function onImagePick(e) { const file = e.target.files?.[0]; if (!file) return; imageUrl.value = URL.createObjectURL(file) }
+async function onImagePick(e) {
+  await pickDesignerMedia(e, {
+    kind: 'image',
+    errorMessage: 'Bild konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      imageUrl.value = dataUrl
+    },
+  })
+}
 </script>
 
 <template>
@@ -55,7 +65,7 @@ function onImagePick(e) { const file = e.target.files?.[0]; if (!file) return; i
         <label class="fld"><span class="fld-label">Beschreibung</span><textarea v-model="beschreibung" class="fld-input" rows="5" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Bild</h4>
-        <label class="fld"><span class="fld-label">Bild waehlen</span><input type="file" accept="image/*" class="fld-input fld-file" @change="onImagePick" /></label>
+        <label class="fld"><span class="fld-label">Bild wählen</span><input type="file" accept="image/*" class="fld-input fld-file" @change="onImagePick" /></label>
         <label class="fld"><span class="fld-label">Pfad (Fallback)</span><input v-model="imageUrl" type="text" class="fld-input" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Gestaltung</h4>

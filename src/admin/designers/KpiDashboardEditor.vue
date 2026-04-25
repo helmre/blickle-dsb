@@ -12,30 +12,30 @@ const { field } = useParamModel(props, emit)
 const kicker = field('kicker', 'DASHBOARD · KW 16')
 const titel = field('titel', 'Produktionskennzahlen')
 const wert1 = field('wert1', '98.5%')
-const label1 = field('label1', 'Qualitaetsrate')
+const label1 = field('label1', 'Qualitätsrate')
 const trend1 = field('trend1', 'up')
 const wert2 = field('wert2', '1.247')
-const label2 = field('label2', 'Stueck/Tag')
+const label2 = field('label2', 'Stück/Tag')
 const trend2 = field('trend2', 'up')
 const wert3 = field('wert3', '0')
-const label3 = field('label3', 'Unfaelle')
+const label3 = field('label3', 'Unfälle')
 const trend3 = field('trend3', 'flat')
 const authorLabel = field('authorLabel', 'Produktion · Auto-Feed')
 const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
+  { name: 'Blickle-Grün', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
   { name: 'Blau', value: '#3B82F6' }, { name: 'Orange', value: '#F97316' },
 ]
 const trendOptions = [
-  { key: 'up', label: '▲ Aufwaerts', color: '#10B981' },
+  { key: 'up', label: '▲ Aufwärts', color: '#10B981' },
   { key: 'flat', label: '● Stabil', color: '#94A3B8' },
-  { key: 'down', label: '▼ Abwaerts', color: '#EF4444' },
+  { key: 'down', label: '▼ Abwärts', color: '#EF4444' },
 ]
 function trendColor(t) { const o = trendOptions.find(x => x.key === t); return o?.color || '#94A3B8' }
 function trendGlyph(t) { return t === 'up' ? '▲' : t === 'down' ? '▼' : '●' }
-function trendLabel(t) { return t === 'up' ? 'Aufwaerts' : t === 'down' ? 'Abwaerts' : 'Stabil' }
+function trendLabel(t) { return t === 'up' ? 'Aufwärts' : t === 'down' ? 'Abwärts' : 'Stabil' }
 </script>
 
 <template>

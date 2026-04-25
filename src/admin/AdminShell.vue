@@ -1,13 +1,16 @@
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../shared/stores/userStore.js'
 import { useContentStore } from '../shared/stores/contentStore.js'
 import { useEmergencyStore } from '../shared/stores/emergencyStore.js'
+import { can } from '../shared/auth/policies.js'
+import { allowDemoUserSwitch } from '../shared/config/appMode.js'
 import AdminSidebar from './AdminSidebar.vue'
 import AdminToast from './components/AdminToast.vue'
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 const contentStore = useContentStore()
 const emergencyStore = useEmergencyStore()
@@ -15,7 +18,11 @@ const emergencyStore = useEmergencyStore()
 const pageTitle = computed(() => {
   const titles = {
     'admin-dashboard': 'Dashboard',
-    'admin-content': 'Inhalte',
+    'admin-publish': 'Veröffentlichen',
+    'admin-display-simulation': 'Ausspielung prüfen',
+    'admin-display-programs': 'Programme',
+    'admin-display-pages': 'Display-Seiten',
+    'admin-content': 'Inhaltsbibliothek',
     'admin-content-detail': 'Inhalt bearbeiten',
     'admin-playlists': 'Playlists',
     'admin-playlist-editor': 'Playlist bearbeiten',
@@ -23,12 +30,21 @@ const pageTitle = computed(() => {
     'admin-emergency': 'Notfall',
     'admin-locations': 'Standorte',
     'admin-layouts': 'Layouts',
-    'admin-templates': 'Templates',
+    'admin-shopfloor-demo': 'Shopfloor-Board',
+    'admin-templates': 'Vorlagen',
     'admin-approvals': 'Freigaben',
     'admin-users': 'Benutzer',
     'admin-audit-log': 'Audit-Log',
+    'admin-forbidden': 'Kein Zugriff',
   }
   return titles[route.name] || 'Dashboard'
+})
+
+watch(() => [userStore.currentUserId, userStore.currentUser?.role, route.meta?.permission], () => {
+  const permission = route.meta?.permission
+  if (permission && !can(userStore.currentUser, permission)) {
+    router.replace({ name: 'admin-forbidden', query: { from: route.fullPath } })
+  }
 })
 </script>
 
@@ -41,7 +57,7 @@ const pageTitle = computed(() => {
           <h1 class="page-title">{{ pageTitle }}</h1>
         </div>
         <div class="header-right">
-          <router-link to="/display" class="btn-preview" target="_blank">
+          <router-link to="/display" class="btn-preview" target="_blank" rel="noopener noreferrer">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
               <rect x="1" y="2" width="14" height="10" rx="1.5"/>
               <path d="M5 14h6M8 12v2"/>
@@ -54,6 +70,7 @@ const pageTitle = computed(() => {
               {{ userStore.currentUser?.name?.charAt(0) || 'A' }}
             </div>
             <select
+              v-if="allowDemoUserSwitch"
               :value="userStore.currentUserId"
               @change="userStore.switchUser($event.target.value)"
               class="user-select"
@@ -62,6 +79,10 @@ const pageTitle = computed(() => {
                 {{ user.name }} ({{ user.role }})
               </option>
             </select>
+            <div v-else class="user-label">
+              <span>{{ userStore.currentUser?.name || 'Kein Benutzer' }}</span>
+              <small>{{ userStore.currentUser?.role || 'gesperrt' }}</small>
+            </div>
           </div>
         </div>
       </header>
@@ -180,6 +201,26 @@ const pageTitle = computed(() => {
 
 .user-select:hover {
   border-color: var(--gray-300);
+}
+
+.user-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.1;
+}
+
+.user-label span {
+  color: var(--gray-700);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.user-label small {
+  color: var(--gray-500);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .admin-content {

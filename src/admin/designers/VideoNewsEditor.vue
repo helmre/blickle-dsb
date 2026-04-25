@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -9,9 +10,10 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'PRODUKTION · NEUE MASCHINE')
-const headline = field('headline', 'Neue Kantenpresse Halle 1')
+const headline = field('headline', 'Neue Kantenpresse FB1')
 const body = field('body', 'Ab heute im Einsatz. 40 % schneller, 30 % leiser.')
 const videoUrl = field('videoUrl', '')
 const videoPoster = field('videoPoster', '/Blicklelogo.png')
@@ -24,18 +26,22 @@ const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' },
+  { name: 'Blickle-Grün', value: '#B5CC18' },
   { name: 'Navy', value: '#163A6C' },
   { name: 'Orange', value: '#F97316' },
   { name: 'Blau', value: '#3B82F6' },
   { name: 'Rot', value: '#EF4444' },
 ]
 
-function onVideoPick(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  videoUrl.value = URL.createObjectURL(file)
-  videoPoster.value = ''
+async function onVideoPick(e) {
+  await pickDesignerMedia(e, {
+    kind: 'video',
+    errorMessage: 'Video konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      videoUrl.value = dataUrl
+      videoPoster.value = ''
+    },
+  })
 }
 
 const formattedUntil = computed(() => {
@@ -64,7 +70,7 @@ const formattedUntil = computed(() => {
       </div>
       <div class="body">{{ body }}</div>
       <div class="footer">
-        <span>Gueltig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span>
+        <span>Gültig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span>
         <span class="spacer"></span><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" />
       </div>
     </div>
@@ -94,7 +100,7 @@ const formattedUntil = computed(() => {
       <section class="fs">
         <h4 class="fs-title">Meta</h4>
         <div class="row-2">
-          <label class="fld"><span class="fld-label">Gueltig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
+          <label class="fld"><span class="fld-label">Gültig bis</span><input v-model="validUntil" type="date" class="fld-input" /></label>
           <label class="fld"><span class="fld-label">Autor</span><input v-model="authorLabel" type="text" class="fld-input" /></label>
         </div>
       </section>
@@ -133,7 +139,7 @@ const formattedUntil = computed(() => {
           </div>
           <div class="body">{{ body }}</div>
           <div class="footer">
-            <span>Gueltig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span>
+            <span>Gültig bis {{ formattedUntil }}</span><span class="dot">·</span><span>{{ authorLabel }}</span>
             <span class="spacer"></span><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" />
           </div>
         </div>

@@ -1,7 +1,7 @@
 {
   "name": "Digitales Schwarzes Brett - Blickle",
   "short_name": "DSB",
-  "description": "Digitales Schwarzes Brett fuer Blickle Raeder+Rollen",
+  "description": "Digitales Schwarzes Brett für Blickle Räder+Rollen",
   "start_url": "/",
   "display": "standalone",
   "orientation": "landscape",

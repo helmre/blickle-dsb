@@ -41,7 +41,7 @@ const stats = computed(() => [
   },
   {
     label: 'Standorte',
-    value: locationStore.items.length,
+    value: locationStore.displayLocations.length,
     icon: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h14M6 20V9l5-5 5 5v11"/><path d="M10 20v-4h2v4"/></svg>`,
     gradient: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
     iconBg: 'rgba(59, 130, 246, 0.08)',
@@ -53,7 +53,7 @@ const recentAudit = computed(() => auditStore.sorted.slice(0, 5))
 
 const statusMap = {
   approved: { label: 'Freigegeben', cls: 'status-approved' },
-  in_review: { label: 'In Pruefung', cls: 'status-review' },
+  in_review: { label: 'In Prüfung', cls: 'status-review' },
   draft: { label: 'Entwurf', cls: 'status-draft' },
   rejected: { label: 'Abgelehnt', cls: 'status-rejected' },
 }
@@ -70,8 +70,8 @@ function formatAuditAction(action) {
   const map = {
     'content.created': 'Inhalt erstellt',
     'content.updated': 'Inhalt aktualisiert',
-    'content.deleted': 'Inhalt geloescht',
-    'content.submitted_for_review': 'Zur Pruefung eingereicht',
+    'content.deleted': 'Inhalt gelöscht',
+    'content.submitted_for_review': 'Zur Prüfung eingereicht',
     'content.approved': 'Inhalt freigegeben',
     'content.rejected': 'Inhalt abgelehnt',
     'content.created_from_template': 'Aus Template erstellt',
@@ -93,8 +93,8 @@ function formatTime(ts) {
     <!-- Greeting -->
     <div class="dash-greeting">
       <div>
-        <h2 class="dash-hello">Willkommen zurueck</h2>
-        <p class="dash-sub">Uebersicht ueber Ihr Digitales Schwarzes Brett</p>
+        <h2 class="dash-hello">Willkommen zurück</h2>
+        <p class="dash-sub">Übersicht über Ihr Digitales Schwarzes Brett</p>
       </div>
     </div>
 
@@ -158,7 +158,7 @@ function formatTime(ts) {
         <div class="card-head">
           <div class="card-head-left">
             <svg class="card-head-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--blickle-navy)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="8"/><path d="M9 5v4l3 3"/></svg>
-            <h3 class="card-title">Letzte Aktivitaeten</h3>
+            <h3 class="card-title">Letzte Aktivitäten</h3>
           </div>
           <router-link to="/admin/audit-log" class="card-action">Alle anzeigen
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg>
@@ -176,7 +176,7 @@ function formatTime(ts) {
           </div>
           <div v-if="!recentAudit.length" class="empty-state">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="var(--gray-300)" stroke-width="1.2"><circle cx="16" cy="16" r="12"/><path d="M16 10v6l4 4"/></svg>
-            <span>Noch keine Aktivitaeten.</span>
+            <span>Noch keine Aktivitäten.</span>
           </div>
         </div>
       </div>
@@ -207,12 +207,12 @@ function formatTime(ts) {
           <span class="action-label">Notfall senden</span>
           <span class="action-desc">Sofort-Meldung an alle</span>
         </router-link>
-        <router-link to="/display" class="action-card" target="_blank">
+        <router-link to="/display" class="action-card" target="_blank" rel="noopener noreferrer">
           <div class="action-icon-wrap action-icon-blue">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="18" height="13" rx="2"/><path d="M7 19h8M11 16v3"/></svg>
           </div>
           <span class="action-label">Display-Vorschau</span>
-          <span class="action-desc">Live-Ansicht oeffnen</span>
+          <span class="action-desc">Live-Ansicht öffnen</span>
         </router-link>
       </div>
     </div>

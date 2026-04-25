@@ -2,18 +2,20 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useContentStore } from '../../shared/stores/contentStore.js'
+import { useUserStore } from '../../shared/stores/userStore.js'
 import { useToastStore } from '../../shared/stores/toastStore.js'
-import { getAllTemplates, CATEGORY_LABELS, DESIGNER_TEMPLATES } from '../../shared/templates/registry.js'
+import { PERMISSIONS } from '../../shared/auth/policies.js'
+import { getCatalogTemplates, CATEGORY_LABELS } from '../../shared/templates/registry.js'
 
 const router = useRouter()
 const contentStore = useContentStore()
+const userStore = useUserStore()
 const toast = useToastStore()
 
 const searchQuery = ref('')
 const selectedCategory = ref('all')
-const view = ref('all') // 'all' | 'designer' | 'legacy'
 
-const allTemplates = computed(() => getAllTemplates())
+const allTemplates = computed(() => getCatalogTemplates())
 
 const categories = computed(() => {
   const cats = new Set()
@@ -23,8 +25,6 @@ const categories = computed(() => {
 
 const filteredTemplates = computed(() => {
   let list = allTemplates.value
-  if (view.value === 'designer') list = list.filter(t => t.renderer === 'component')
-  else if (view.value === 'legacy') list = list.filter(t => t.renderer === 'html-params')
   if (selectedCategory.value !== 'all') list = list.filter(t => t.category === selectedCategory.value)
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.trim().toLowerCase()
@@ -33,8 +33,7 @@ const filteredTemplates = computed(() => {
   return list
 })
 
-const designerCount = computed(() => allTemplates.value.filter(t => t.renderer === 'component').length)
-const legacyCount = computed(() => allTemplates.value.filter(t => t.renderer === 'html-params').length)
+const templateCount = computed(() => allTemplates.value.length)
 
 function categoryLabel(cat) {
   if (cat === 'all') return 'Alle'
@@ -42,6 +41,10 @@ function categoryLabel(cat) {
 }
 
 function createFromTemplate(tpl) {
+  if (!userStore.can(PERMISSIONS.CONTENT_CREATE)) {
+    toast.error('Keine Berechtigung zum Erstellen von Inhalten')
+    return
+  }
   const content = contentStore.createFromTemplate(tpl.id)
   if (!content) { toast.error('Vorlage konnte nicht geladen werden'); return }
   toast.success(`Neuer Entwurf: ${tpl.name}`)
@@ -54,21 +57,19 @@ function createFromTemplate(tpl) {
     <header class="page-header">
       <div>
         <h1 class="page-title">Vorlagen-Katalog</h1>
-        <p class="page-sub">Waehle eine Vorlage — der Entwurf wird automatisch angelegt und im Editor geoeffnet.</p>
+        <p class="page-sub">Wähle eine Vorlage — der Entwurf wird automatisch angelegt und im Editor geöffnet.</p>
       </div>
-      <div class="header-stats">
-        <span class="stat"><b>{{ designerCount }}</b> Designer-Vorlagen</span>
-        <span class="stat-sep">·</span>
-        <span class="stat"><b>{{ legacyCount }}</b> Klassisch</span>
+      <div class="header-actions">
+        <router-link v-if="userStore.can(PERMISSIONS.CONTENT_CREATE)" :to="{ name: 'admin-publish' }" class="wizard-link">
+          Assistent starten
+        </router-link>
+        <div class="header-stats">
+          <span class="stat"><b>{{ templateCount }}</b> kuratierte Business-Vorlagen</span>
+        </div>
       </div>
     </header>
 
     <div class="catalog-filters">
-      <div class="view-tabs">
-        <button :class="['view-tab', { active: view === 'all' }]" @click="view = 'all'">Alle</button>
-        <button :class="['view-tab', { active: view === 'designer' }]" @click="view = 'designer'">Designer</button>
-        <button :class="['view-tab', { active: view === 'legacy' }]" @click="view = 'legacy'">Klassisch</button>
-      </div>
       <div class="filter-row">
         <input v-model="searchQuery" type="search" class="search-input" placeholder="Vorlage suchen..." />
         <div class="category-chips">
@@ -131,13 +132,11 @@ function createFromTemplate(tpl) {
 .page-title { font-family: var(--font-display); font-size: 1.85rem; font-weight: 700; color: var(--blickle-navy); margin: 0 0 6px; letter-spacing: -0.01em; }
 .page-sub { font-size: 0.95rem; color: var(--color-text-secondary); margin: 0; max-width: 620px; }
 .header-stats { display: flex; gap: 12px; align-items: center; color: var(--gray-500); font-size: 0.85rem; }
+.header-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.wizard-link { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 8px; background: var(--blickle-green); color: var(--blickle-navy); text-decoration: none; font-weight: 800; font-size: 0.82rem; }
 .stat b { color: var(--blickle-navy); font-weight: 700; font-size: 1.05em; }
-.stat-sep { opacity: 0.5; }
 
 .catalog-filters { margin-bottom: 24px; display: flex; flex-direction: column; gap: 14px; }
-.view-tabs { display: inline-flex; gap: 0; background: var(--gray-100, #F1F5F9); padding: 4px; border-radius: 10px; width: fit-content; }
-.view-tab { padding: 8px 20px; background: transparent; border: none; border-radius: 7px; font-size: 0.85rem; font-weight: 600; color: var(--gray-500); cursor: pointer; transition: all 160ms; }
-.view-tab.active { background: #fff; color: var(--blickle-navy); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 .filter-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 .search-input { padding: 10px 16px; border: 1px solid var(--color-border); border-radius: 10px; font-size: 0.9rem; min-width: 280px; font-family: inherit; background: #fff; }
 .search-input:focus { outline: none; border-color: var(--blickle-navy); box-shadow: 0 0 0 3px rgba(22,58,108,0.08); }

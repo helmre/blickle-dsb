@@ -62,10 +62,12 @@ const featuredJob = jobs.find(j => j.title.includes('Controller')) || jobs[0]
   position: absolute;
   top: 0;
   right: 0;
-  width: 280px;
+  width: 46%;
   height: 100%;
-  background: url('/content/karriere/blickle-team.jpg') center/cover no-repeat;
-  opacity: 0.08;
+  background: url('/content/karriere/blickle-team.jpg') right center/cover no-repeat;
+  opacity: var(--d-hero-image-opacity, 0.4);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%);
   pointer-events: none;
 }
 
@@ -103,7 +105,7 @@ const featuredJob = jobs.find(j => j.title.includes('Controller')) || jobs[0]
   font-family: 'Outfit', sans-serif;
   font-size: 2.8rem;
   font-weight: 800;
-  color: var(--blickle-navy, #163A6C);
+  color: var(--d-headline, #163A6C);
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin: 0 0 28px;
@@ -141,37 +143,41 @@ const featuredJob = jobs.find(j => j.title.includes('Controller')) || jobs[0]
 
 .karriere-featured {
   background: var(--d-surface-content, #F7F7F5);
-  padding: 24px;
+  padding: 28px 32px;
   border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .karriere-featured-label {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--d-text-muted, #6B6C68);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 0 0 6px;
+  letter-spacing: 0.1em;
+  margin: 0 0 10px;
 }
 
 .karriere-featured-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--blickle-navy, #163A6C);
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--d-headline, #163A6C);
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .karriere-referral {
-  background: rgba(181, 204, 24, 0.15);
-  padding: 24px;
+  background: rgba(181, 204, 24, 0.18);
+  padding: 28px 32px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
 }
 
 .karriere-referral-text {
@@ -179,7 +185,7 @@ const featuredJob = jobs.find(j => j.title.includes('Controller')) || jobs[0]
 }
 
 .karriere-referral-icon {
-  color: var(--blickle-navy, #163A6C);
+  color: var(--d-headline, #163A6C);
   flex-shrink: 0;
 }
 </style>

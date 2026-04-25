@@ -1,4 +1,5 @@
 <script setup>
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -8,23 +9,32 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'BOTSCHAFT DER GESCHAEFTSLEITUNG')
-const quote = field('quote', 'Unser Erfolg ist kein Zufall — er entsteht, weil wir als Team jeden Tag Verantwortung uebernehmen und fueinander einstehen.')
+const quote = field('quote', 'Unser Erfolg ist kein Zufall — er entsteht, weil wir als Team jeden Tag Verantwortung übernehmen und füreinander einstehen.')
 const authorName = field('authorName', 'David Blickle')
-const authorPosition = field('authorPosition', 'Geschaeftsfuehrung')
+const authorPosition = field('authorPosition', 'Geschäftsführung')
 const photoUrl = field('photoUrl', '')
 const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' },
+  { name: 'Blickle-Grün', value: '#B5CC18' },
   { name: 'Navy', value: '#163A6C' },
   { name: 'Gold', value: '#F59E0B' },
   { name: 'Blau', value: '#3B82F6' },
 ]
 
-function onPhotoPick(e) { const file = e.target.files?.[0]; if (!file) return; photoUrl.value = URL.createObjectURL(file) }
+async function onPhotoPick(e) {
+  await pickDesignerMedia(e, {
+    kind: 'image',
+    errorMessage: 'Bild konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      photoUrl.value = dataUrl
+    },
+  })
+}
 </script>
 
 <template>
@@ -50,18 +60,18 @@ function onPhotoPick(e) { const file = e.target.files?.[0]; if (!file) return; p
           </div>
         </div>
       </div>
-      <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>Blickle Raeder+Rollen GmbH · Rosenfeld</span></div>
+      <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>Blickle Räder+Rollen GmbH · Rosenfeld</span></div>
     </div>
   </div>
 
   <div v-else class="split">
     <aside class="form" v-if="!readonly">
       <section class="fs"><h4 class="fs-title">Kicker</h4>
-        <label class="fld"><span class="fld-label">Ueberzeile</span><input v-model="kicker" type="text" class="fld-input" /></label>
+        <label class="fld"><span class="fld-label">Überzeile</span><input v-model="kicker" type="text" class="fld-input" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Zitat</h4>
         <label class="fld"><span class="fld-label">Text</span><textarea v-model="quote" class="fld-input" rows="6" /></label>
-        <span class="fld-hint">Kurz und pointiert. Max. 2-3 Saetze.</span>
+        <span class="fld-hint">Kurz und pointiert. Max. 2-3 Sätze.</span>
       </section>
       <section class="fs"><h4 class="fs-title">Autor</h4>
         <label class="fld"><span class="fld-label">Name</span><input v-model="authorName" type="text" class="fld-input" /></label>
@@ -105,7 +115,7 @@ function onPhotoPick(e) { const file = e.target.files?.[0]; if (!file) return; p
               </div>
             </div>
           </div>
-          <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>Blickle Raeder+Rollen GmbH · Rosenfeld</span></div>
+          <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>Blickle Räder+Rollen GmbH · Rosenfeld</span></div>
         </div>
       </div>
     </section>

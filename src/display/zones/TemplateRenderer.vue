@@ -2,31 +2,25 @@
 import { computed } from 'vue'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useTemplateStore } from '../../shared/stores/templateStore.js'
-import { useDisplayContent } from '../../shared/composables/useDisplayContent.js'
 import { getDesignerTemplate, getDisplayAlias } from '../../shared/templates/registry.js'
 import { editorRegistry } from '../../shared/templates/editorRegistry.js'
+import { renderTemplateHtml } from '../../shared/utils/templateHtml.js'
+import { sanitizeEmbedHtml, sanitizeTemplateCss } from '../../shared/utils/sanitizeHtml.js'
 
 const props = defineProps({
   title: { type: String, default: '' },
   zoneId: { type: String, default: '' },
   contentId: { type: String, default: null },
   contentIndex: { type: Number, default: null },
+  contentData: { type: Object, default: null },
 })
 
 const contentStore = useContentStore()
 const templateStore = useTemplateStore()
-const { announcementItems } = useDisplayContent()
 
-// Get content: either by ID or by index from announcements
 const content = computed(() => {
-  if (props.contentId) {
-    return contentStore.getById(props.contentId)
-  }
-  if (props.contentIndex !== null && announcementItems.value[props.contentIndex]) {
-    const item = announcementItems.value[props.contentIndex]
-    return contentStore.getById(item.id)
-  }
-  return null
+  if (props.contentData) return props.contentData
+  return props.contentId ? contentStore.getById(props.contentId) : null
 })
 
 // Unified template lookup: designer registry first, then legacy templateStore
@@ -59,35 +53,17 @@ const designerParams = computed(() => {
   return content.value?.templateParams || {}
 })
 
-// Render HTML by replacing {{params}} with actual values or placeholder
 const renderedHtml = computed(() => {
-  if (!template.value) return null
-  let html = template.value.htmlTemplate || ''
-  if (!html) return null
-  const params = content.value?.templateParams || {}
-  // Replace all known template parameters
-  if (template.value.parameters) {
-    template.value.parameters.forEach(p => {
-      const key = p.key || p.name
-      const val = params[key] || p.defaultValue || p.default || `[${p.label || key}]`
-      html = html.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), val)
-    })
-  }
-  // Also replace any remaining {{key}} from params object
-  Object.keys(params).forEach(key => {
-    const val = params[key] || `[${key}]`
-    html = html.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), val)
-  })
-  return html
+  return renderTemplateHtml(template.value, content.value?.templateParams || {})
 })
 
-const templateCss = computed(() => template.value?.cssTemplate || '')
+const templateCss = computed(() => sanitizeTemplateCss(template.value?.cssTemplate || ''))
 
 // For image/video content without templates
 const isImage = computed(() => content.value?.type === 'image' && content.value?.fileUrl)
 const isVideo = computed(() => content.value?.type === 'video' && content.value?.fileUrl)
 const isEmbed = computed(() => content.value?.type === 'html' && content.value?.metadata?.embedCode)
-const isPdf = computed(() => content.value?.type === 'pdf' && content.value?.fileUrl)
+const embedHtml = computed(() => sanitizeEmbedHtml(content.value?.metadata?.embedCode || ''))
 </script>
 
 <template>
@@ -124,7 +100,7 @@ const isPdf = computed(() => content.value?.type === 'pdf' && content.value?.fil
     </div>
 
     <!-- HTML embed (iframe/YouTube) -->
-    <div v-else-if="isEmbed" class="media-wrap media-embed" v-html="content.metadata.embedCode"></div>
+    <div v-else-if="isEmbed" class="media-wrap media-embed" v-html="embedHtml"></div>
 
     <!-- Fallback: plain text content card -->
     <div v-else-if="content" class="fallback-card">

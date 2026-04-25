@@ -1,4 +1,5 @@
 <script setup>
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -8,25 +9,34 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'MITARBEITER-SPOTLIGHT')
 const name = field('name', 'Daniel Hirschler')
-const department = field('department', 'Fertigung · Halle 2')
-const quote = field('quote', 'Bei Blickle zaehlt nicht nur was du machst, sondern wer du bist.')
-const hobby = field('hobby', 'Motorrad-Touren durch die Schwaebische Alb')
+const department = field('department', 'Fertigung · FB2')
+const quote = field('quote', 'Bei Blickle zählt nicht nur was du machst, sondern wer du bist.')
+const hobby = field('hobby', 'Motorrad-Touren durch die Schwäbische Alb')
 const since = field('since', '2011')
 const photoUrl = field('photoUrl', '')
 const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Blickle-Gruen', value: '#B5CC18' },
+  { name: 'Blickle-Grün', value: '#B5CC18' },
   { name: 'Navy', value: '#163A6C' },
   { name: 'Orange', value: '#F97316' },
   { name: 'Pink', value: '#EC4899' },
 ]
 
-function onPhotoPick(e) { const file = e.target.files?.[0]; if (!file) return; photoUrl.value = URL.createObjectURL(file) }
+async function onPhotoPick(e) {
+  await pickDesignerMedia(e, {
+    kind: 'image',
+    errorMessage: 'Bild konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      photoUrl.value = dataUrl
+    },
+  })
+}
 </script>
 
 <template>

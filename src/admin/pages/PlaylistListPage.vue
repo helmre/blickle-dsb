@@ -1,30 +1,57 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { usePlaylistStore } from '../../shared/stores/playlistStore.js'
+import { useScheduleStore } from '../../shared/stores/scheduleStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
+import { PERMISSIONS } from '../../shared/auth/policies.js'
+import { isPlaylistLooping } from '../../shared/playlists/playlistRules.js'
+import { safeAuditLog } from '../../shared/utils/auditLog.js'
 
 const playlistStore = usePlaylistStore()
+const scheduleStore = useScheduleStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const toast = useToastStore()
 
 const showDeleteConfirm = ref(null)
+const canManage = computed(() => userStore.can(PERMISSIONS.PLAYLISTS_MANAGE))
 
 function createPlaylist() {
+  if (!canManage.value) return
   const item = playlistStore.add({
     name: 'Neue Playlist',
     description: '',
     loop: true,
+    isLoop: true,
     priority: 0,
     items: []
   })
-  auditStore.log('playlist.created', 'playlist', item.id, userStore.currentUser.id, { name: item.name })
+  safeAuditLog(auditStore, 'playlist.created', 'playlist', item.id, userStore.currentUser.id, { name: item.name })
 }
 
 function deletePlaylist(id) {
+  if (!canManage.value) return
   const playlist = playlistStore.getById(id)
-  playlistStore.remove(id)
-  auditStore.log('playlist.deleted', 'playlist', id, userStore.currentUser.id, { name: playlist?.name })
+  let removedSchedules = 0
+  try {
+    playlistStore.remove(id)
+  } catch (error) {
+    toast.error(error?.message || 'Playlist konnte nicht gelöscht werden')
+    return
+  }
+  try {
+    removedSchedules = scheduleStore.removeForTarget('playlist', id)
+  } catch (error) {
+    console.warn('[PlaylistList] Zeitplan-Bereinigung fehlgeschlagen:', error)
+    toast.warning('Playlist gelöscht, aber abhängige Zeitpläne konnten nicht bereinigt werden')
+  }
+  safeAuditLog(auditStore, 'playlist.deleted', 'playlist', id, userStore.currentUser.id, {
+    name: playlist?.name,
+    removedSchedules,
+  }, { toast })
+  toast.success(removedSchedules ? `Playlist und ${removedSchedules} Zeitplan-Regeln gelöscht` : 'Playlist gelöscht')
   showDeleteConfirm.value = null
 }
 </script>
@@ -33,7 +60,7 @@ function deletePlaylist(id) {
   <div class="playlist-page">
     <div class="page-toolbar">
       <h2 class="page-title">Playlists</h2>
-      <button class="btn-primary" @click="createPlaylist">+ Neue Playlist</button>
+      <button v-if="canManage" class="btn-primary" @click="createPlaylist">+ Neue Playlist</button>
     </div>
 
     <div class="playlist-grid">
@@ -43,16 +70,16 @@ function deletePlaylist(id) {
           <span class="item-count">{{ playlist.items?.length || 0 }} Elemente</span>
         </div>
         <div class="card-meta">
-          <span :class="['status-badge', playlist.loop ? 'active' : 'inactive']">
-            {{ playlist.loop ? 'Schleife' : 'Einmalig' }}
+          <span :class="['status-badge', isPlaylistLooping(playlist) ? 'active' : 'inactive']">
+            {{ isPlaylistLooping(playlist) ? 'Schleife' : 'Einmalig' }}
           </span>
-          <span class="priority-badge">Prioritaet: {{ playlist.priority || 0 }}</span>
+          <span class="priority-badge">Priorität: {{ playlist.priority || 0 }}</span>
         </div>
         <div class="card-actions">
           <router-link :to="`/admin/playlists/${playlist.id}`" class="btn-sm btn-outline">
-            Bearbeiten
+            {{ canManage ? 'Bearbeiten' : 'Ansehen' }}
           </router-link>
-          <button class="btn-sm btn-danger" @click="showDeleteConfirm = playlist.id">Loeschen</button>
+          <button v-if="canManage" class="btn-sm btn-danger" @click="showDeleteConfirm = playlist.id">Löschen</button>
         </div>
       </div>
       <p v-if="!playlistStore.items.length" class="empty-text">Keine Playlists vorhanden. Erstellen Sie eine neue Playlist.</p>
@@ -62,15 +89,15 @@ function deletePlaylist(id) {
     <div v-if="showDeleteConfirm" class="modal-overlay" @click.self="showDeleteConfirm = null">
       <div class="modal">
         <div class="modal-header">
-          <h3>Playlist loeschen</h3>
+          <h3>Playlist löschen</h3>
           <button class="modal-close" @click="showDeleteConfirm = null">&times;</button>
         </div>
         <div class="modal-body">
-          <p>Sind Sie sicher, dass Sie diese Playlist loeschen moechten? Diese Aktion kann nicht rueckgaengig gemacht werden.</p>
+          <p>Sind Sie sicher, dass Sie diese Playlist löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</p>
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="showDeleteConfirm = null">Abbrechen</button>
-          <button class="btn-danger-solid" @click="deletePlaylist(showDeleteConfirm)">Loeschen</button>
+          <button class="btn-danger-solid" @click="deletePlaylist(showDeleteConfirm)">Löschen</button>
         </div>
       </div>
     </div>

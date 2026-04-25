@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useDesignerMediaUpload } from '../composables/useDesignerMediaUpload.js'
 import { useParamModel } from '../../shared/composables/useParamModel.js'
 
 const props = defineProps({
@@ -9,17 +10,18 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:params'])
 const { field, update } = useParamModel(props, emit)
+const { pickDesignerMedia } = useDesignerMediaUpload()
 
 const kicker = field('kicker', 'GAESTE HEUTE')
 const dateLabel = field('dateLabel', '2026-04-16')
 const welcome = field('welcome', 'Willkommen in Rosenfeld')
-const subline = field('subline', 'Bitte freundlich gruessen')
+const subline = field('subline', 'Bitte freundlich grüßen')
 const visitors = field('visitors', [])
 const theme = field('theme', 'light')
 const accent = field('accent', '#163A6C')
 
 const accentPresets = [
-  { name: 'Navy', value: '#163A6C' }, { name: 'Gruen', value: '#B5CC18' },
+  { name: 'Navy', value: '#163A6C' }, { name: 'Grün', value: '#B5CC18' },
   { name: 'Blau', value: '#3B82F6' }, { name: 'Grau', value: '#475569' },
 ]
 
@@ -31,7 +33,15 @@ function addVisitor() {
 }
 function removeVisitor(i) { const a = [...(visitors.value || [])]; a.splice(i, 1); update('visitors', a) }
 function setVisitor(i, k, v) { const a = [...(visitors.value || [])]; a[i] = { ...a[i], [k]: v }; update('visitors', a) }
-function onLogoPick(i, e) { const file = e.target.files?.[0]; if (!file) return; setVisitor(i, 'logoUrl', URL.createObjectURL(file)) }
+async function onLogoPick(i, e) {
+  await pickDesignerMedia(e, {
+    kind: 'image',
+    errorMessage: 'Logo konnte nicht geladen werden.',
+    onLoaded(dataUrl) {
+      setVisitor(i, 'logoUrl', dataUrl)
+    },
+  })
+}
 
 const formattedDate = computed(() => { if (!dateLabel.value) return ''; try { return new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(dateLabel.value)) } catch { return dateLabel.value } })
 function initials(name) {
@@ -48,7 +58,7 @@ function initials(name) {
         <div class="head-left">
           <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span><span class="head-divider"></span><span class="date-text">{{ formattedDate }}</span></div>
           <h1 class="welcome">{{ welcome }}</h1>
-          <div class="count">Heute {{ visitors.length }} {{ visitors.length === 1 ? 'Gast' : 'Gaeste' }} im Haus</div>
+          <div class="count">Heute {{ visitors.length }} {{ visitors.length === 1 ? 'Gast' : 'Gäste' }} im Haus</div>
         </div>
         <div class="head-right"><div class="greet-card"><div class="greet-icon">&#9996;</div><div class="greet-text">{{ subline }}</div></div></div>
       </div>
@@ -63,7 +73,7 @@ function initials(name) {
           <div class="v-host" v-if="v.host"><span class="host-label">Gastgeber</span><span class="host-name">{{ v.host }}</span></div>
         </div>
       </div>
-      <div class="footer"><span>Empfang Blickle</span><span class="dot">·</span><span>Aushang fuer heute</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
+      <div class="footer"><span>Empfang Blickle</span><span class="dot">·</span><span>Aushang für heute</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
     </div>
   </div>
 
@@ -75,7 +85,7 @@ function initials(name) {
         <label class="fld"><span class="fld-label">Willkommen</span><input v-model="welcome" type="text" class="fld-input" /></label>
         <label class="fld"><span class="fld-label">Hinweis</span><input v-model="subline" type="text" class="fld-input" /></label>
       </section>
-      <section class="fs"><h4 class="fs-title">Gaeste ({{ visitors.length }})</h4>
+      <section class="fs"><h4 class="fs-title">Gäste ({{ visitors.length }})</h4>
         <div v-for="(v, i) in visitors" :key="i" class="visitor-card-edit">
           <div class="vc-head"><span class="vc-nr">#{{ i + 1 }}</span><button class="btn-x" @click="removeVisitor(i)" v-if="visitors.length > 1">&times;</button></div>
           <label class="fld"><span class="fld-label">Name</span><input :value="v.name" @input="e => setVisitor(i, 'name', e.target.value)" type="text" class="fld-input" /></label>
@@ -113,7 +123,7 @@ function initials(name) {
             <div class="head-left">
               <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span><span class="head-divider"></span><span class="date-text">{{ formattedDate }}</span></div>
               <h1 class="welcome">{{ welcome }}</h1>
-              <div class="count">Heute {{ visitors.length }} {{ visitors.length === 1 ? 'Gast' : 'Gaeste' }} im Haus</div>
+              <div class="count">Heute {{ visitors.length }} {{ visitors.length === 1 ? 'Gast' : 'Gäste' }} im Haus</div>
             </div>
             <div class="head-right"><div class="greet-card"><div class="greet-icon">&#9996;</div><div class="greet-text">{{ subline }}</div></div></div>
           </div>
@@ -128,7 +138,7 @@ function initials(name) {
               <div class="v-host" v-if="v.host"><span class="host-label">Gastgeber</span><span class="host-name">{{ v.host }}</span></div>
             </div>
           </div>
-          <div class="footer"><span>Empfang Blickle</span><span class="dot">·</span><span>Aushang fuer heute</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
+          <div class="footer"><span>Empfang Blickle</span><span class="dot">·</span><span>Aushang für heute</span><span class="spacer"></span><img src="/Blicklelogo.png" alt="" class="footer-logo" /></div>
         </div>
       </div>
     </section>

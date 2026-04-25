@@ -13,6 +13,7 @@ import KarriereZone from './zones/KarriereZone.vue'
 import ProduktionNews from './zones/ProduktionNews.vue'
 import FullscreenMedia from './zones/FullscreenMedia.vue'
 import ShopFloorBoardZone from './zones/ShopFloorBoardZone.vue'
+import PdfViewer from './zones/PdfViewer.vue'
 
 const props = defineProps({
   page: { type: Object, required: true },
@@ -37,6 +38,7 @@ const componentMap = {
   'produktion-news': ProduktionNews,
   'fullscreen-media': FullscreenMedia,
   'shop-floor-board': ShopFloorBoardZone,
+  'pdf': PdfViewer,
 }
 
 const isCustomLayout = computed(() => props.page.layout === 'custom' && props.page.customGrid)
@@ -78,8 +80,11 @@ function getZoneStyle(zone) {
         :zoneId="zone.id"
         :contentId="zone.contentId || null"
         :contentIndex="zone.contentIndex ?? null"
+        :contentData="zone.content || null"
         :mediaUrl="zone.mediaUrl || null"
         :mediaType="zone.mediaType || null"
+        :pdfUrl="zone.pdfUrl || null"
+        :fit="zone.fit || 'contain'"
         :paused="mediaPaused"
         @media-ended="emit('media-ended')"
       />

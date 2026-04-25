@@ -3,10 +3,10 @@ import { useToastStore } from '../../shared/stores/toastStore.js'
 const toastStore = useToastStore()
 
 const icons = {
-  success: '&#9989;',
-  error: '&#9888;',
-  info: '&#8505;',
-  warning: '&#9888;',
+  success: '✓',
+  error: '!',
+  info: 'i',
+  warning: '!',
 }
 </script>
 
@@ -19,7 +19,7 @@ const icons = {
           :key="toast.id"
           :class="['toast', `toast-${toast.type}`]"
         >
-          <span class="toast-icon" v-html="icons[toast.type]"></span>
+          <span class="toast-icon" aria-hidden="true">{{ icons[toast.type] || icons.info }}</span>
           <span class="toast-message">{{ toast.message }}</span>
         </div>
       </TransitionGroup>

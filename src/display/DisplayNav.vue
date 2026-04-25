@@ -5,8 +5,8 @@ import {
 } from 'lucide-vue-next'
 
 defineProps({
-  pages: { type: Array, required: true },
-  activeIndex: { type: Number, default: 0 },
+  navGroups: { type: Array, required: true },
+  activeGroupId: { type: String, default: '' },
   position: { type: String, default: 'bottom' } // 'bottom' | 'sidebar'
 })
 
@@ -25,9 +25,9 @@ const iconMap = {
   'briefcase': Briefcase,
 }
 
-function getIcon(page) {
-  if (page.iconName && iconMap[page.iconName]) {
-    return iconMap[page.iconName]
+function getIcon(group) {
+  if (group.iconName && iconMap[group.iconName]) {
+    return iconMap[group.iconName]
   }
   return null
 }
@@ -36,21 +36,21 @@ function getIcon(page) {
 <template>
   <nav :class="['display-nav', `display-nav--${position}`]">
     <button
-      v-for="(page, index) in pages"
-      :key="page.id"
-      :class="['nav-btn', { active: index === activeIndex }]"
-      @click="emit('select', index)"
+      v-for="group in navGroups"
+      :key="group.id"
+      :class="['nav-btn', { active: group.id === activeGroupId }]"
+      @click="emit('select', group.firstPageIndex)"
     >
       <span class="nav-icon">
         <component
-          v-if="getIcon(page)"
-          :is="getIcon(page)"
+          v-if="getIcon(group)"
+          :is="getIcon(group)"
           :size="position === 'sidebar' ? 22 : 20"
           :stroke-width="1.75"
         />
-        <span v-else v-html="page.icon"></span>
+        <span v-else v-html="group.icon"></span>
       </span>
-      <span class="nav-label">{{ page.label }}</span>
+      <span class="nav-label">{{ group.label }}</span>
     </button>
   </nav>
 </template>

@@ -23,12 +23,12 @@ const topic = field('topic', 'GF-Ansprache: Q2-Ausblick')
 const body = field('body', 'Alle Mitarbeiterinnen und Mitarbeiter sind herzlich eingeladen.')
 const audienceNote = field('audienceNote', 'Alle MA · Schichten bitte informieren')
 const showCountdown = field('showCountdown', true)
-const authorLabel = field('authorLabel', 'Geschaeftsleitung')
+const authorLabel = field('authorLabel', 'Geschäftsleitung')
 const accent = field('accent', '#B5CC18')
 const theme = field('theme', 'dark')
 
 const accentPresets = [
-  { name: 'Gruen', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
+  { name: 'Grün', value: '#B5CC18' }, { name: 'Navy', value: '#163A6C' },
   { name: 'Orange', value: '#F97316' }, { name: 'Rot', value: '#EF4444' },
 ]
 

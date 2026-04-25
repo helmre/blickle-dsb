@@ -1,43 +1,52 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { loadData, saveData, generateId, now } from '../utils/storage.js'
-import { isCurrentlyValid } from '../utils/datetime.js'
+import { generateId } from '../utils/storage.js'
+import { isScheduleActiveNow } from '../utils/datetime.js'
+import { scheduleRepository } from '../repositories/appRepositories.js'
+import { commitRef } from './storeCommit.js'
 
 export const useScheduleStore = defineStore('schedules', () => {
-  const items = ref(loadData('schedules', []))
+  const items = ref(scheduleRepository.load())
 
-  function persist() { saveData('schedules', items.value) }
+  function persist() { scheduleRepository.save(items.value) }
 
   function getById(id) { return items.value.find(s => s.id === id) }
 
   const activeSchedules = computed(() => {
-    const nowTs = Date.now()
-    return items.value.filter(s => s.isActive && isCurrentlyValid(s.startDate, s.endDate, nowTs))
+    const now = new Date()
+    return items.value.filter(schedule => isScheduleActiveNow(schedule, now))
   })
 
   function getForLocation(locationId) {
-    return items.value.filter(s => s.locationIds.includes(locationId))
+    return items.value.filter(s => Array.isArray(s.locationIds) && s.locationIds.includes(locationId))
   }
 
   function add(schedule) {
     const item = { ...schedule, id: generateId(), isActive: true }
-    items.value.push(item)
-    persist()
+    commitRef(items, [...items.value, item], persist)
     return item
   }
 
   function update(id, changes) {
     const idx = items.value.findIndex(s => s.id === id)
     if (idx === -1) return null
-    items.value[idx] = { ...items.value[idx], ...changes }
-    persist()
-    return items.value[idx]
+    const updated = { ...items.value[idx], ...changes }
+    commitRef(items, items.value.map((schedule, scheduleIdx) => scheduleIdx === idx ? updated : schedule), persist)
+    return updated
   }
 
   function remove(id) {
-    items.value = items.value.filter(s => s.id !== id)
-    persist()
+    commitRef(items, items.value.filter(s => s.id !== id), persist)
   }
 
-  return { items, activeSchedules, getById, getForLocation, add, update, remove, persist }
+  function removeForTarget(targetType, targetId) {
+    const nextItems = items.value.filter(schedule =>
+      schedule.targetType !== targetType || schedule.targetId !== targetId
+    )
+    const removedCount = items.value.length - nextItems.length
+    if (removedCount > 0) commitRef(items, nextItems, persist)
+    return removedCount
+  }
+
+  return { items, activeSchedules, getById, getForLocation, add, update, remove, removeForTarget, persist }
 })

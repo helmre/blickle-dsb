@@ -1,0 +1,355 @@
+openapi: 3.1.0
+info:
+  title: Digitales Schwarzes Brett API
+  version: 0.1.0
+  description: >
+    Contract skeleton for the production backend. The current Vue prototype uses
+    localStorage; this API describes the target integration boundary.
+servers:
+  - url: /api/v1
+security:
+  - sessionAuth: []
+paths:
+  /auth/me:
+    get:
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /contents:
+    get:
+      summary: List content
+      responses:
+        "200":
+          description: Content list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Content"
+    post:
+      summary: Create content draft
+      responses:
+        "201":
+          description: Created content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+  /contents/{id}:
+    get:
+      summary: Get content by ID
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+    patch:
+      summary: Update editable content draft
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Updated content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+    delete:
+      summary: Delete editable content draft
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Deleted
+  /contents/{id}/submit:
+    post:
+      summary: Submit content for review
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Submitted content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+  /contents/{id}/approve:
+    post:
+      summary: Approve content
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Approved content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+  /contents/{id}/reject:
+    post:
+      summary: Reject content
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Rejected content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+  /playlists:
+    get:
+      summary: List playlists
+      responses:
+        "200":
+          description: Playlist list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Playlist"
+    post:
+      summary: Create playlist
+      responses:
+        "201":
+          description: Created playlist
+  /schedules:
+    get:
+      summary: List schedules
+      responses:
+        "200":
+          description: Schedule list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Schedule"
+    post:
+      summary: Create schedule
+      responses:
+        "201":
+          description: Created schedule
+  /locations:
+    get:
+      summary: List locations
+      responses:
+        "200":
+          description: Location list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+  /emergencies:
+    get:
+      summary: List emergency history
+      responses:
+        "200":
+          description: Emergency list
+    post:
+      summary: Trigger emergency
+      responses:
+        "201":
+          description: Triggered emergency
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Emergency"
+  /emergencies/active:
+    get:
+      summary: Get active emergency
+      responses:
+        "200":
+          description: Active emergency or null
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/Emergency"
+                  - type: "null"
+  /emergencies/{id}/dismiss:
+    post:
+      summary: Dismiss emergency
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Dismissed emergency
+  /media:
+    post:
+      summary: Upload media file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Created media asset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MediaAsset"
+  /display/{locationId}/payload:
+    get:
+      summary: Get display payload for location
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Display payload
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: dsb_session
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    User:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+        role:
+          type: string
+          enum: [admin, editor, reviewer, viewer]
+        permissions:
+          type: array
+          items: { type: string }
+        locationAccess:
+          type: array
+          items: { type: string }
+    Content:
+      type: object
+      required: [id, title, type, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        type: { type: string }
+        templateId: { type: [string, "null"] }
+        templateParams: { type: object, additionalProperties: true }
+        fileUrl: { type: [string, "null"] }
+        mimeType: { type: [string, "null"] }
+        tags:
+          type: array
+          items: { type: string }
+        status:
+          type: string
+          enum: [draft, in_review, approved, rejected, archived]
+        validFrom: { type: [string, "null"] }
+        validUntil: { type: [string, "null"] }
+        locationIds:
+          type: array
+          items: { type: string }
+        reviewVersion: { type: integer }
+    Playlist:
+      type: object
+      required: [id, name, items]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        isLoop: { type: boolean }
+        priority: { type: integer }
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, contentId, duration, order]
+            properties:
+              id: { type: string }
+              contentId: { type: string }
+              duration: { type: integer, minimum: 1 }
+              order: { type: integer }
+              transition: { type: string }
+    Schedule:
+      type: object
+      required: [id, targetType, targetId, isActive]
+      properties:
+        id: { type: string }
+        targetType:
+          type: string
+          enum: [content, playlist]
+        targetId: { type: string }
+        locationIds:
+          type: array
+          items: { type: string }
+        startDate: { type: [string, "null"] }
+        endDate: { type: [string, "null"] }
+        weekdays:
+          type: array
+          items: { type: integer, minimum: 0, maximum: 6 }
+        priority: { type: integer }
+        isActive: { type: boolean }
+    Location:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        parentId: { type: [string, "null"] }
+        layoutId: { type: [string, "null"] }
+        timezone: { type: string }
+        isActive: { type: boolean }
+    Emergency:
+      type: object
+      required: [id, message, severity, triggeredAt, expiresAt]
+      properties:
+        id: { type: string }
+        message: { type: string }
+        severity:
+          type: string
+          enum: [warning, critical, emergency]
+        targetLocationIds:
+          type: array
+          items: { type: string }
+        displayDuration: { type: integer }
+        triggeredBy: { type: string }
+        triggeredAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        acknowledgedAt: { type: [string, "null"], format: date-time }
+    MediaAsset:
+      type: object
+      required: [id, url, mimeType, size, checksum]
+      properties:
+        id: { type: string }
+        url: { type: string, format: uri }
+        mimeType: { type: string }
+        size: { type: integer }
+        width: { type: [integer, "null"] }
+        height: { type: [integer, "null"] }
+        duration: { type: [number, "null"] }
+        posterUrl: { type: [string, "null"], format: uri }
+        checksum: { type: string }

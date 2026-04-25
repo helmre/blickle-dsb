@@ -41,7 +41,7 @@ export function getShopfloorSeed() {
         ]
       },
       Q: {
-        label: 'Qualitaet',
+        label: 'Qualität',
         monthStatuses: makeMonthStatuses({
           ...Object.fromEntries(Array.from({ length: todayDate }, (_, i) => [i + 1, 'green'])),
           7: 'yellow', 11: 'red', 14: 'yellow'
@@ -61,12 +61,12 @@ export function getShopfloorSeed() {
           { label: 'KW16', intern: 1, kunde: 0 },
         ],
         themes: [
-          { pdca: 'plan', title: 'Rueckstandsanalyse Auftrag 4221', owner: 'QS Mueller', role: 'qs', dueDate: '22.04.' },
-          { pdca: 'act',  title: 'Abweichung Pressen-Parameter', owner: 'QS Mueller', role: 'qs' },
+          { pdca: 'plan', title: 'Rückstandsanalyse Auftrag 4221', owner: 'QS Müller', role: 'qs', dueDate: '22.04.' },
+          { pdca: 'act',  title: 'Abweichung Pressen-Parameter', owner: 'QS Müller', role: 'qs' },
         ]
       },
       K: {
-        label: 'Kapazitaet',
+        label: 'Kapazität',
         monthStatuses: makeMonthStatuses({
           ...Object.fromEntries(Array.from({ length: todayDate }, (_, i) => [i + 1, 'green'])),
           5: 'yellow', 9: 'yellow'
@@ -91,7 +91,7 @@ export function getShopfloorSeed() {
         label: 'Termintreue',
         monthStatuses: fillGreen(todayDate),
         mainKpi: { value: '97 %', label: 'On-Time Delivery', status: 'green' },
-        backlog: { yellow: 3, red: 1, label: 'Rueckstaende' },
+        backlog: { yellow: 3, red: 1, label: 'Rückstände' },
         backlogTrend: [
           { d: '1', yellow: 0, red: 0 },  { d: '2', yellow: 2, red: 0 },
           { d: '3', yellow: 1, red: 0 },  { d: '4', yellow: 0, red: 1 },
@@ -102,12 +102,12 @@ export function getShopfloorSeed() {
           { d: '13', yellow: 1, red: 0 }, { d: '14', yellow: 3, red: 1 },
         ],
         themes: [
-          { kind: 'backlog', title: 'Kundenrueckstand Auftrag 89221', status: 'red' },
-          { kind: 'backlog', title: '3 Auftraege nicht fristgerecht eingelagert', status: 'yellow' },
+          { kind: 'backlog', title: 'Kundenrückstand Auftrag 89221', status: 'red' },
+          { kind: 'backlog', title: '3 Aufträge nicht fristgerecht eingelagert', status: 'yellow' },
         ]
       },
       P: {
-        label: 'Produktivitaet',
+        label: 'Produktivität',
         monthStatuses: makeMonthStatuses({
           ...Object.fromEntries(Array.from({ length: todayDate }, (_, i) => [i + 1, 'green'])),
           2: 'red', 10: 'red'
@@ -116,7 +116,7 @@ export function getShopfloorSeed() {
         leistungSeries: [98, 96, 101, 99, 102, 100, 103, 105, 102, 104],
         leistungTarget: 100,
         themes: [
-          { kind: 'info', title: 'Ruestzeit im Ziel', status: 'green' },
+          { kind: 'info', title: 'Rüstzeit im Ziel', status: 'green' },
           { kind: 'info', title: '2 MA unter 100 % — Schulung DI geplant', status: 'yellow' },
         ]
       },
@@ -134,14 +134,14 @@ export function getShopfloorSeed() {
             { key: 'KVP', value: 75 },
           ],
           topMeasures: [
-            { text: 'KVP-Wissen unterweisen — Alle MA foerdern', done: false },
+            { text: 'KVP-Wissen unterweisen — Alle MA fördern', done: false },
             { text: 'Anfahrschutz an Regal (KSO) anbringen', done: true },
             { text: 'Papier u. Kunststoff im Stahlschrott', done: false },
           ]
         },
         themes: [
           { pdca: 'plan',  title: 'TE-Optimierung Band 3020', owner: 'Meister Huber', role: 'meister' },
-          { pdca: 'check', title: 'KVP Materialfluss Halle 1', owner: 'Assistent BL', role: 'asst-bl' },
+          { pdca: 'check', title: 'KVP Materialfluss FB1', owner: 'Assistent BL', role: 'asst-bl' },
         ]
       }
     }

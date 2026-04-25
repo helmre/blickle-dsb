@@ -15,7 +15,9 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'Blicklelogo.png'],
       manifest: false, // Use public/manifest.json
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,pdf,mp4,webm,woff,woff2}'],
+        maximumFileSizeToCacheInBytes: 25 * 1024 * 1024,
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             // Cache Google Fonts
@@ -34,6 +36,16 @@ export default defineConfig({
             options: {
               cacheName: 'images',
               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            // Cache display PDFs such as canteen menus for offline signage.
+            urlPattern: /\.(?:pdf)$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'pdf-documents',
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 14 },
+              cacheableResponse: { statuses: [0, 200] },
             },
           },
           {
