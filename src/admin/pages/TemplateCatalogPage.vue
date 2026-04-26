@@ -19,6 +19,11 @@ const selectedCategory = ref('all')
 const selectedTemplateId = ref('')
 const draft = ref(null)
 const saved = ref(false)
+const importInput = ref(null)
+const importBusy = ref(false)
+
+const TEMPLATE_PACKAGE_SCHEMA = 'dsb-template'
+const TEMPLATE_PACKAGE_VERSION = '1.0'
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Text' },
@@ -69,6 +74,15 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value))
 }
 
+function slugify(value = 'template') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'template'
+}
+
 function categoryLabel(cat) {
   if (cat === 'all') return 'Alle'
   return CATEGORY_LABELS[cat] || cat
@@ -83,6 +97,19 @@ function normalizeParams(template) {
       defaultValue: field.defaultValue ?? template.defaultParams?.[field.key] ?? '',
       required: field.required === true,
     }))
+}
+
+function normalizeImportedParams(parameters) {
+  if (!Array.isArray(parameters)) return []
+  return parameters
+    .map((field, index) => ({
+      key: String(field?.key || field?.name || `feld_${index + 1}`).trim().replace(/[^a-zA-Z0-9_]/g, '_'),
+      label: String(field?.label || field?.key || `Feld ${index + 1}`).trim(),
+      type: FIELD_TYPES.some(type => type.value === field?.type) ? field.type : 'text',
+      defaultValue: field?.defaultValue ?? '',
+      required: field?.required === true,
+    }))
+    .filter(field => field.key && field.label)
 }
 
 function makeCss({ accent = '#B5CC18', theme = 'dark', density = 'normal', preset = 'classic' } = {}) {
@@ -100,6 +127,54 @@ function makeHtml(fields = []) {
   const kickerKey = fields.find(field => field.key === 'kicker')?.key
   const metaKey = fields.find(field => ['datum', 'validUntil', 'source', 'authorLabel'].includes(field.key))?.key
   return `<div class="tpl-builder">${kickerKey ? `<div class="tpl-builder__kicker">{{${kickerKey}}}</div>` : ''}<h1 class="tpl-builder__title">{{${titleKey}}}</h1><p class="tpl-builder__body">{{${bodyKey}}}</p>${metaKey ? `<div class="tpl-builder__meta">{{${metaKey}}}</div>` : ''}</div>`
+}
+
+function hasUnsafeTemplateCode(html = '', css = '') {
+  const code = `${html}\n${css}`.toLowerCase()
+  return /<script[\s>]/i.test(code) ||
+    /\son[a-z]+\s*=/i.test(code) ||
+    /javascript:/i.test(code) ||
+    /@import/i.test(code) ||
+    /expression\s*\(/i.test(code)
+}
+
+function buildTemplatePackage(template = selectedTemplate.value) {
+  if (!template) return null
+  const params = normalizeParams(template)
+  const design = {
+    preset: template.design?.preset || 'classic',
+    theme: template.defaultParams?.theme || template.design?.theme || 'dark',
+    density: template.design?.density || 'normal',
+    accent: template.thumbnailAccent || template.design?.accent || '#B5CC18',
+  }
+  return {
+    schemaVersion: TEMPLATE_PACKAGE_VERSION,
+    type: TEMPLATE_PACKAGE_SCHEMA,
+    exportedAt: new Date().toISOString(),
+    source: {
+      app: 'Digitales Schwarzes Brett',
+      templateId: template.id,
+      renderer: template.renderer || 'html-params',
+    },
+    aiInstructions: [
+      'Du darfst htmlTemplate, cssTemplate, name, description und design anpassen.',
+      'Aendere keine parameter.key Werte, weil Inhalte diese Keys spaeter befuellen.',
+      'Fuege keinen Script-Code, keine onClick/onLoad-Attribute und keine externen @import-Regeln ein.',
+      'Das Template muss im 16:9-Display gut lesbar bleiben.',
+    ],
+    template: {
+      name: template.name || 'Exportierte Vorlage',
+      description: template.description || '',
+      category: template.category || 'kommunikation',
+      isActive: false,
+      design,
+      thumbnailAccent: template.thumbnailAccent || design.accent,
+      thumbnailBg: template.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
+      parameters: params,
+      htmlTemplate: template.htmlTemplate || makeHtml(params),
+      cssTemplate: template.cssTemplate || makeCss(design),
+    },
+  }
 }
 
 function createDraft(template) {
@@ -122,6 +197,7 @@ function createDraft(template) {
     cssTemplate: template.cssTemplate || makeCss({ accent: template.thumbnailAccent }),
     thumbnailAccent: template.thumbnailAccent || '#B5CC18',
     thumbnailBg: template.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
+    importedFromPackage: template.importedFromPackage ? clone(template.importedFromPackage) : null,
   }
 }
 
@@ -171,6 +247,83 @@ function duplicateTemplate(template = selectedTemplate.value) {
   })
   selectedTemplateId.value = copy.id
   toast.success('Vorlage dupliziert')
+}
+
+function exportTemplate(template = selectedTemplate.value) {
+  if (!template) return
+  const pkg = buildTemplatePackage(template)
+  const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${slugify(template.name)}.dsb-template.json`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+  toast.success('Vorlage exportiert')
+}
+
+function openImportDialog() {
+  if (!canManageTemplates.value) return
+  importInput.value?.click()
+}
+
+async function importTemplateFile(event) {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+  importBusy.value = true
+  try {
+    const raw = await file.text()
+    const parsed = JSON.parse(raw)
+    const imported = parsed.template || parsed
+    if (parsed.type !== TEMPLATE_PACKAGE_SCHEMA || !imported || typeof imported !== 'object') {
+      throw new Error('Das ist kein gültiges DSB-Template-Paket.')
+    }
+    const parameters = normalizeImportedParams(imported.parameters)
+    if (!parameters.length) throw new Error('Das Template braucht mindestens ein Feld.')
+
+    const design = {
+      preset: DESIGN_PRESETS.some(preset => preset.value === imported.design?.preset) ? imported.design.preset : 'classic',
+      theme: ['dark', 'light'].includes(imported.design?.theme) ? imported.design.theme : 'dark',
+      density: ['compact', 'normal', 'generous'].includes(imported.design?.density) ? imported.design.density : 'normal',
+      accent: /^#[0-9a-fA-F]{6}$/.test(imported.design?.accent || imported.thumbnailAccent || '') ? (imported.design?.accent || imported.thumbnailAccent) : '#B5CC18',
+    }
+    const htmlTemplate = String(imported.htmlTemplate || makeHtml(parameters))
+    const cssTemplate = String(imported.cssTemplate || makeCss(design))
+    if (hasUnsafeTemplateCode(htmlTemplate, cssTemplate)) {
+      throw new Error('Import abgebrochen: Das Template enthält Script- oder unsicheren Code.')
+    }
+
+    const item = templateStore.add({
+      name: `${String(imported.name || 'Importierte Vorlage').trim()} Import`,
+      description: String(imported.description || 'Aus DSB-Template-Paket importiert.'),
+      category: CATEGORY_LABELS[imported.category] ? imported.category : 'kommunikation',
+      isActive: false,
+      catalogHidden: true,
+      thumbnailAccent: imported.thumbnailAccent || design.accent,
+      thumbnailBg: imported.thumbnailBg || (design.theme === 'light'
+        ? 'linear-gradient(135deg, #F7FAFC 0%, #DDE7F0 100%)'
+        : 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)'),
+      design,
+      parameters,
+      htmlTemplate,
+      cssTemplate,
+      importedFromPackage: {
+        schemaVersion: parsed.schemaVersion || TEMPLATE_PACKAGE_VERSION,
+        importedAt: new Date().toISOString(),
+        fileName: file.name,
+        source: parsed.source || null,
+      },
+    })
+    selectedTemplateId.value = item.id
+    toast.success('Vorlage importiert und als inaktiver Entwurf angelegt')
+  } catch (error) {
+    toast.error(error.message || 'Vorlage konnte nicht importiert werden')
+  } finally {
+    importBusy.value = false
+  }
 }
 
 function createBlankTemplate() {
@@ -242,6 +395,7 @@ function saveTemplate() {
     parameters: clone(draft.value.parameters),
     htmlTemplate: draft.value.htmlTemplate,
     cssTemplate: draft.value.cssTemplate,
+    importedFromPackage: draft.value.importedFromPackage ? clone(draft.value.importedFromPackage) : null,
   })
   saved.value = true
   toast.success('Vorlage gespeichert')
@@ -262,6 +416,16 @@ function previewValue(field) {
       </div>
       <div class="header-actions">
         <button v-if="canManageTemplates" class="btn-secondary" type="button" @click="createBlankTemplate">Neue Vorlage</button>
+        <button v-if="canManageTemplates" class="btn-secondary" type="button" :disabled="importBusy" @click="openImportDialog">
+          {{ importBusy ? 'Importiert...' : 'Importieren' }}
+        </button>
+        <input
+          ref="importInput"
+          class="sr-only-input"
+          type="file"
+          accept=".json,.dsb-template.json,application/json"
+          @change="importTemplateFile"
+        />
         <router-link v-if="canCreateContent" :to="{ name: 'admin-publish' }" class="wizard-link">Veröffentlichen</router-link>
       </div>
     </header>
@@ -323,6 +487,7 @@ function previewValue(field) {
           <div class="preview-actions">
             <button class="btn-primary" type="button" @click="createFromTemplate(selectedTemplate)">Mit Vorlage veröffentlichen</button>
             <button class="btn-secondary" type="button" @click="duplicateTemplate(selectedTemplate)">Duplizieren</button>
+            <button class="btn-secondary" type="button" @click="exportTemplate(selectedTemplate)">Exportieren</button>
           </div>
         </section>
 
@@ -333,6 +498,11 @@ function previewValue(field) {
               <p>{{ isCustomSelected ? 'Eigene Vorlage mit Feldern und Design-Presets.' : 'Zum Anpassen zuerst duplizieren. Systemvorlagen bleiben stabil.' }}</p>
             </div>
             <button v-if="isCustomSelected" class="btn-primary" type="button" @click="saveTemplate">{{ saved ? 'Gespeichert' : 'Speichern' }}</button>
+          </div>
+
+          <div v-if="draft.importedFromPackage" class="import-note">
+            <strong>Importierte Vorlage</strong>
+            <span>{{ draft.importedFromPackage.fileName }} · bleibt inaktiv, bis du sie bewusst freigibst.</span>
           </div>
 
           <div class="form-grid">
@@ -445,6 +615,15 @@ function previewValue(field) {
 .preview-actions {
   align-items: center;
   flex-wrap: wrap;
+}
+
+.sr-only-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .page-title {
@@ -713,6 +892,27 @@ function previewValue(field) {
   color: var(--blickle-navy);
   font-family: var(--font-display);
   font-size: 1.1rem;
+}
+
+.import-note {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(181, 204, 24, 0.35);
+  border-radius: 8px;
+  background: rgba(181, 204, 24, 0.1);
+}
+
+.import-note strong {
+  color: var(--blickle-navy);
+  font-size: var(--font-size-sm);
+}
+
+.import-note span {
+  color: var(--gray-600);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
 }
 
 .form-grid,

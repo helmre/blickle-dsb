@@ -345,6 +345,77 @@ Wichtig fuer die WordPress-Architektur:
 - Die bestehende Funktion `get_templates_for_js()` in `admin/class-dsb-admin.php` laedt nur `post_status => publish`.
 - Dadurch ist die Aktiv/Inaktiv-Regel ohne zweite Speziallogik bereits mit dem Content-Editor verheiratet.
 - Der Baukasten ist bewusst nicht der Ersatz fuer GrapesJS, sondern der einfache Redakteurs-/Admin-Weg. GrapesJS bleibt der Profi-Modus.
+
+### 9. Import/Export fuer Vorlagen
+
+Dateien im Vue-Prototyp:
+
+- `dsb/src/admin/pages/TemplateCatalogPage.vue`
+
+Erweiterte WordPress-Dateien:
+
+- `admin/views/templates.php`
+- `admin/css/dsb-admin.css`
+- `includes/post-types/class-dsb-template-post-type.php`
+
+Neue Idee:
+
+- Vorlagen koennen als eigenstaendiges **DSB Template Package** exportiert werden.
+- Die Datei endet auf `.dsb-template.json`.
+- Sie enthaelt nicht nur HTML/CSS, sondern auch Name, Beschreibung, Kategorie, Designoptionen und Feldschema.
+- Dadurch kann eine Vorlage extern mit KI, Agentur oder Entwicklung bearbeitet und danach kontrolliert wieder importiert werden.
+
+Paketstruktur:
+
+```json
+{
+  "schemaVersion": "1.0",
+  "type": "dsb-template",
+  "exportedAt": "2026-04-26T...",
+  "source": {
+    "app": "Digitales Schwarzes Brett",
+    "templateId": "..."
+  },
+  "aiInstructions": [
+    "Aendere keine parameter.key Werte.",
+    "Fuege keinen Script-Code ein."
+  ],
+  "template": {
+    "name": "Sicherheitsmeldung",
+    "description": "...",
+    "category": "sicherheit",
+    "design": {
+      "preset": "hero",
+      "theme": "dark",
+      "density": "normal",
+      "accent": "#B5CC18"
+    },
+    "parameters": [],
+    "htmlTemplate": "...",
+    "cssTemplate": "..."
+  }
+}
+```
+
+Import-Regeln:
+
+- Nur Pakete mit `type: "dsb-template"` werden angenommen.
+- Es muss mindestens ein Parameter/Feld vorhanden sein.
+- Importierte Vorlagen werden immer als **inaktiv** angelegt.
+- Unsicherer Code wird abgewiesen:
+  - `<script>`
+  - Inline-Event-Attribute wie `onclick`
+  - `javascript:`
+  - CSS `@import`
+  - CSS `expression(...)`
+
+Fachlicher Nutzen:
+
+```text
+Export = Vorlage extern veredeln
+Import = kontrolliert zurueckholen
+Aktivieren = bewusst in den Redaktionsfluss geben
+```
 - Ob und wo eine Playlist laeuft, entscheidet:
   - ein Programm-Baustein
   - optional ein Playlist-Zeitplan
