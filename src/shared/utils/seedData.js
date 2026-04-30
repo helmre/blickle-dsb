@@ -216,16 +216,28 @@ export function getSeedContent() {
       }, metadata: {}
     },
 
-    // 4. DKMS Stammzellspende (S.21) → tpl-announcement
+    // 4. DKMS Stammzellspende (S.21) → designer-dkms-hero
     {
       id: 'content-dkms', title: 'DKMS: Blickle-Mitarbeiter rettet Leben', description: 'Stammzellspende eines Kollegen.',
       type: 'text', tags: ['allgemein', 'soziales'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: 'tpl-announcement', templateParams: {
-        titel: 'Held des Alltags: Stammzellspende',
-        text: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet. Wir sind stolz und dankbar für so viel Engagement. Auch Du kannst Dich registrieren lassen!',
-        datum: '2025'
+      templateId: 'designer-dkms-hero', templateParams: {
+        badge: 'INFO',
+        kicker: 'ANKÜNDIGUNG · BLICKLE',
+        headline: 'Held des Alltags: Stammzellspende',
+        leadText: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet.',
+        bodyText: 'Wir sind stolz und dankbar für so viel Engagement.',
+        highlightText: 'Auch Du kannst Dich registrieren lassen!',
+        imageUrl: '/content/dkms/hands-heart.png',
+        dateLabel: '2025',
+        readingTime: '2 min',
+        audienceLabel: 'Für alle Mitarbeiter:innen',
+        audienceValue: 'Blickle Gruppe',
+        footerStrong: 'Gemeinsam können wir Leben retten.',
+        footerText: 'Jede Registrierung zählt.',
+        ctaLabel: 'Mehr Infos zur DKMS',
+        ctaUrl: 'https://www.dkms.de/'
       }, metadata: {}
     },
 
@@ -332,30 +344,45 @@ export function getSeedContent() {
       }, metadata: {}
     },
 
-    // 12. Projekt Frida Hochbeet (S.18) → tpl-project (NEU)
+    // 12. Projekt Frida Hochbeet (S.18) → Designer Projekt-Showcase
     {
       id: 'content-projekt-frida', title: 'Projekt: Frida Hochbeet', description: 'Nachhaltiges Mitarbeiter-Projekt.',
       type: 'text', tags: ['nachhaltigkeit', 'soziales'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: 'tpl-project', templateParams: {
+      templateId: 'designer-project-showcase', templateParams: {
+        kicker: 'PROJEKT-SHOWCASE',
+        kategorie: 'NACHHALTIGKEIT',
         projektname: 'Frida Hochbeet',
         beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete für den Außenbereich gebaut. Frisches Gemüse und Kräuter fürs s\'Rädle - nachhaltig und selbst angebaut!',
-        kategorie: 'NACHHALTIGKEIT',
-        bild: '/content/einblickle/projekte.jpg'
+        imageUrl: '/content/projekte/frida-hochbeet-hero.png',
+        authorLabel: 'BLICKLE TEAM',
+        accent: '#B5CC18',
+        theme: 'dark'
       }, metadata: {}
     },
 
-    // 13. Martin Strobel Besuch (S.8) → tpl-announcement
+    // 13. Martin Strobel Besuch (S.8) → Academy Gast Designer-Template
     {
       id: 'content-strobel', title: 'Martin Strobel zu Gast', description: 'Ex-Handball-Nationalspieler besucht Blickle.',
       type: 'text', tags: ['events'], status: 'approved',
       createdBy: 'user-redakteur', createdAt: now, updatedAt: now,
       validFrom: null, validUntil: null, fileUrl: null, mimeType: null, fileSizeBytes: 0, thumbnailUrl: null,
-      templateId: 'tpl-announcement', templateParams: {
-        titel: 'Martin Strobel bei Blickle',
-        text: 'Ex-Handball-Nationalspieler Martin Strobel war zu Gast bei Blickle. In einem inspirierenden Vortrag sprach er über Teamgeist, Motivation und den Umgang mit Rückschlägen.',
-        datum: '2025'
+      templateId: 'designer-academy-guest', templateParams: {
+        kicker: 'ACADEMY | FÜHRUNGSKRÄFTEENTWICKLUNG',
+        imageUrl: '/content/einblickle/martin-strobel-bei-blickle.jpeg',
+        imageBadgeTitle: 'MARTIN STROBEL',
+        imageBadgeSubtitle: 'zu Gast bei Blickle',
+        headline: 'Martin Strobel zu Gast bei Blickle',
+        body: 'Martin Strobel, ehemaliger Handball-Nationalspieler, Europameister und Olympia-Bronzemedaillengewinner, war zu Gast bei Blickle.',
+        quote: 'In seinem Vortrag sprach er über Teamgeist, klare Rollen, Verantwortung und den Umgang mit Rückschlägen. Seine Botschaft: „Team statt Ego“ - Disziplin, Vertrauen und echter gemeinsamer Einsatz machen den Unterschied.',
+        dateLabel: '29.04.2026',
+        readingTime: '1 min',
+        card1Title: 'Europameister & Olympia-Bronze',
+        card2Title: 'Impulse für Führungskräfte',
+        card3Title: 'Team statt Ego · Verantwortung · Rückschläge',
+        footerTitle: 'AKTUELL IN DER BLICKLE ACADEMY',
+        footerText: 'Praxisnahe Impulse für Führung, Teamgeist und Zusammenarbeit.'
       }, metadata: {}
     },
   ]
@@ -374,7 +401,7 @@ export function getSeedPlaylists() {
       updatedAt: new Date().toISOString(),
       items: [
         { id: 'pi-1', contentId: 'content-2', duration: 15, order: 1, transition: 'fade' },
-        { id: 'pi-2', contentId: 'content-speiseplan-aktuell', duration: 18, order: 2, transition: 'fade' },
+        { id: 'pi-strobel', contentId: 'content-strobel', duration: 60, order: 2, transition: 'fade' },
         { id: 'pi-3', contentId: 'content-samstag-gruss', duration: 18, order: 3, transition: 'fade' },
       ]
     }
@@ -714,7 +741,7 @@ export function getSeedCanteenData() {
   const gerichte = [
     { tag: 'Montag', gericht1: 'Schnitzel mit Kartoffelsalat', gericht2: 'Gemüse-Curry mit Reis', beilage: 'Tagessuppe: Tomatensuppe', preis1: '5,80', preis2: '4,50', beschreibung1: 'Mit Zitrone & Preiselbeeren', beschreibung2: 'Mit Basmatireis & Naan-Brot', bild1: 'https://picsum.photos/seed/schnitzel/96/96', bild2: 'https://picsum.photos/seed/curry/96/96' },
     { tag: 'Dienstag', gericht1: 'Spaghetti Bolognese', gericht2: 'Spinat-Gnocchi', beilage: 'Tagessuppe: Gulaschsuppe', preis1: '4,90', preis2: '4,20', beschreibung1: 'Mit frischem Parmesan', beschreibung2: 'Mit Salbei-Butter & Pinienkernen', bild1: 'https://picsum.photos/seed/bolognese/96/96', bild2: 'https://picsum.photos/seed/gnocchi/96/96' },
-    { tag: 'Mittwoch', gericht1: 'Hähnchenbrust mit Gemüse', gericht2: 'Käsespätzle', beilage: 'Tagessuppe: Kartoffelsuppe', preis1: '5,50', preis2: '4,20', beschreibung1: 'Mit Rosmarinkartoffeln & Grillgemüse', beschreibung2: 'Mit Röstzwiebeln & kleinem Beilagensalat', bild1: 'https://picsum.photos/seed/chicken/96/96', bild2: 'https://picsum.photos/seed/kaesespaetzle/96/96' },
+    { tag: 'Mittwoch', gericht1: 'Hähnchenbrust mit Gemüse', gericht2: 'Käsespätzle', beilage: 'Tagessuppe: Kartoffelsuppe', preis1: '5,50', preis2: '4,20', beschreibung1: 'Mit Rosmarinkartoffeln & Grillgemüse', beschreibung2: 'Mit Röstzwiebeln & kleinem Beilagensalat', bild1: '/content/speisen/haehnchenbrust.png', bild2: '/content/speisen/kaesespaetzle.png' },
     { tag: 'Donnerstag', gericht1: 'Rindergulasch mit Knödel', gericht2: 'Gemüse-Lasagne', beilage: 'Tagessuppe: Linsensuppe', preis1: '6,20', preis2: '4,80', beschreibung1: 'Klassisch mit Semmelknödel', beschreibung2: 'Mit Bechamel & frischem Basilikum', bild1: 'https://picsum.photos/seed/gulasch/96/96', bild2: 'https://picsum.photos/seed/lasagne/96/96' },
     { tag: 'Freitag', gericht1: 'Gebratener Fisch mit Pommes', gericht2: 'Pizza Margherita', beilage: 'Tagessuppe: Brokkolicremesuppe', preis1: '5,90', preis2: '4,50', beschreibung1: 'Knuspriger Seelachs mit Remoulade', beschreibung2: 'Mit Mozzarella & frischem Basilikum', bild1: 'https://picsum.photos/seed/fish/96/96', bild2: 'https://picsum.photos/seed/pizza/96/96' },
   ]

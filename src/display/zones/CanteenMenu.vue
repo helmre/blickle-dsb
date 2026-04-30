@@ -18,12 +18,10 @@ const today = computed(() => data.gerichte[todayIndex])
     <!-- Header -->
     <div class="canteen-header">
       <h2 class="canteen-title">{{ title }}</h2>
-      <span class="canteen-badge">Speiseplan</span>
+      <span class="canteen-badge">Speiseplan <UtensilsCrossed :size="18" :stroke-width="1.8" /></span>
     </div>
 
-    <!-- Menu Items -->
     <div class="canteen-items">
-      <!-- Gericht 1 -->
       <div class="menu-item">
         <div class="menu-image">
           <img :src="today.bild1" :alt="today.gericht1" />
@@ -41,7 +39,6 @@ const today = computed(() => data.gerichte[todayIndex])
         </div>
       </div>
 
-      <!-- Gericht 2 (vegetarisch) -->
       <div class="menu-item">
         <div class="menu-image">
           <img :src="today.bild2" :alt="today.gericht2" />
@@ -66,37 +63,41 @@ const today = computed(() => data.gerichte[todayIndex])
 .canteen-card {
   height: 100%;
   background: var(--d-surface-structural, #FFFFFF);
-  border-radius: 16px;
-  padding: 36px 40px;
+  border-radius: 8px;
+  padding: 30px 34px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--d-ghost-border, rgba(75, 76, 72, 0.05));
 }
 
 .canteen-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .canteen-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.7rem;
+  font-weight: 800;
   color: var(--d-headline, #163A6C);
   margin: 0;
 }
 
 .canteen-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   color: var(--d-accent-text, #181e00);
   background: var(--d-accent, #B5CC18);
-  padding: 6px 16px;
+  padding: 8px 18px;
   border-radius: 20px;
 }
 
@@ -104,26 +105,30 @@ const today = computed(() => data.gerichte[todayIndex])
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 20px 24px;
+  gap: 24px;
+  padding: 18px;
   background: var(--d-surface-content, #F7F7F5);
-  border-radius: 16px;
+  border: 1px solid var(--d-ghost-border, rgba(75, 76, 72, 0.05));
+  border-radius: 8px;
   flex: 1;
+  min-height: 0;
+  box-shadow: 0 8px 22px rgba(22, 58, 108, 0.045);
 }
 
 .menu-image {
-  width: 96px;
-  height: 96px;
-  border-radius: 12px;
+  width: 122px;
+  height: 92px;
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
   background: var(--d-surface-content, #e5e5e5);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
 
 .menu-image img {
@@ -136,7 +141,8 @@ const today = computed(() => data.gerichte[todayIndex])
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
+  min-width: 0;
 }
 
 .menu-top {
@@ -147,7 +153,7 @@ const today = computed(() => data.gerichte[todayIndex])
 
 .menu-name {
   font-family: 'DM Sans', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.22rem;
   font-weight: 700;
   color: var(--d-text, #1a1b20);
   margin: 0;
@@ -156,7 +162,7 @@ const today = computed(() => data.gerichte[todayIndex])
 
 .menu-price {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.18rem;
   font-weight: 900;
   color: var(--d-headline, #163A6C);
   white-space: nowrap;
@@ -165,7 +171,7 @@ const today = computed(() => data.gerichte[todayIndex])
 
 .menu-desc {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   color: var(--d-text-muted, #6B6C68);
   margin: 0;
   line-height: 1.4;
@@ -174,10 +180,15 @@ const today = computed(() => data.gerichte[todayIndex])
 .menu-icons {
   display: flex;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .menu-icon {
   color: var(--d-accent, #B5CC18);
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--d-accent, #B5CC18) 12%, transparent);
 }
 </style>

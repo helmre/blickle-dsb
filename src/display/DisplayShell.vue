@@ -41,11 +41,13 @@ const currentPage = computed(() => pages.value[currentPageIndex.value] || pages.
 const activeGroupId = computed(() => currentPage.value?.navGroupId || '')
 const transitioning = ref(false)
 const isFullscreen = computed(() => currentPage.value?.layout === 'fullscreen')
+const currentPrimaryZone = computed(() => currentPage.value?.zones?.[0] || null)
+const isDocumentFullscreen = computed(() => isFullscreen.value && currentPrimaryZone.value?.type === 'pdf')
+const isImmersiveFullscreen = computed(() => isFullscreen.value && !isDocumentFullscreen.value)
 const pageTransition = computed(() => currentPage.value?.transition || 'fade')
 const isFullscreenVideo = computed(() => {
   if (!isFullscreen.value) return false
-  const zone = currentPage.value?.zones?.[0]
-  return zone?.mediaType === 'video'
+  return currentPrimaryZone.value?.mediaType === 'video'
 })
 
 const scale = ref(1)
@@ -115,7 +117,7 @@ function onTouchEnd(e) {
 }
 
 function toggleFullscreenOverlay() {
-  if (!isFullscreen.value) return
+  if (!isImmersiveFullscreen.value) return
   showFullscreenOverlay.value = !showFullscreenOverlay.value
   if (showFullscreenOverlay.value) {
     stopCycle()
@@ -264,12 +266,12 @@ watch(previewToken, (token) => {
       <div v-if="isPreviewMode" class="preview-ribbon">Entwurfs-Vorschau</div>
 
       <DisplayHeader
-        v-if="!isFullscreen || showFullscreenOverlay"
+        v-if="!isImmersiveFullscreen || showFullscreenOverlay"
         :pageTitle="currentPage.label"
         @toggle-theme="toggleTheme"
         @toggle-nav="toggleNavPosition"
         :navPosition="navPosition"
-        :class="{ 'overlay-header': isFullscreen && showFullscreenOverlay }"
+        :class="{ 'overlay-header': isImmersiveFullscreen && showFullscreenOverlay }"
       />
 
       <!-- Page progress bar -->
@@ -281,9 +283,9 @@ watch(previewToken, (token) => {
         />
       </div>
 
-      <div :class="['display-body', `display-body--${navPosition}`, { 'display-body--fullscreen': isFullscreen }]">
+      <div :class="['display-body', `display-body--${navPosition}`, { 'display-body--fullscreen': isImmersiveFullscreen, 'display-body--document': isDocumentFullscreen }]">
         <div
-          :class="['display-content', `transition-${pageTransition}`, { 'is-transitioning': transitioning, 'is-fullscreen': isFullscreen }]"
+          :class="['display-content', `transition-${pageTransition}`, { 'is-transitioning': transitioning, 'is-fullscreen': isImmersiveFullscreen, 'is-document': isDocumentFullscreen }]"
           :style="swipeOffset ? { transform: `translateX(${swipeOffset}px)` } : null"
           @touchstart.passive="onTouchStart"
           @touchmove.passive="onTouchMove"
@@ -293,7 +295,7 @@ watch(previewToken, (token) => {
 
           <!-- Page hint arrows: tap/click to skip to prev/next page -->
           <button
-            v-if="!isFullscreen"
+            v-if="!isImmersiveFullscreen"
             class="page-arrow page-arrow--prev"
             :class="{ 'page-arrow--sidebar': navPosition === 'sidebar' }"
             aria-label="Vorherige Seite"
@@ -302,7 +304,7 @@ watch(previewToken, (token) => {
             <ChevronLeft :size="32" :stroke-width="2.25" />
           </button>
           <button
-            v-if="!isFullscreen"
+            v-if="!isImmersiveFullscreen"
             class="page-arrow page-arrow--next"
             :class="{ 'page-arrow--sidebar': navPosition === 'sidebar' }"
             aria-label="Nächste Seite"
@@ -312,7 +314,7 @@ watch(previewToken, (token) => {
           </button>
         </div>
         <DisplayNav
-          v-if="navPosition === 'sidebar' && !isFullscreen"
+          v-if="navPosition === 'sidebar' && !isImmersiveFullscreen"
           :navGroups="navGroups"
           :activeGroupId="activeGroupId"
           position="sidebar"
@@ -321,17 +323,17 @@ watch(previewToken, (token) => {
 
       <!-- Fullscreen tap zone: click anywhere to show overlay nav -->
       <div
-        v-if="isFullscreen && !showFullscreenOverlay"
+        v-if="isImmersiveFullscreen && !showFullscreenOverlay"
         class="fullscreen-tap-zone"
         @click="toggleFullscreenOverlay"
       />
 
       <DisplayNav
-        v-if="(navPosition === 'bottom' && !isFullscreen) || showFullscreenOverlay"
+        v-if="(navPosition === 'bottom' && !isImmersiveFullscreen) || showFullscreenOverlay"
         :navGroups="navGroups"
         :activeGroupId="activeGroupId"
         position="bottom"
-        :class="{ 'overlay-nav': isFullscreen && showFullscreenOverlay }"
+        :class="{ 'overlay-nav': isImmersiveFullscreen && showFullscreenOverlay }"
         @select="onOverlayNavSelect" />
 
       <DisplayTicker v-if="!isFullscreen" :messages="tickerMessages" />

@@ -1,5 +1,6 @@
 <script setup>
 import { getSeedNewsData } from '../../shared/utils/seedData.js'
+import { ArrowRightCircle } from 'lucide-vue-next'
 
 defineProps({
   title: { type: String, default: 'News' },
@@ -27,11 +28,7 @@ const categoryColors = {
     <!-- Header -->
     <div class="news-header">
       <h2 class="news-title">Aktuelles &amp; Mitteilungen</h2>
-      <div class="news-dots">
-        <span class="dot dot--active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div>
+      <span class="news-action">Alle anzeigen <ArrowRightCircle :size="18" :stroke-width="1.8" /></span>
     </div>
 
     <!-- Image Card Grid -->
@@ -57,74 +54,67 @@ const categoryColors = {
 .news-card {
   height: 100%;
   background: var(--d-surface-structural, #FFFFFF);
-  border-radius: 16px;
-  padding: 36px 40px;
+  border-radius: 8px;
+  padding: 26px 34px 24px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--d-ghost-border, rgba(75, 76, 72, 0.05));
 }
 
 .news-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 
 .news-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.55rem;
+  font-weight: 800;
   color: var(--d-headline, #163A6C);
   margin: 0;
 }
 
-.news-dots {
-  display: flex;
-  gap: 8px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--d-surface-content, #e2e8f0);
-}
-
-.dot--active {
-  background: var(--d-accent, #B5CC18);
+.news-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--d-accent-muted, #8FA310);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .news-grid {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 30px;
+  min-height: 0;
 }
 
 .news-item {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .news-image-wrap {
-  height: 192px;
+  height: 146px;
   width: 100%;
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--d-surface-content, #f1f5f9);
+  box-shadow: 0 8px 20px rgba(22, 58, 108, 0.09);
 }
 
 .news-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.group:hover .news-image {
-  transform: scale(1.05);
 }
 
 .news-content {
@@ -138,24 +128,25 @@ const categoryColors = {
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
 }
 
 .news-item-title {
   font-family: 'Outfit', sans-serif;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--d-headline, #163A6C);
-  margin: 2px 0 0;
-  line-height: 1.3;
+  margin: 1px 0 0;
+  line-height: 1.22;
+  letter-spacing: 0;
 }
 
 .news-text {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   color: var(--d-text-muted, #6B6C68);
-  line-height: 1.5;
-  margin: 4px 0 0;
+  line-height: 1.4;
+  margin: 2px 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

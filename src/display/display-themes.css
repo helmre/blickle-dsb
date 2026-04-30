@@ -38,6 +38,8 @@
 
   /* Hero image opacity (Karriere etc.) – brighter on dark to compensate. */
   --d-hero-image-opacity: 0.55;
+  --d-home-hero-image-opacity: 0.34;
+  --d-home-sheen-opacity: 0.06;
 
   /* Accent */
   --d-accent: #B5CC18;
@@ -152,6 +154,8 @@
 
   /* Hero image opacity (Karriere etc.) – softer on white card. */
   --d-hero-image-opacity: 0.32;
+  --d-home-hero-image-opacity: 0.72;
+  --d-home-sheen-opacity: 0.55;
 
   /* Accent */
   --d-accent: #B5CC18;

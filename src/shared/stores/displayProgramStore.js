@@ -9,9 +9,28 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value))
 }
 
+function normalizeProgramOrder(program) {
+  if (program?.id !== 'program-standard') return program
+
+  const defaultProgram = getDefaultDisplayPrograms()[0]
+  const existingEntriesById = new Map((program.entries || []).map(entry => [entry.id, entry]))
+  const defaultEntryIds = new Set(defaultProgram.entries.map(entry => entry.id))
+  const orderedEntries = [
+    ...defaultProgram.entries.map(entry => existingEntriesById.get(entry.id) || entry),
+    ...(program.entries || []).filter(entry => !defaultEntryIds.has(entry.id)),
+  ]
+
+  return { ...program, entries: orderedEntries }
+}
+
+function normalizePrograms(programs) {
+  return (programs || []).map(normalizeProgramOrder)
+}
+
 export const useDisplayProgramStore = defineStore('displayPrograms', () => {
-  const items = ref(displayProgramRepository.load())
+  const items = ref(normalizePrograms(displayProgramRepository.load()))
   const defaults = computed(() => getDefaultDisplayPrograms())
+  displayProgramRepository.save(items.value)
 
   function persist() { displayProgramRepository.save(items.value) }
 

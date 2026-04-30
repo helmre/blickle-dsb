@@ -133,6 +133,46 @@ describe('contentStore persistence', () => {
     expect(store.getById('content-a').status).toBe('draft')
   })
 
+  it('migrates the Frida Hochbeet legacy project slide to the designer template', () => {
+    installMemoryStorage({
+      dsb_content: JSON.stringify([
+        {
+          id: 'content-projekt-frida',
+          title: 'Projekt: Frida Hochbeet',
+          description: 'Nachhaltiges Mitarbeiter-Projekt.',
+          type: 'text',
+          templateId: 'tpl-project',
+          templateParams: {
+            projektname: 'Frida Hochbeet',
+            beschreibung: 'Mitarbeiter haben gemeinsam Hochbeete für den Außenbereich gebaut.',
+            kategorie: 'NACHHALTIGKEIT',
+            bild: '/content/einblickle/projekte.jpg',
+          },
+          status: 'approved',
+          createdAt: '2026-04-24T09:00:00.000Z',
+          updatedAt: '2026-04-24T09:00:00.000Z',
+          tags: ['nachhaltigkeit'],
+          locationIds: [],
+          reviewEvents: [],
+        },
+      ]),
+    })
+
+    const store = useContentStore()
+    const frida = store.getById('content-projekt-frida')
+
+    expect(frida.templateId).toBe('designer-project-showcase')
+    expect(frida.templateParams).toMatchObject({
+      kicker: 'PROJEKT-SHOWCASE',
+      kategorie: 'NACHHALTIGKEIT',
+      projektname: 'Frida Hochbeet',
+      imageUrl: '/content/projekte/frida-hochbeet-hero.png',
+      authorLabel: 'BLICKLE TEAM',
+      accent: '#B5CC18',
+      theme: 'dark',
+    })
+  })
+
   it('locks approved content and publishes changes through a revision', () => {
     installMemoryStorage({ dsb_content: '[]' })
     const store = useContentStore()

@@ -7,8 +7,110 @@ import { contentRepository } from '../repositories/appRepositories.js'
 
 const EDIT_LOCKED_STATUSES = new Set(['in_review', 'approved', 'archived'])
 
+const STROBEL_ACADEMY_PARAMS = {
+  kicker: 'ACADEMY | FÜHRUNGSKRÄFTEENTWICKLUNG',
+  imageUrl: '/content/einblickle/martin-strobel-bei-blickle.jpeg',
+  imageBadgeTitle: 'MARTIN STROBEL',
+  imageBadgeSubtitle: 'zu Gast bei Blickle',
+  headline: 'Martin Strobel zu Gast bei Blickle',
+  body: 'Martin Strobel, ehemaliger Handball-Nationalspieler, Europameister und Olympia-Bronzemedaillengewinner, war zu Gast bei Blickle.',
+  quote: 'In seinem Vortrag sprach er über Teamgeist, klare Rollen, Verantwortung und den Umgang mit Rückschlägen. Seine Botschaft: „Team statt Ego“ - Disziplin, Vertrauen und echter gemeinsamer Einsatz machen den Unterschied.',
+  dateLabel: '29.04.2026',
+  readingTime: '1 min',
+  card1Title: 'Europameister & Olympia-Bronze',
+  card2Title: 'Impulse für Führungskräfte',
+  card3Title: 'Team statt Ego · Verantwortung · Rückschläge',
+  footerTitle: 'AKTUELL IN DER BLICKLE ACADEMY',
+  footerText: 'Praxisnahe Impulse für Führung, Teamgeist und Zusammenarbeit.',
+}
+
+const DKMS_HERO_PARAMS = {
+  badge: 'INFO',
+  kicker: 'ANKÜNDIGUNG · BLICKLE',
+  headline: 'Held des Alltags: Stammzellspende',
+  leadText: 'Ein Blickle-Mitarbeiter hat durch eine Stammzellspende über die DKMS einem Menschen das Leben gerettet.',
+  bodyText: 'Wir sind stolz und dankbar für so viel Engagement.',
+  highlightText: 'Auch Du kannst Dich registrieren lassen!',
+  imageUrl: '/content/dkms/hands-heart.png',
+  dateLabel: '2025',
+  readingTime: '2 min',
+  audienceLabel: 'Für alle Mitarbeiter:innen',
+  audienceValue: 'Blickle Gruppe',
+  footerStrong: 'Gemeinsam können wir Leben retten.',
+  footerText: 'Jede Registrierung zählt.',
+  ctaLabel: 'Mehr Infos zur DKMS',
+  ctaUrl: 'https://www.dkms.de/',
+}
+
+const FRIDA_PROJECT_PARAMS = {
+  kicker: 'PROJEKT-SHOWCASE',
+  kategorie: 'NACHHALTIGKEIT',
+  projektname: 'Frida Hochbeet',
+  beschreibung: "Mitarbeiter haben gemeinsam Hochbeete für den Außenbereich gebaut. Frisches Gemüse und Kräuter fürs s'Rädle - nachhaltig und selbst angebaut!",
+  imageUrl: '/content/projekte/frida-hochbeet-hero.png',
+  authorLabel: 'BLICKLE TEAM',
+  accent: '#B5CC18',
+  theme: 'dark',
+}
+
+function normalizeSeedContent(items) {
+  let changed = false
+  const normalized = items.map((content) => {
+    if (content.id === 'content-strobel' && content.templateId !== 'designer-academy-guest') {
+      changed = true
+      return {
+        ...content,
+        title: 'Martin Strobel zu Gast',
+        description: 'Ex-Handball-Nationalspieler besucht Blickle.',
+        type: 'text',
+        status: 'approved',
+        templateId: 'designer-academy-guest',
+        templateParams: { ...STROBEL_ACADEMY_PARAMS },
+      }
+    }
+
+    if (content.id === 'content-dkms' && content.templateId !== 'designer-dkms-hero') {
+      changed = true
+      return {
+        ...content,
+        title: 'DKMS: Blickle-Mitarbeiter rettet Leben',
+        description: 'Stammzellspende eines Kollegen.',
+        type: 'text',
+        status: 'approved',
+        templateId: 'designer-dkms-hero',
+        templateParams: { ...DKMS_HERO_PARAMS },
+      }
+    }
+
+    if (content.id === 'content-projekt-frida' && content.templateId !== 'designer-project-showcase') {
+      changed = true
+      const params = content.templateParams || {}
+      return {
+        ...content,
+        title: 'Projekt: Frida Hochbeet',
+        description: 'Nachhaltiges Mitarbeiter-Projekt.',
+        type: 'text',
+        status: 'approved',
+        templateId: 'designer-project-showcase',
+        templateParams: {
+          ...FRIDA_PROJECT_PARAMS,
+          projektname: params.projektname || FRIDA_PROJECT_PARAMS.projektname,
+          beschreibung: params.beschreibung || FRIDA_PROJECT_PARAMS.beschreibung,
+          kategorie: params.kategorie || FRIDA_PROJECT_PARAMS.kategorie,
+        },
+      }
+    }
+
+    return content
+  })
+  return { items: normalized, changed }
+}
+
 export const useContentStore = defineStore('content', () => {
-  const items = ref(contentRepository.load())
+  const loadedItems = contentRepository.load()
+  const normalizedContent = normalizeSeedContent(loadedItems)
+  const items = ref(normalizedContent.items)
+  if (normalizedContent.changed) contentRepository.save(normalizedContent.items)
 
   function persist() { contentRepository.save(items.value) }
   function commit(nextItems) {

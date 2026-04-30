@@ -69,6 +69,17 @@ const DESIGNER_REQUIRED_FIELDS = {
     { key: 'wert3', label: 'Wert 3' },
     { key: 'label3', label: 'Label 3' },
   ],
+  'designer-academy-guest': [
+    { key: 'headline', label: 'Titel' },
+    { key: 'body', label: 'Beschreibung' },
+    { key: 'imageUrl', label: 'Bild', type: 'image' },
+  ],
+  'designer-dkms-hero': [
+    { key: 'headline', label: 'Titel' },
+    { key: 'leadText', label: 'Lead' },
+    { key: 'imageUrl', label: 'Bild', type: 'image' },
+    { key: 'ctaUrl', label: 'DKMS-Link', type: 'url' },
+  ],
 }
 
 function isBlank(value) {

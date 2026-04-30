@@ -72,15 +72,15 @@ describe('displayProgramRules', () => {
     expect(pages.map(page => page.id)).toEqual([
       'home',
       'kantine',
+      'produktion',
       'snackplan',
       'playlist-one',
       'infos-0',
-      'produktion',
       'shopfloor',
       'social',
       'media-1',
     ])
     expect(pages[0].duration).toBe(15)
-    expect(pages[3].duration).toBe(12)
+    expect(pages[4].duration).toBe(12)
   })
 })

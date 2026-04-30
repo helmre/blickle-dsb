@@ -192,7 +192,7 @@ onUnmounted(async () => {
   width: 100%;
   height: 100%;
   position: relative;
-  background: #0a0a0a;
+  background: #f4f5f3;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -208,6 +208,8 @@ onUnmounted(async () => {
   display: block;
   max-width: 100%;
   max-height: 100%;
+  background: #fff;
+  box-shadow: 0 16px 44px rgba(22, 58, 108, 0.12);
 }
 
 .zone-pdf-viewer--cover-width .pdf-canvas {

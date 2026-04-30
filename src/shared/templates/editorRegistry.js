@@ -9,6 +9,7 @@ export const editorRegistry = {
   JobPostingEditor: defineAsyncComponent(() => import('../../admin/designers/JobPostingEditor.vue')),
   MeetingCalloutEditor: defineAsyncComponent(() => import('../../admin/designers/MeetingCalloutEditor.vue')),
   LegalNoticeEditor: defineAsyncComponent(() => import('../../admin/designers/LegalNoticeEditor.vue')),
+  SafetyPsaEditor: defineAsyncComponent(() => import('../../admin/designers/SafetyPsaEditor.vue')),
   RoomLocationEditor: defineAsyncComponent(() => import('../../admin/designers/RoomLocationEditor.vue')),
   VisitorAlertEditor: defineAsyncComponent(() => import('../../admin/designers/VisitorAlertEditor.vue')),
   CeoQuoteEditor: defineAsyncComponent(() => import('../../admin/designers/CeoQuoteEditor.vue')),
@@ -16,6 +17,8 @@ export const editorRegistry = {
   NewsCompactEditor: defineAsyncComponent(() => import('../../admin/designers/NewsCompactEditor.vue')),
   ProjectShowcaseEditor: defineAsyncComponent(() => import('../../admin/designers/ProjectShowcaseEditor.vue')),
   KpiDashboardEditor: defineAsyncComponent(() => import('../../admin/designers/KpiDashboardEditor.vue')),
+  AcademyGuestEditor: defineAsyncComponent(() => import('../../admin/designers/AcademyGuestEditor.vue')),
+  DkmsHeroEditor: defineAsyncComponent(() => import('../../admin/designers/DkmsHeroEditor.vue')),
 }
 
 export function getEditor(name) {

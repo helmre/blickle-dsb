@@ -42,15 +42,14 @@ async function onImagePick(e) {
     <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
       <div class="photo-layer"><img v-if="imageUrl" :src="imageUrl" :alt="projektname" class="photo" /></div>
       <div class="scrim"></div>
+      <div class="category-pill" v-if="kategorie">{{ kategorie }}</div>
       <div class="content">
-        <div class="top-row">
-          <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span></div>
-          <div class="category-pill" v-if="kategorie">{{ kategorie }}</div>
-        </div>
+        <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span></div>
         <h1 class="project-name">{{ projektname }}</h1>
+        <div class="title-rule"></div>
         <p class="project-desc">{{ beschreibung }}</p>
-        <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>{{ authorLabel }}</span></div>
       </div>
+      <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>{{ authorLabel }}</span></div>
     </div>
   </div>
 
@@ -84,15 +83,14 @@ async function onImagePick(e) {
         <div :class="['canvas', `theme-${theme}`]" :style="{ '--accent': accent }">
           <div class="photo-layer"><img v-if="imageUrl" :src="imageUrl" :alt="projektname" class="photo" /></div>
           <div class="scrim"></div>
+          <div class="category-pill" v-if="kategorie">{{ kategorie }}</div>
           <div class="content">
-            <div class="top-row">
-              <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span></div>
-              <div class="category-pill" v-if="kategorie">{{ kategorie }}</div>
-            </div>
+            <div class="kicker-row"><span class="kicker-dot"></span><span>{{ kicker }}</span></div>
             <h1 class="project-name">{{ projektname }}</h1>
+            <div class="title-rule"></div>
             <p class="project-desc">{{ beschreibung }}</p>
-            <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>{{ authorLabel }}</span></div>
           </div>
+          <div class="footer"><img src="/Blicklelogo.png" alt="Blickle" class="footer-logo" /><span class="spacer"></span><span>{{ authorLabel }}</span></div>
         </div>
       </div>
     </section>
@@ -113,31 +111,32 @@ async function onImagePick(e) {
 .preview-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 14px 48px rgba(0,0,0,0.22); background: #000; container-type: size; }
 .display-wrap { width: 100%; height: 100%; overflow: hidden; position: relative; container-type: size; }
 
-.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); box-sizing: border-box; font-family: var(--font-body); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; --u: min(calc(100cqw / 1920), calc(100cqh / 1080)); box-sizing: border-box; font-family: var(--font-body); border-radius: calc(8 * var(--u)); overflow: hidden; box-shadow: 0 calc(20 * var(--u)) calc(58 * var(--u)) rgba(22, 58, 108, 0.14); }
 .canvas.theme-dark { background: linear-gradient(135deg, #0A1A33 0%, #163A6C 100%); color: #fff; }
 .canvas.theme-light { background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); color: #0B1F3A; }
 
 .photo-layer { position: absolute; inset: 0; overflow: hidden; }
-.photo { width: 100%; height: 100%; object-fit: cover; display: block; }
-.scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,26,51,0.1) 0%, rgba(10,26,51,0.35) 40%, rgba(10,26,51,0.92) 100%); pointer-events: none; }
-.theme-light .scrim { background: linear-gradient(180deg, rgba(248,250,252,0.1) 0%, rgba(248,250,252,0.5) 50%, rgba(248,250,252,0.95) 100%); }
+.photo { width: 100%; height: 100%; object-fit: cover; object-position: center 52%; display: block; transform: scale(1.02); }
+.scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 36, 80, 0.95) 0%, rgba(7, 36, 80, 0.78) 28%, rgba(7, 36, 80, 0.18) 58%, rgba(7, 36, 80, 0.02) 100%), linear-gradient(180deg, rgba(7, 36, 80, 0.05) 0%, rgba(7, 36, 80, 0.08) 48%, rgba(7, 36, 80, 0.54) 100%); pointer-events: none; }
+.theme-light .scrim { background: linear-gradient(90deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.72) 30%, rgba(255,255,255,0.14) 62%, rgba(255,255,255,0) 100%), linear-gradient(180deg, rgba(11,31,58,0.02) 0%, rgba(11,31,58,0.05) 52%, rgba(11,31,58,0.34) 100%); }
 
-.content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: calc(24 * var(--u)); padding: calc(72 * var(--u)) calc(96 * var(--u)); z-index: 2; }
+.content { position: absolute; left: calc(88 * var(--u)); bottom: calc(116 * var(--u)); width: calc(760 * var(--u)); display: flex; flex-direction: column; align-items: flex-start; gap: calc(18 * var(--u)); z-index: 2; }
 
-.top-row { display: flex; justify-content: space-between; align-items: center; }
 .kicker-row { display: flex; align-items: center; gap: calc(14 * var(--u)); font-family: var(--font-display); font-size: calc(24 * var(--u)); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
 .kicker-dot { width: calc(14 * var(--u)); height: calc(14 * var(--u)); border-radius: 50%; background: var(--accent); box-shadow: 0 0 calc(18 * var(--u)) var(--accent); }
-.category-pill { padding: calc(10 * var(--u)) calc(24 * var(--u)); background: var(--accent); color: #fff; border-radius: 999px; font-family: var(--font-display); font-size: calc(20 * var(--u)); font-weight: 700; letter-spacing: 0.14em; box-shadow: 0 calc(12 * var(--u)) calc(28 * var(--u)) rgba(0,0,0,0.3); }
+.category-pill { position: absolute; right: calc(84 * var(--u)); top: calc(460 * var(--u)); z-index: 3; padding: calc(13 * var(--u)) calc(34 * var(--u)); background: var(--accent); color: #073376; border-radius: 999px; font-family: var(--font-display); font-size: calc(22 * var(--u)); font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; box-shadow: 0 calc(16 * var(--u)) calc(34 * var(--u)) rgba(0,0,0,0.24); }
 
-.project-name { margin: 0; font-family: var(--font-display); font-size: calc(128 * var(--u)); font-weight: 700; line-height: 0.95; letter-spacing: -0.03em; color: #fff; text-shadow: 0 calc(4 * var(--u)) calc(24 * var(--u)) rgba(0,0,0,0.5); max-width: 75%; }
+.project-name { margin: 0; font-family: var(--font-display); font-size: calc(104 * var(--u)); font-weight: 800; line-height: 0.98; color: #fff; text-shadow: 0 calc(4 * var(--u)) calc(24 * var(--u)) rgba(0,0,0,0.42); }
 .theme-light .project-name { color: #0B1F3A; text-shadow: none; }
 
-.project-desc { margin: 0; font-size: calc(30 * var(--u)); line-height: 1.4; color: rgba(255,255,255,0.92); max-width: 70%; text-shadow: 0 calc(2 * var(--u)) calc(12 * var(--u)) rgba(0,0,0,0.5); }
+.title-rule { width: calc(64 * var(--u)); height: calc(5 * var(--u)); border-radius: 999px; background: var(--accent); margin: calc(2 * var(--u)) 0 calc(6 * var(--u)); }
+
+.project-desc { margin: 0; font-size: calc(28 * var(--u)); line-height: 1.4; color: rgba(255,255,255,0.94); max-width: calc(650 * var(--u)); text-shadow: 0 calc(2 * var(--u)) calc(12 * var(--u)) rgba(0,0,0,0.5); }
 .theme-light .project-desc { color: rgba(11,31,58,0.9); text-shadow: none; }
 
-.footer { display: flex; align-items: center; gap: calc(16 * var(--u)); padding-top: calc(18 * var(--u)); border-top: 1px solid rgba(255,255,255,0.15); font-size: calc(16 * var(--u)); color: rgba(255,255,255,0.7); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-top: calc(12 * var(--u)); }
+.footer { position: absolute; left: calc(88 * var(--u)); right: calc(84 * var(--u)); bottom: calc(42 * var(--u)); z-index: 3; display: flex; align-items: center; gap: calc(16 * var(--u)); font-size: calc(18 * var(--u)); color: rgba(255,255,255,0.86); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 .theme-light .footer { border-top-color: rgba(0,0,0,0.15); color: rgba(11,31,58,0.6); }
 .spacer { flex: 1; }
-.footer-logo { height: calc(30 * var(--u)); filter: brightness(0) invert(1); opacity: 0.85; }
+.footer-logo { height: calc(36 * var(--u)); filter: brightness(0) invert(1); opacity: 0.95; }
 .theme-light .footer-logo { filter: none; opacity: 0.7; }
 </style>

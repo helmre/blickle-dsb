@@ -1,18 +1,25 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import {
   CATALOG_TEMPLATE_ORDER,
   DESIGNER_TEMPLATES,
   filterCatalogTemplates,
+  getCatalogTemplates,
   sortTemplatesForCatalog,
 } from './registry.js'
+import { installMemoryStorage } from '../../test/localStorage.js'
 
 describe('template registry catalog curation', () => {
+  beforeEach(() => {
+    installMemoryStorage({ dsb_templates: '[]' })
+    setActivePinia(createPinia())
+  })
+
   it('exposes the curated business templates in the configured order', () => {
     const visibleIds = filterCatalogTemplates(DESIGNER_TEMPLATES).map(template => template.id)
 
     expect(visibleIds).toEqual(CATALOG_TEMPLATE_ORDER)
     expect(visibleIds).not.toContain('designer-video-news')
-    expect(visibleIds).not.toContain('designer-project-showcase')
   })
 
   it('keeps hidden templates addressable while removing them from catalog lists', () => {
@@ -34,5 +41,16 @@ describe('template registry catalog curation', () => {
       'custom-a',
       'custom-z',
     ])
+  })
+
+  it('shows the project showcase as a reusable catalog template', () => {
+    const projectTemplate = getCatalogTemplates().find(template => template.id === 'designer-project-showcase')
+
+    expect(projectTemplate).toMatchObject({
+      name: 'Projekt-Showcase',
+      category: 'kommunikation',
+      renderer: 'component',
+      editorComponent: 'ProjectShowcaseEditor',
+    })
   })
 })

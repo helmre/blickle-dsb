@@ -296,20 +296,18 @@ export function useDisplayContent(locationId = null, options = {}) {
       })
     })
 
-    // PRODUKTION page: news links (full height) + Poster oben rechts + Video unten rechts
+    // PRODUKTION page: interactive Produktion 2030 discovery experience
     systemPages.produktion = {
       id: 'produktion',
       navGroupId: 'produktion',
-      label: 'PRODUKTION',
-      icon: '&#9881;',
-      iconName: 'factory',
-      layout: 'custom',
-      duration: 20,
-      customGrid: { columns: 2, rows: 2 },
+      label: 'PRODUKTION 2030',
+      icon: '&#128640;',
+      iconName: 'rocket',
+      layout: 'full',
+      noZoneChrome: true,
+      duration: 30,
       zones: [
-        { id: 'prod-left', type: 'produktion-news', title: 'Produktionsnews', gridColumn: '1 / 2', gridRow: '1 / 3' },
-        { id: 'prod-poster', type: 'fullscreen-media', title: 'Vision 2030', mediaUrl: '/media/Plakat_Produktion2030_V1.jpg', mediaType: 'image', gridColumn: '2 / 3', gridRow: '1 / 2' },
-        { id: 'prod-video', type: 'fullscreen-media', title: 'Meistersitzung', mediaUrl: '/media/Meistersitzung.mp4', mediaType: 'video', gridColumn: '2 / 3', gridRow: '2 / 3' },
+        { id: 'produktion-2030-journey', type: 'production-2030-journey', title: 'Produktion 2030' },
       ]
     }
 

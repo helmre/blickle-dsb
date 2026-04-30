@@ -14,6 +14,7 @@ import ProduktionNews from './zones/ProduktionNews.vue'
 import FullscreenMedia from './zones/FullscreenMedia.vue'
 import ShopFloorBoardZone from './zones/ShopFloorBoardZone.vue'
 import PdfViewer from './zones/PdfViewer.vue'
+import Production2030Journey from './zones/Production2030Journey.vue'
 
 const props = defineProps({
   page: { type: Object, required: true },
@@ -39,6 +40,7 @@ const componentMap = {
   'fullscreen-media': FullscreenMedia,
   'shop-floor-board': ShopFloorBoardZone,
   'pdf': PdfViewer,
+  'production-2030-journey': Production2030Journey,
 }
 
 const isCustomLayout = computed(() => props.page.layout === 'custom' && props.page.customGrid)
@@ -97,7 +99,7 @@ function getZoneStyle(zone) {
   width: 100%;
   height: 100%;
   display: grid;
-  gap: 20px;
+  gap: 18px;
 }
 
 .grid-2x2 {
@@ -142,9 +144,8 @@ function getZoneStyle(zone) {
 .grid-zone {
   background: var(--d-surface-structural);
   border: 1px solid var(--d-ghost-border);
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
-  backdrop-filter: blur(16px);
   box-shadow: var(--d-zone-shadow);
   transition: background 0.4s ease, border-color 0.3s ease, box-shadow 0.4s ease, transform 0.25s ease;
   /* Staggered entry animation */

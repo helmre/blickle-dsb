@@ -1,7 +1,7 @@
 <script setup>
 import {
   Home, UtensilsCrossed, Info, Factory, Share2,
-  CalendarDays, Video, Image, LayoutGrid, Briefcase
+  CalendarDays, Video, Image, LayoutGrid, Briefcase, Rocket
 } from 'lucide-vue-next'
 
 defineProps({
@@ -23,6 +23,7 @@ const iconMap = {
   'image': Image,
   'layout': LayoutGrid,
   'briefcase': Briefcase,
+  'rocket': Rocket,
 }
 
 function getIcon(group) {

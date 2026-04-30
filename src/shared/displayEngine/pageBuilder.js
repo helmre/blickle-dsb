@@ -3,6 +3,7 @@ export const NAV_GROUP_OVERRIDES = {
   kantine: { label: 'S\'RÄDLE', iconName: 'utensils' },
   playlist: { label: 'PLAYLIST', iconName: 'video' },
   infos: { label: 'INFOS', iconName: 'info' },
+  produktion: { label: 'P 2030', iconName: 'rocket' },
   medien: { label: 'MEDIEN', iconName: 'image' },
   layouts: { label: 'LAYOUTS', iconName: 'layout' },
 }
