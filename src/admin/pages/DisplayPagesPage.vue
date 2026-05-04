@@ -16,6 +16,9 @@ const toastStore = useToastStore()
 const selectedPageId = ref('home')
 const selectedLocationId = ref('')
 const draft = ref(null)
+const isSaving = ref(false)
+const isResetting = ref(false)
+const BUSY_RELEASE_MS = 250
 
 const availablePages = computed(() => [
   { id: 'home', label: 'Startseite', description: 'Kuratierte Kacheln fuer die erste Display-Seite' },
@@ -62,28 +65,44 @@ function updateSlotSource(slot, widgetId) {
 }
 
 function saveDraft() {
-  const next = clone(draft.value)
-  if (selectedLocationId.value) {
-    next.id = `${selectedPageId.value}-${selectedLocationId.value}`
-    next.pageId = selectedPageId.value
-    next.locationId = selectedLocationId.value
-    next.locationIds = [selectedLocationId.value]
-  } else {
-    next.id = selectedPageId.value
-    delete next.pageId
-    delete next.locationId
-    next.locationIds = []
-  }
+  if (isSaving.value) return
+  isSaving.value = true
+  try {
+    const next = clone(draft.value)
+    if (selectedLocationId.value) {
+      next.id = `${selectedPageId.value}-${selectedLocationId.value}`
+      next.pageId = selectedPageId.value
+      next.locationId = selectedLocationId.value
+      next.locationIds = [selectedLocationId.value]
+    } else {
+      next.id = selectedPageId.value
+      delete next.pageId
+      delete next.locationId
+      next.locationIds = []
+    }
 
-  displayPageStore.savePageConfig(next)
-  loadDraft()
-  toastStore.success('Display-Seite gespeichert.')
+    displayPageStore.savePageConfig(next)
+    loadDraft()
+    toastStore.success('Display-Seite gespeichert.')
+  } finally {
+    setTimeout(() => {
+      isSaving.value = false
+    }, BUSY_RELEASE_MS)
+  }
 }
 
 function resetConfig() {
-  displayPageStore.resetPageConfig(selectedPageId.value, selectedLocationId.value)
-  loadDraft()
-  toastStore.info('Display-Seite wurde auf den Fallback zurueckgesetzt.')
+  if (isResetting.value) return
+  isResetting.value = true
+  try {
+    displayPageStore.resetPageConfig(selectedPageId.value, selectedLocationId.value)
+    loadDraft()
+    toastStore.info('Display-Seite wurde auf den Fallback zurueckgesetzt.')
+  } finally {
+    setTimeout(() => {
+      isResetting.value = false
+    }, BUSY_RELEASE_MS)
+  }
 }
 
 watch([selectedPageId, selectedLocationId], loadDraft, { immediate: true })
@@ -127,13 +146,13 @@ watch([selectedPageId, selectedLocationId], loadDraft, { immediate: true })
         </select>
       </label>
       <div class="actions">
-        <button type="button" class="btn-secondary" @click="resetConfig">
+        <button type="button" class="btn-secondary" :disabled="isResetting || isSaving" @click="resetConfig">
           <RefreshCcw :size="16" />
-          <span>Zuruecksetzen</span>
+          <span>{{ isResetting ? 'Setzt zurueck...' : 'Zuruecksetzen' }}</span>
         </button>
-        <button type="button" class="btn-primary" @click="saveDraft">
+        <button type="button" class="btn-primary" :disabled="isSaving || isResetting" @click="saveDraft">
           <Save :size="16" />
-          <span>Speichern</span>
+          <span>{{ isSaving ? 'Speichert...' : 'Speichern' }}</span>
         </button>
       </div>
     </section>
@@ -342,6 +361,20 @@ watch([selectedPageId, selectedLocationId], loadDraft, { immediate: true })
 
 .btn-secondary:hover {
   border-color: var(--blickle-navy);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary:disabled:hover {
+  background: var(--blickle-navy);
+}
+
+.btn-secondary:disabled:hover {
+  border-color: var(--color-border);
 }
 
 .composer-grid {

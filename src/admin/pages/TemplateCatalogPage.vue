@@ -1,13 +1,15 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useTemplateStore } from '../../shared/stores/templateStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
 import { useToastStore } from '../../shared/stores/toastStore.js'
 import { PERMISSIONS } from '../../shared/auth/policies.js'
-import { CATEGORY_LABELS, getAllTemplates, getCatalogTemplates } from '../../shared/templates/registry.js'
+import { CATEGORY_LABELS, buildTemplateCardMeta, getAllTemplates, getCatalogTemplates } from '../../shared/templates/registry.js'
+import { resolveTemplateSelection } from '../utils/templateCatalogSelection.js'
 
+const route = useRoute()
 const router = useRouter()
 const contentStore = useContentStore()
 const templateStore = useTemplateStore()
@@ -61,6 +63,9 @@ const filteredTemplates = computed(() => {
     list = list.filter(t =>
       (t.name || '').toLowerCase().includes(q) ||
       (t.description || '').toLowerCase().includes(q) ||
+      (t.recommendedFor || '').toLowerCase().includes(q) ||
+      (t.thumbnailKicker || '').toLowerCase().includes(q) ||
+      (t.thumbnailTitle || '').toLowerCase().includes(q) ||
       categoryLabel(t.category).toLowerCase().includes(q)
     )
   }
@@ -86,6 +91,10 @@ function slugify(value = 'template') {
 function categoryLabel(cat) {
   if (cat === 'all') return 'Alle'
   return CATEGORY_LABELS[cat] || cat
+}
+
+function templateCardMeta(template) {
+  return buildTemplateCardMeta(template, categoryLabel)
 }
 
 function normalizeParams(template) {
@@ -168,6 +177,10 @@ function buildTemplatePackage(template = selectedTemplate.value) {
       category: template.category || 'kommunikation',
       isActive: false,
       design,
+      recommendedFor: template.recommendedFor || '',
+      thumbnailKicker: template.thumbnailKicker || '',
+      thumbnailTitle: template.thumbnailTitle || '',
+      thumbnailTheme: template.thumbnailTheme || design.theme,
       thumbnailAccent: template.thumbnailAccent || design.accent,
       thumbnailBg: template.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
       parameters: params,
@@ -195,6 +208,10 @@ function createDraft(template) {
     parameters: params,
     htmlTemplate: template.htmlTemplate || makeHtml(params),
     cssTemplate: template.cssTemplate || makeCss({ accent: template.thumbnailAccent }),
+    recommendedFor: template.recommendedFor || '',
+    thumbnailKicker: template.thumbnailKicker || '',
+    thumbnailTitle: template.thumbnailTitle || '',
+    thumbnailTheme: template.thumbnailTheme || template.defaultParams?.theme || template.design?.theme || 'dark',
     thumbnailAccent: template.thumbnailAccent || '#B5CC18',
     thumbnailBg: template.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
     importedFromPackage: template.importedFromPackage ? clone(template.importedFromPackage) : null,
@@ -206,8 +223,20 @@ watch(selectedTemplate, template => {
 }, { immediate: true })
 
 watch(allTemplates, templates => {
-  if (!selectedTemplateId.value && templates[0]) selectedTemplateId.value = templates[0].id
+  selectedTemplateId.value = resolveTemplateSelection({
+    currentSelectionId: selectedTemplateId.value,
+    query: route.query,
+    templates,
+  })
 }, { immediate: true })
+
+watch(() => route.query.template, () => {
+  selectedTemplateId.value = resolveTemplateSelection({
+    currentSelectionId: selectedTemplateId.value,
+    query: route.query,
+    templates: allTemplates.value,
+  })
+})
 
 function selectTemplate(id) {
   selectedTemplateId.value = id
@@ -233,6 +262,10 @@ function duplicateTemplate(template = selectedTemplate.value) {
     category: template.category || 'kommunikation',
     isActive: false,
     catalogHidden: true,
+    recommendedFor: template.recommendedFor || '',
+    thumbnailKicker: template.thumbnailKicker || '',
+    thumbnailTitle: template.thumbnailTitle || '',
+    thumbnailTheme: template.thumbnailTheme || template.defaultParams?.theme || template.design?.theme || 'dark',
     thumbnailAccent: template.thumbnailAccent || '#B5CC18',
     thumbnailBg: template.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
     design: {
@@ -302,6 +335,10 @@ async function importTemplateFile(event) {
       category: CATEGORY_LABELS[imported.category] ? imported.category : 'kommunikation',
       isActive: false,
       catalogHidden: true,
+      recommendedFor: String(imported.recommendedFor || '').trim(),
+      thumbnailKicker: String(imported.thumbnailKicker || '').trim(),
+      thumbnailTitle: String(imported.thumbnailTitle || '').trim(),
+      thumbnailTheme: ['dark', 'light'].includes(imported.thumbnailTheme) ? imported.thumbnailTheme : design.theme,
       thumbnailAccent: imported.thumbnailAccent || design.accent,
       thumbnailBg: imported.thumbnailBg || (design.theme === 'light'
         ? 'linear-gradient(135deg, #F7FAFC 0%, #DDE7F0 100%)'
@@ -338,6 +375,10 @@ function createBlankTemplate() {
     category: 'kommunikation',
     isActive: false,
     catalogHidden: true,
+    recommendedFor: 'Eigene Mitteilungen und flexible Display-Formate',
+    thumbnailKicker: 'BLICKLE',
+    thumbnailTitle: 'Neue Vorlage',
+    thumbnailTheme: 'dark',
     thumbnailAccent: '#B5CC18',
     thumbnailBg: 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
     design: { preset: 'classic', accent: '#B5CC18', theme: 'dark', density: 'normal' },
@@ -352,6 +393,7 @@ function createBlankTemplate() {
 function syncDesignToTemplate() {
   if (!draft.value) return
   draft.value.thumbnailAccent = draft.value.design.accent
+  draft.value.thumbnailTheme = draft.value.design.theme
   draft.value.thumbnailBg = draft.value.design.theme === 'light'
     ? 'linear-gradient(135deg, #F7FAFC 0%, #DDE7F0 100%)'
     : 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)'
@@ -391,6 +433,10 @@ function saveTemplate() {
     catalogHidden: draft.value.isActive === false,
     thumbnailAccent: draft.value.thumbnailAccent,
     thumbnailBg: draft.value.thumbnailBg,
+    recommendedFor: draft.value.recommendedFor || '',
+    thumbnailKicker: draft.value.thumbnailKicker || '',
+    thumbnailTitle: draft.value.thumbnailTitle || '',
+    thumbnailTheme: draft.value.thumbnailTheme || draft.value.design.theme,
     design: clone(draft.value.design),
     parameters: clone(draft.value.parameters),
     htmlTemplate: draft.value.htmlTemplate,
@@ -459,19 +505,36 @@ function previewValue(field) {
             type="button"
             @click="selectTemplate(tpl.id)"
           >
-            <span class="row-swatch" :style="{ background: tpl.thumbnailAccent || '#B5CC18' }"></span>
+            <span
+              :class="['row-preview', `theme-${templateCardMeta(tpl).theme}`]"
+              :style="{ '--accent': templateCardMeta(tpl).accent, '--preview-bg': templateCardMeta(tpl).background }"
+            >
+              <small>{{ templateCardMeta(tpl).kicker }}</small>
+              <strong>{{ templateCardMeta(tpl).title }}</strong>
+            </span>
             <span class="row-main">
               <strong>{{ tpl.name }}</strong>
-              <small>{{ categoryLabel(tpl.category) }} · {{ customTemplateIds.has(tpl.id) ? 'Eigene Vorlage' : 'Systemvorlage' }}</small>
+              <small>{{ templateCardMeta(tpl).recommendedFor }}</small>
+              <span class="row-meta">
+                <em>{{ categoryLabel(tpl.category) }}</em>
+                <em>{{ customTemplateIds.has(tpl.id) ? 'Eigene Vorlage' : 'Systemvorlage' }}</em>
+              </span>
             </span>
             <span v-if="tpl.catalogHidden" class="row-badge">Inaktiv</span>
           </button>
         </div>
-        <p v-else class="empty-text">Keine Vorlagen gefunden.</p>
+        <div v-else class="empty-text">
+          <strong>Keine Vorlagen gefunden</strong>
+          <span>Suche oder Kategorie anpassen.</span>
+        </div>
       </aside>
 
       <main v-if="draft && selectedTemplate" class="workbench">
         <section class="preview-panel">
+          <div class="preview-meta">
+            <span>{{ templateCardMeta(selectedTemplate).rendererLabel }}</span>
+            <strong>{{ templateCardMeta(selectedTemplate).recommendedFor }}</strong>
+          </div>
           <div
             class="template-preview"
             :class="[`theme-${draft.design.theme}`, `preset-${draft.design.preset}`]"
@@ -522,6 +585,21 @@ function previewValue(field) {
             <span>Beschreibung</span>
             <textarea v-model="draft.description" class="form-input" rows="2" :disabled="!isCustomSelected"></textarea>
           </label>
+
+          <div class="catalog-meta-grid">
+            <label class="field">
+              <span>Einsatzzweck</span>
+              <input v-model="draft.recommendedFor" class="form-input" type="text" :disabled="!isCustomSelected" placeholder="z.B. Projekt-News und Success-Stories" />
+            </label>
+            <label class="field">
+              <span>Vorschau-Kicker</span>
+              <input v-model="draft.thumbnailKicker" class="form-input" type="text" :disabled="!isCustomSelected" placeholder="z.B. PROJEKT" />
+            </label>
+            <label class="field">
+              <span>Vorschau-Titel</span>
+              <input v-model="draft.thumbnailTitle" class="form-input" type="text" :disabled="!isCustomSelected" placeholder="z.B. Neue Vorlage" />
+            </label>
+          </div>
 
           <div class="builder-section">
             <div class="section-title">
@@ -752,15 +830,22 @@ function previewValue(field) {
 
 .template-row {
   display: grid;
-  grid-template-columns: 12px minmax(0, 1fr) auto;
-  gap: 10px;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
   width: 100%;
-  padding: 11px;
+  padding: 9px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: var(--gray-50);
+  background: #fff;
   text-align: left;
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out, border-color 160ms ease-out;
+}
+
+.template-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 58, 108, 0.18);
+  box-shadow: 0 10px 22px rgba(11, 31, 58, 0.08);
 }
 
 .template-row.active {
@@ -772,10 +857,66 @@ function previewValue(field) {
   opacity: 0.72;
 }
 
-.row-swatch {
-  width: 10px;
-  height: 38px;
+.row-preview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 3px;
+  border-radius: 6px;
+  border-bottom: 3px solid var(--accent);
+  padding: 7px;
+  overflow: hidden;
+  background: var(--preview-bg);
+  color: #fff;
+}
+
+.row-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 31, 58, 0.02), rgba(11, 31, 58, 0.68));
+}
+
+.row-preview.theme-light {
+  color: var(--blickle-navy);
+}
+
+.row-preview.theme-light::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.78));
+}
+
+.row-preview small,
+.row-preview strong {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.row-preview small {
+  width: fit-content;
+  max-width: 100%;
+  -webkit-line-clamp: 1;
   border-radius: 999px;
+  background: var(--accent);
+  color: var(--blickle-navy);
+  padding: 2px 6px;
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.row-preview strong {
+  -webkit-line-clamp: 2;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  line-height: 1.04;
 }
 
 .row-main {
@@ -783,7 +924,8 @@ function previewValue(field) {
 }
 
 .row-main strong,
-.row-main small {
+.row-main small,
+.row-meta {
   display: block;
 }
 
@@ -801,11 +943,37 @@ function previewValue(field) {
   font-size: var(--font-size-xs);
 }
 
+.row-main small {
+  margin-top: 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.row-meta em,
 .row-badge {
   border-radius: 999px;
   background: var(--gray-100);
   padding: 3px 7px;
   font-weight: 800;
+  font-style: normal;
+  color: var(--gray-600);
+  font-size: 0.64rem;
+}
+
+.row-badge {
+  grid-column: 2;
+  width: fit-content;
+  margin-top: -2px;
 }
 
 .preview-panel,
@@ -815,6 +983,25 @@ function previewValue(field) {
   background: var(--blickle-white);
   box-shadow: var(--shadow-sm);
   padding: 16px;
+}
+
+.preview-meta {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+
+.preview-meta span {
+  color: var(--gray-500);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.preview-meta strong {
+  color: var(--blickle-navy);
+  font-size: 0.92rem;
+  line-height: 1.3;
 }
 
 .template-preview {
@@ -916,6 +1103,7 @@ function previewValue(field) {
 }
 
 .form-grid,
+.catalog-meta-grid,
 .design-grid,
 .field-row {
   display: grid;
@@ -924,6 +1112,11 @@ function previewValue(field) {
 
 .form-grid {
   grid-template-columns: minmax(0, 1fr) 210px;
+}
+
+.catalog-meta-grid {
+  grid-template-columns: minmax(0, 1.4fr) minmax(140px, 0.8fr) minmax(140px, 0.8fr);
+  margin-top: 10px;
 }
 
 .design-grid {
@@ -1035,7 +1228,7 @@ textarea:disabled {
   text-align: center;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1380px) {
   .builder-layout,
   .workbench {
     display: block;
@@ -1062,6 +1255,7 @@ textarea:disabled {
 
   .summary-strip,
   .form-grid,
+  .catalog-meta-grid,
   .design-grid,
   .field-row {
     grid-template-columns: 1fr;

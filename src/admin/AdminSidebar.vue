@@ -66,7 +66,7 @@ function isActive(item) {
   if (route.name === item.name) return true
   if (item.name === 'admin-content' && route.name === 'admin-content-detail') return true
   if (item.name === 'admin-playlists' && route.name === 'admin-playlist-editor') return true
-  if (item.name === 'admin-templates' && route.name === 'admin-template-editor') return true
+  if (item.name === 'admin-templates' && route.name === 'admin-template-editor-legacy') return true
   return false
 }
 

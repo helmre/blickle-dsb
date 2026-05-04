@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { PERMISSIONS } from '../../shared/auth/policies.js'
 import { validateContentForPublication } from '../../shared/templates/templateValidation.js'
 import { safeAuditLog } from '../../shared/utils/auditLog.js'
@@ -9,6 +9,12 @@ export const CONTENT_STATUS_LABELS = {
   approved: 'Freigegeben',
   rejected: 'Abgelehnt',
   archived: 'Archiviert',
+}
+
+const BUSY_RELEASE_MS = 250
+
+function releaseDelay() {
+  return new Promise(resolve => setTimeout(resolve, BUSY_RELEASE_MS))
 }
 
 export function useContentEditorWorkflow({
@@ -29,6 +35,10 @@ export function useContentEditorWorkflow({
     return userStore.can(PERMISSIONS.CONTENT_CREATE) &&
       ['approved', 'in_review'].includes(content.value?.status)
   })
+  const deleteConfirmOpen = ref(false)
+  const deleteConfirmMessage = ref('Diesen Inhalt wirklich löschen?')
+  const isDeleting = ref(false)
+  let resolveDeleteConfirmation = null
 
   const lockTitle = computed(() => {
     if (content.value?.status === 'approved') return 'Freigegebene Version ist gesperrt'
@@ -58,6 +68,31 @@ export function useContentEditorWorkflow({
 
   function currentUser() {
     return userStore.currentUser
+  }
+
+  function requestDeleteConfirmation(message) {
+    if (resolveDeleteConfirmation) return Promise.resolve(false)
+    deleteConfirmMessage.value = message
+    deleteConfirmOpen.value = true
+    return new Promise(resolve => {
+      resolveDeleteConfirmation = resolve
+    })
+  }
+
+  function resolveDeleteRequest(confirmed) {
+    deleteConfirmOpen.value = false
+    if (!resolveDeleteConfirmation) return
+    const resolve = resolveDeleteConfirmation
+    resolveDeleteConfirmation = null
+    resolve(confirmed)
+  }
+
+  function confirmDeleteRequest() {
+    resolveDeleteRequest(true)
+  }
+
+  function cancelDeleteRequest() {
+    resolveDeleteRequest(false)
   }
 
   function saveDraft(isReadOnly) {
@@ -102,33 +137,42 @@ export function useContentEditorWorkflow({
     }
   }
 
-  function remove(isReadOnly) {
-    if (!content.value) return
+  async function remove(isReadOnly) {
+    if (!content.value) return false
     if (isReadOnly) {
       toast.info('Diese Version ist schreibgeschützt und kann nicht direkt gelöscht werden.')
-      return
+      return false
     }
-    if (!confirm('Diesen Inhalt wirklich löschen?')) return
 
     const id = content.value.id
     const title = content.value.title
+    const confirmed = await requestDeleteConfirmation('Diesen Inhalt wirklich löschen?')
+    if (!confirmed) return false
+
+    isDeleting.value = true
     let removedSchedules = 0
     try {
-      contentStore.remove(id)
-    } catch (error) {
-      toast.error(error?.message || 'Inhalt konnte nicht gelöscht werden')
-      return
-    }
-    try {
-      removedSchedules = scheduleStore?.removeForTarget?.('content', id) || 0
-    } catch (error) {
-      console.warn('[ContentEditor] Zeitplan-Bereinigung fehlgeschlagen:', error)
-      toast.warning('Inhalt gelöscht, aber abhängige Zeitpläne konnten nicht bereinigt werden')
-    }
+      try {
+        contentStore.remove(id)
+      } catch (error) {
+        toast.error(error?.message || 'Inhalt konnte nicht gelöscht werden')
+        return false
+      }
+      try {
+        removedSchedules = scheduleStore?.removeForTarget?.('content', id) || 0
+      } catch (error) {
+        console.warn('[ContentEditor] Zeitplan-Bereinigung fehlgeschlagen:', error)
+        toast.warning('Inhalt gelöscht, aber abhängige Zeitpläne konnten nicht bereinigt werden')
+      }
 
-    safeAuditLog(auditStore, 'content.delete', 'content', id, currentUser()?.id, { title, removedSchedules }, { toast })
-    toast.success('Inhalt gelöscht')
-    router.push({ name: 'admin-templates' })
+      safeAuditLog(auditStore, 'content.delete', 'content', id, currentUser()?.id, { title, removedSchedules }, { toast })
+      toast.success('Inhalt gelöscht')
+      router.push({ name: 'admin-templates' })
+      return true
+    } finally {
+      await releaseDelay()
+      isDeleting.value = false
+    }
   }
 
   function createRevision() {
@@ -174,7 +218,12 @@ export function useContentEditorWorkflow({
     canDelete,
     canSubmit,
     canUpload,
+    cancelDeleteRequest,
+    confirmDeleteRequest,
     createRevision,
+    deleteConfirmMessage,
+    deleteConfirmOpen,
+    isDeleting,
     latestRejection,
     lockText,
     lockTitle,

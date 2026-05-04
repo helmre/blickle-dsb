@@ -110,7 +110,7 @@ function isStepCompleted(completedSteps, stepId) {
   font-weight: 800;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1380px) {
   .step-rail {
     position: static;
     display: grid;

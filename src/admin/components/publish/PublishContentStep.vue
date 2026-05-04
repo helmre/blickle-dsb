@@ -1,8 +1,10 @@
 <script setup>
-import { CheckCircle2, Circle } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { CheckCircle2, Circle, Sparkles } from 'lucide-vue-next'
 import LegacyTemplatePreview from '../LegacyTemplatePreview.vue'
+import { CATEGORY_LABELS, buildTemplateCardMeta } from '../../../shared/templates/registry.js'
 
-defineProps({
+const props = defineProps({
   contentValidationIssues: { type: Array, default: () => [] },
   draft: { type: Object, required: true },
   editorComponent: { type: [Object, Function, String], default: null },
@@ -15,6 +17,10 @@ defineProps({
 })
 
 defineEmits(['update-draft-field', 'update-param', 'update:params'])
+
+const templateMeta = computed(() => props.selectedTemplate
+  ? buildTemplateCardMeta(props.selectedTemplate, category => CATEGORY_LABELS[category] || category)
+  : null)
 
 function paramKey(param) {
   return param.key || param.name
@@ -30,47 +36,67 @@ function paramKey(param) {
       </div>
     </div>
 
-    <div class="content-meta-grid">
-      <label class="field">
-        <span>Titel</span>
-        <input
-          :value="draft.title"
-          :class="{ invalid: isTitleMissing }"
-          type="text"
-          placeholder="z.B. Neue Schichtregelung FB1"
-          required
-          @input="$emit('update-draft-field', 'title', $event.target.value)"
-        />
-      </label>
-      <label class="field">
-        <span>Tags</span>
-        <input
-          :value="draft.tags"
-          type="text"
-          placeholder="produktion, sicherheit"
-          @input="$emit('update-draft-field', 'tags', $event.target.value)"
-        />
-      </label>
-      <label class="field field-wide">
-        <span>Kurzbeschreibung</span>
-        <textarea
-          :value="draft.description"
-          rows="3"
-          placeholder="Worum geht es, für wen ist es relevant?"
-          @input="$emit('update-draft-field', 'description', $event.target.value)"
-        ></textarea>
-      </label>
+    <div
+      v-if="selectedTemplate && templateMeta"
+      class="selected-template-strip"
+      :style="{ '--accent': templateMeta.accent, '--preview-bg': templateMeta.background }"
+    >
+      <div :class="['strip-preview', `theme-${templateMeta.theme}`]">
+        <span>{{ templateMeta.kicker }}</span>
+        <strong>{{ templateMeta.title }}</strong>
+      </div>
+      <div class="strip-copy">
+        <span>Gewählte Vorlage</span>
+        <strong>{{ selectedTemplate.name }}</strong>
+        <p>{{ templateMeta.recommendedFor }}</p>
+      </div>
+      <Sparkles v-if="selectedTemplate.recommendedFor" class="strip-icon" :size="20" />
     </div>
 
-    <div :class="['validation-card', { complete: isContentValid }]">
-      <div class="validation-head">
-        <CheckCircle2 v-if="isContentValid" :size="17" />
-        <Circle v-else :size="17" />
-        <strong>{{ isContentValid ? 'Alle Pflichtangaben sind vollständig' : 'Noch offene Pflichtangaben' }}</strong>
+    <div class="content-top-grid">
+      <div class="content-meta-grid">
+        <label class="field">
+          <span>Titel</span>
+          <input
+            :value="draft.title"
+            :class="{ invalid: isTitleMissing }"
+            type="text"
+            placeholder="z.B. Neue Schichtregelung FB1"
+            required
+            @input="$emit('update-draft-field', 'title', $event.target.value)"
+          />
+        </label>
+        <label class="field">
+          <span>Tags</span>
+          <input
+            :value="draft.tags"
+            type="text"
+            placeholder="produktion, sicherheit"
+            @input="$emit('update-draft-field', 'tags', $event.target.value)"
+          />
+        </label>
+        <label class="field field-wide">
+          <span>Kurzbeschreibung</span>
+          <textarea
+            :value="draft.description"
+            rows="3"
+            placeholder="Worum geht es, für wen ist es relevant?"
+            @input="$emit('update-draft-field', 'description', $event.target.value)"
+          ></textarea>
+        </label>
       </div>
-      <ul v-if="!isContentValid" class="validation-list">
-        <li v-for="issue in contentValidationIssues" :key="issue.key">{{ issue.message }}</li>
-      </ul>
+
+      <div :class="['validation-card', { complete: isContentValid }]">
+        <div class="validation-head">
+          <CheckCircle2 v-if="isContentValid" :size="17" />
+          <Circle v-else :size="17" />
+          <strong>{{ isContentValid ? 'Bereit für den nächsten Schritt' : 'Noch offene Pflichtangaben' }}</strong>
+        </div>
+        <ul v-if="!isContentValid" class="validation-list">
+          <li v-for="issue in contentValidationIssues" :key="issue.key">{{ issue.message }}</li>
+        </ul>
+        <p v-else class="validation-copy">Titel, Template-Felder und Medienangaben sind vollständig.</p>
+      </div>
     </div>
 
     <component
@@ -149,11 +175,121 @@ function paramKey(param) {
   line-height: 1.45;
 }
 
+.selected-template-strip {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 10px;
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+}
+
+.strip-preview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  overflow: hidden;
+  border-radius: 6px;
+  border-bottom: 3px solid var(--accent);
+  padding: 10px;
+  background: var(--preview-bg);
+  color: #fff;
+}
+
+.strip-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 31, 58, 0.02), rgba(11, 31, 58, 0.68));
+}
+
+.strip-preview.theme-light {
+  color: var(--blickle-navy);
+}
+
+.strip-preview.theme-light::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8));
+}
+
+.strip-preview span,
+.strip-preview strong {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.strip-preview span {
+  width: fit-content;
+  max-width: 100%;
+  -webkit-line-clamp: 1;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--blickle-navy);
+  padding: 2px 7px;
+  font-size: 0.58rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.strip-preview strong {
+  -webkit-line-clamp: 2;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+
+.strip-copy {
+  min-width: 0;
+}
+
+.strip-copy span {
+  display: block;
+  color: var(--gray-500);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.strip-copy strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--blickle-navy);
+  font-size: 0.96rem;
+  line-height: 1.25;
+}
+
+.strip-copy p {
+  margin: 3px 0 0;
+  color: var(--gray-600);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.strip-icon {
+  color: var(--blickle-green);
+}
+
+.content-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+
 .content-meta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 18px;
 }
 
 .field {
@@ -209,7 +345,6 @@ function paramKey(param) {
 .validation-card {
   display: grid;
   gap: 8px;
-  margin: -4px 0 18px;
   padding: 12px 13px;
   border: 1px solid rgba(220, 38, 38, 0.22);
   border-radius: 8px;
@@ -246,6 +381,13 @@ function paramKey(param) {
   line-height: 1.45;
 }
 
+.validation-copy {
+  margin: 0;
+  color: var(--gray-600);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
 .legacy-compose {
   display: grid;
   grid-template-columns: 340px minmax(0, 1fr);
@@ -267,6 +409,8 @@ function paramKey(param) {
     align-items: stretch;
   }
 
+  .selected-template-strip,
+  .content-top-grid,
   .content-meta-grid,
   .legacy-compose {
     grid-template-columns: 1fr;

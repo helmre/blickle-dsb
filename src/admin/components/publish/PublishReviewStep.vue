@@ -1,8 +1,10 @@
 <script setup>
-import { CheckCircle2, Circle, Monitor } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { CheckCircle2, Circle, Monitor, Sparkles } from 'lucide-vue-next'
 import LegacyTemplatePreview from '../LegacyTemplatePreview.vue'
+import { CATEGORY_LABELS, buildTemplateCardMeta } from '../../../shared/templates/registry.js'
 
-defineProps({
+const props = defineProps({
   canSubmitForReview: { type: Boolean, default: false },
   draft: { type: Object, required: true },
   editorComponent: { type: [Object, Function, String], default: null },
@@ -12,6 +14,8 @@ defineProps({
   previewLocationId: { type: String, default: '' },
   previewLocationLabel: { type: String, required: true },
   previewLocationOptions: { type: Array, default: () => [] },
+  previewCheckedLabel: { type: String, default: '' },
+  previewOpened: { type: Boolean, default: false },
   readyForSubmission: { type: Boolean, default: false },
   reviewNote: { type: String, default: '' },
   scheduleLabel: { type: String, default: '' },
@@ -22,6 +26,10 @@ defineProps({
 })
 
 defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewNote'])
+
+const templateMeta = computed(() => props.selectedTemplate
+  ? buildTemplateCardMeta(props.selectedTemplate, category => CATEGORY_LABELS[category] || category)
+  : null)
 </script>
 
 <template>
@@ -47,6 +55,13 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
 
     <div class="preview-grid">
       <div class="display-preview">
+        <div class="display-preview-head">
+          <div>
+            <span>Display-Wirkung</span>
+            <strong>{{ templateMeta?.title || draft.title || 'Vorschau' }}</strong>
+          </div>
+          <em>{{ previewLocationLabel }}</em>
+        </div>
         <div class="display-frame">
           <component
             v-if="editorComponent"
@@ -59,7 +74,22 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
         </div>
       </div>
       <div class="review-card">
-        <h3>Einreichung</h3>
+        <div
+          v-if="selectedTemplate && templateMeta"
+          class="review-template"
+          :style="{ '--accent': templateMeta.accent, '--preview-bg': templateMeta.background }"
+        >
+          <div :class="['review-template-preview', `theme-${templateMeta.theme}`]">
+            <span>{{ templateMeta.kicker }}</span>
+            <strong>{{ templateMeta.title }}</strong>
+          </div>
+          <div>
+            <span>Einreichung</span>
+            <h3>{{ selectedTemplate.name }}</h3>
+            <p>{{ templateMeta.recommendedFor }}</p>
+          </div>
+          <Sparkles v-if="selectedTemplate.recommendedFor" :size="18" />
+        </div>
         <dl>
           <div><dt>Titel</dt><dd>{{ draft.title || 'Noch kein Titel' }}</dd></div>
           <div><dt>Vorlage</dt><dd>{{ selectedTemplate?.name || '-' }}</dd></div>
@@ -80,13 +110,20 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
         </label>
         <button
           type="button"
-          class="display-link"
+          :class="['display-link', { checked: previewOpened }]"
           :disabled="!selectedTemplate || !draft.title.trim()"
           @click="$emit('open-display-preview')"
         >
           <Monitor :size="16" />
-          <span>Display-Ansicht öffnen</span>
+          <span>{{ previewOpened ? 'Display-Vorschau erneut prüfen' : 'Display-Vorschau prüfen' }}</span>
         </button>
+        <p :class="['preview-check-note', { checked: previewOpened }]">
+          <CheckCircle2 v-if="previewOpened" :size="15" />
+          <Circle v-else :size="15" />
+          <span>
+            {{ previewOpened ? `Vorschau geprüft${previewCheckedLabel ? ` um ${previewCheckedLabel} Uhr` : ''}.` : 'Pflicht vor dem Einreichen: einmal die echte Display-Ansicht öffnen.' }}
+          </span>
+        </p>
         <div class="submission-check">
           <strong>Einreichungs-Check</strong>
           <ul>
@@ -151,12 +188,44 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
 
 .preview-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
   gap: 16px;
 }
 
 .display-preview {
   min-width: 0;
+}
+
+.display-preview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.display-preview-head span {
+  display: block;
+  color: var(--gray-500);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.display-preview-head strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--blickle-navy);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.display-preview-head em {
+  color: var(--gray-600);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 750;
+  text-align: right;
 }
 
 .display-frame {
@@ -175,11 +244,103 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
   background: #fff;
 }
 
+.review-template {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.review-template-preview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  overflow: hidden;
+  border-radius: 6px;
+  border-bottom: 3px solid var(--accent);
+  padding: 9px;
+  background: var(--preview-bg);
+  color: #fff;
+}
+
+.review-template-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 31, 58, 0.02), rgba(11, 31, 58, 0.68));
+}
+
+.review-template-preview.theme-light {
+  color: var(--blickle-navy);
+}
+
+.review-template-preview.theme-light::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.78));
+}
+
+.review-template-preview span,
+.review-template-preview strong {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.review-template-preview span {
+  width: fit-content;
+  max-width: 100%;
+  -webkit-line-clamp: 1;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--blickle-navy);
+  padding: 2px 6px;
+  font-size: 0.54rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.review-template-preview strong {
+  -webkit-line-clamp: 2;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  line-height: 1.08;
+}
+
+.review-template > div:nth-child(2) {
+  min-width: 0;
+}
+
+.review-template > div:nth-child(2) > span {
+  display: block;
+  color: var(--gray-500);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .review-card h3 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1rem;
   color: var(--blickle-navy);
+}
+
+.review-template p {
+  margin: 3px 0 0;
+  color: var(--gray-600);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.review-template svg {
+  color: var(--blickle-green);
 }
 
 .review-card dl {
@@ -257,17 +418,48 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
   cursor: pointer;
 }
 
+.display-link.checked {
+  background: rgba(181, 204, 24, 0.16);
+}
+
 .display-link:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.preview-check-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 9px 0 0;
+  color: var(--gray-600);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.preview-check-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--gray-400);
+}
+
+.preview-check-note.checked {
+  color: var(--blickle-navy);
+}
+
+.preview-check-note.checked svg {
+  color: var(--blickle-green);
 }
 
 .submission-check {
   display: grid;
   gap: 10px;
   margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--color-border);
+  padding: 14px;
+  border: 1px solid rgba(11, 31, 58, 0.08);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
 }
 
 .submission-check strong {
@@ -319,6 +511,19 @@ defineEmits(['open-display-preview', 'update:previewLocationId', 'update:reviewN
 
   .preview-location {
     max-width: none;
+  }
+
+  .display-preview-head,
+  .review-template {
+    grid-template-columns: 1fr;
+  }
+
+  .display-preview-head {
+    align-items: flex-start;
+  }
+
+  .display-preview-head em {
+    text-align: left;
   }
 
   .preview-grid {

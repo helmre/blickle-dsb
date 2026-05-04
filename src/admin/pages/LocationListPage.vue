@@ -9,6 +9,7 @@ import { useScheduleStore } from '../../shared/stores/scheduleStore.js'
 import { useEmergencyStore } from '../../shared/stores/emergencyStore.js'
 import { useToastStore } from '../../shared/stores/toastStore.js'
 import { safeAuditLog } from '../../shared/utils/auditLog.js'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const locationStore = useLocationStore()
 const layoutStore = useLayoutStore()
@@ -25,7 +26,9 @@ const editLayoutId = ref('')
 const showAddChild = ref(null)
 const newChildName = ref('')
 const newChildLayoutId = ref('')
-const showDeleteConfirm = ref(null)
+const pendingLocationDeleteId = ref(null)
+const isDeletingLocation = ref(false)
+const BUSY_RELEASE_MS = 250
 
 function buildTree(parentId = 'loc-global', depth = 0) {
   const children = locationStore.items.filter(l => l.parentId === parentId)
@@ -128,21 +131,35 @@ function deletionBlockers(id) {
   return blockers
 }
 
-function deleteLocation(id) {
+function requestDeleteLocation(id) {
+  if (isDeletingLocation.value) return
+  pendingLocationDeleteId.value = id
+}
+
+async function deleteLocation() {
+  const id = pendingLocationDeleteId.value
+  if (!id || isDeletingLocation.value) return
+  isDeletingLocation.value = true
   const loc = locationStore.getById(id)
-  const blockers = deletionBlockers(id)
-  if (blockers.length) {
-    toast.error(`Standort kann nicht gelöscht werden: ${blockers.join(', ')}`)
-    showDeleteConfirm.value = null
-    return
-  }
   try {
-    locationStore.remove(id)
-    safeAuditLog(auditStore, 'location.deleted', 'location', id, userStore.currentUser.id, { name: loc?.name }, { toast })
-    toast.success('Standort gelöscht')
-    showDeleteConfirm.value = null
-  } catch (error) {
-    toast.error(error?.message || 'Standort konnte nicht gelöscht werden')
+    const blockers = deletionBlockers(id)
+    if (blockers.length) {
+      toast.error(`Standort kann nicht gelöscht werden: ${blockers.join(', ')}`)
+      pendingLocationDeleteId.value = null
+      return
+    }
+    try {
+      locationStore.remove(id)
+      safeAuditLog(auditStore, 'location.deleted', 'location', id, userStore.currentUser.id, { name: loc?.name }, { toast })
+      toast.success('Standort gelöscht')
+      pendingLocationDeleteId.value = null
+    } catch (error) {
+      toast.error(error?.message || 'Standort konnte nicht gelöscht werden')
+    }
+  } finally {
+    setTimeout(() => {
+      isDeletingLocation.value = false
+    }, BUSY_RELEASE_MS)
   }
 }
 </script>
@@ -181,7 +198,9 @@ function deleteLocation(id) {
             </button>
             <button class="btn-sm btn-outline" @click="openAddChild(loc.id)">+ Kind</button>
             <button class="btn-sm btn-outline" @click="startEdit(loc)">Bearbeiten</button>
-            <button class="btn-sm btn-danger" @click="showDeleteConfirm = loc.id">Löschen</button>
+            <button class="btn-sm btn-danger" :disabled="isDeletingLocation" @click="requestDeleteLocation(loc.id)">
+              {{ isDeletingLocation ? 'Löscht...' : 'Löschen' }}
+            </button>
           </div>
         </template>
       </div>
@@ -200,22 +219,15 @@ function deleteLocation(id) {
       <p v-if="!locationTree.length" class="empty-text">Keine Standorte vorhanden.</p>
     </div>
 
-    <!-- Delete Confirmation -->
-    <div v-if="showDeleteConfirm" class="modal-overlay" @click.self="showDeleteConfirm = null">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>Standort löschen</h3>
-          <button class="modal-close" @click="showDeleteConfirm = null">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>Sind Sie sicher, dass Sie diesen Standort löschen möchten?</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="showDeleteConfirm = null">Abbrechen</button>
-          <button class="btn-danger-solid" @click="deleteLocation(showDeleteConfirm)">Löschen</button>
-        </div>
-      </div>
-    </div>
+    <ConfirmDialog
+      :open="Boolean(pendingLocationDeleteId)"
+      title="Standort löschen"
+      message="Sind Sie sicher, dass Sie diesen Standort löschen möchten?"
+      confirm-label="Löschen"
+      confirm-variant="danger"
+      @confirm="deleteLocation"
+      @cancel="pendingLocationDeleteId = null"
+    />
   </div>
 </template>
 
@@ -316,27 +328,23 @@ function deleteLocation(id) {
   font-size: var(--font-size-sm);
 }
 .btn-primary:hover { background: var(--blickle-navy-light); }
-.btn-secondary {
-  padding: 8px 20px;
-  background: var(--gray-100);
-  color: var(--gray-700);
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  font-size: var(--font-size-sm);
-}
 .btn-sm {
   padding: 4px 10px;
   font-size: var(--font-size-xs);
   border-radius: var(--radius-sm);
   font-weight: 500;
 }
+.btn-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .btn-outline {
   border: 1px solid var(--blickle-navy);
   color: var(--blickle-navy);
 }
-.btn-outline:hover { background: var(--blickle-navy); color: white; }
+.btn-outline:hover:not(:disabled) { background: var(--blickle-navy); color: white; }
 .btn-danger { color: var(--color-danger); }
-.btn-danger:hover { background: var(--color-danger-light); }
+.btn-danger:hover:not(:disabled) { background: var(--color-danger-light); }
 .btn-save {
   background: var(--blickle-green);
   color: white;
@@ -345,15 +353,6 @@ function deleteLocation(id) {
   background: var(--gray-100);
   color: var(--gray-600);
 }
-.btn-danger-solid {
-  padding: 8px 20px;
-  background: var(--color-danger);
-  color: white;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-}
-
 .form-input {
   padding: 8px 12px;
   border: 1px solid var(--color-border);
@@ -373,41 +372,4 @@ function deleteLocation(id) {
   font-size: var(--font-size-sm);
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal {
-  background: var(--blickle-white);
-  border-radius: var(--radius-lg);
-  width: 440px;
-  box-shadow: var(--shadow-lg);
-}
-.modal-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.modal-header h3 {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--blickle-navy);
-}
-.modal-close { font-size: 1.5rem; color: var(--gray-400); padding: 4px; }
-.modal-body { padding: 24px; }
-.modal-body p { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
 </style>

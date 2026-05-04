@@ -8,6 +8,9 @@ defineProps({
   content: { type: Object, required: true },
   isPublishable: { type: Boolean, default: false },
   isReadOnly: { type: Boolean, default: false },
+  isDeleting: { type: Boolean, default: false },
+  isSavingDraft: { type: Boolean, default: false },
+  isSubmitting: { type: Boolean, default: false },
   statusLabels: { type: Object, required: true },
   template: { type: Object, default: null },
 })
@@ -39,23 +42,35 @@ defineEmits(['back', 'create-revision', 'remove', 'save-draft', 'submit'])
         <CopyPlus :size="16" />
         <span>Neue Revision erstellen</span>
       </button>
-      <button v-if="canDelete && !isReadOnly" class="btn-ghost btn-danger" type="button" @click="$emit('remove')">
+      <button
+        v-if="canDelete && !isReadOnly"
+        class="btn-ghost btn-danger"
+        type="button"
+        :disabled="isDeleting || isSavingDraft || isSubmitting"
+        @click="$emit('remove')"
+      >
         <Trash2 :size="16" />
-        <span>Löschen</span>
+        <span>{{ isDeleting ? 'Löscht...' : 'Löschen' }}</span>
       </button>
-      <button v-if="!isReadOnly" class="btn-ghost" type="button" @click="$emit('save-draft')">
+      <button
+        v-if="!isReadOnly"
+        class="btn-ghost"
+        type="button"
+        :disabled="isSavingDraft || isDeleting || isSubmitting"
+        @click="$emit('save-draft')"
+      >
         <Save :size="16" />
-        <span>Entwurf speichern</span>
+        <span>{{ isSavingDraft ? 'Speichert...' : 'Entwurf speichern' }}</span>
       </button>
       <button
         v-if="canSubmit && !isReadOnly"
         class="btn-primary"
         type="button"
-        :disabled="content.status === 'in_review' || !isPublishable"
+        :disabled="content.status === 'in_review' || !isPublishable || isSubmitting || isSavingDraft || isDeleting"
         @click="$emit('submit')"
       >
         <Send :size="16" />
-        <span>Zur Prüfung einreichen</span>
+        <span>{{ isSubmitting ? 'Wird eingereicht...' : 'Zur Prüfung einreichen' }}</span>
       </button>
     </div>
   </header>
@@ -191,8 +206,15 @@ defineEmits(['back', 'create-revision', 'remove', 'save-draft', 'submit'])
   background: #122E54;
 }
 
-.btn-primary:disabled {
+.btn-primary:disabled,
+.btn-ghost:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn-ghost:disabled:hover {
+  border-color: var(--color-border);
+  color: var(--gray-600);
+  background: transparent;
 }
 </style>

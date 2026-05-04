@@ -26,6 +26,7 @@ import {
 } from '../../shared/displayEngine/playlistResolver.js'
 import { isCurrentlyValid, isScheduleActiveNow } from '../../shared/utils/datetime.js'
 import { safeAuditLog } from '../../shared/utils/auditLog.js'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const scheduleStore = useScheduleStore()
 const contentStore = useContentStore()
@@ -48,6 +49,9 @@ const customEndDate = ref('')
 
 const newSchedule = ref(createDefaultScheduleDraft())
 const modalTouched = ref(false)
+const pendingScheduleDelete = ref(null)
+const isDeletingSchedule = ref(false)
+const BUSY_RELEASE_MS = 250
 
 const monthNames = [
   'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
@@ -285,6 +289,10 @@ const locationById = computed(() => new Map(locationStore.items.map(location => 
 const scheduleIssues = computed(() => validateScheduleDraft(newSchedule.value))
 const canSaveSchedule = computed(() => scheduleIssues.value.length === 0)
 const canManage = computed(() => userStore.can(PERMISSIONS.SCHEDULE_MANAGE))
+const pendingScheduleDeleteMessage = computed(() => {
+  if (!pendingScheduleDelete.value) return ''
+  return `Zeitplan "${describe(pendingScheduleDelete.value).targetName}" wirklich löschen?`
+})
 const activeSchedulesCount = computed(() => scheduleStore.items.filter(schedule => schedule.isActive !== false).length)
 const playlistSchedulesCount = computed(() => scheduleStore.items.filter(schedule => schedule.targetType === 'playlist').length)
 const programSchedulesCount = computed(() => scheduleStore.items.filter(schedule => schedule.targetType === 'program').length)
@@ -479,10 +487,22 @@ function saveSchedule() {
 
 function deleteSchedule(schedule) {
   if (!canManage.value) return
-  if (!confirm(`Zeitplan "${describe(schedule).targetName}" wirklich löschen?`)) return
-  const id = schedule.id
-  scheduleStore.remove(id)
-  safeAuditLog(auditStore, 'schedule.deleted', 'schedule', id, userStore.currentUser.id)
+  pendingScheduleDelete.value = schedule
+}
+
+async function confirmDeleteSchedule() {
+  if (!canManage.value || !pendingScheduleDelete.value || isDeletingSchedule.value) return
+  isDeletingSchedule.value = true
+  const id = pendingScheduleDelete.value.id
+  try {
+    scheduleStore.remove(id)
+    safeAuditLog(auditStore, 'schedule.deleted', 'schedule', id, userStore.currentUser.id)
+    pendingScheduleDelete.value = null
+  } finally {
+    setTimeout(() => {
+      isDeletingSchedule.value = false
+    }, BUSY_RELEASE_MS)
+  }
 }
 
 const availableTargets = computed(() => {
@@ -714,7 +734,9 @@ function focusCalendarDay(cell) {
             <input type="checkbox" :checked="schedule.isActive !== false" @change="toggleActive(schedule)" />
             <span class="toggle-label-text">{{ schedule.isActive !== false ? 'Aktiv' : 'Inaktiv' }}</span>
           </label>
-          <button class="btn-sm btn-danger" @click="deleteSchedule(schedule)">Löschen</button>
+          <button class="btn-sm btn-danger" :disabled="isDeletingSchedule" @click="deleteSchedule(schedule)">
+            {{ isDeletingSchedule ? 'Löscht...' : 'Löschen' }}
+          </button>
         </div>
       </div>
       <p v-if="!filteredSchedules.length" class="empty-text">Keine Zeitpläne für die aktuelle Filterauswahl.</p>
@@ -837,6 +859,16 @@ function focusCalendarDay(cell) {
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      :open="Boolean(pendingScheduleDelete)"
+      title="Zeitplan löschen"
+      :message="pendingScheduleDeleteMessage"
+      confirm-label="Löschen"
+      confirm-variant="danger"
+      @confirm="confirmDeleteSchedule"
+      @cancel="pendingScheduleDelete = null"
+    />
   </div>
 </template>
 
@@ -1299,8 +1331,12 @@ function focusCalendarDay(cell) {
   border-radius: var(--radius-sm);
   font-weight: 500;
 }
+.btn-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .btn-danger { color: var(--color-danger); }
-.btn-danger:hover { background: var(--color-danger-light); }
+.btn-danger:hover:not(:disabled) { background: var(--color-danger-light); }
 .btn-icon {
   width: 32px;
   height: 32px;

@@ -7,6 +7,7 @@ import { useScheduleStore } from '../../shared/stores/scheduleStore.js'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
 import { PERMISSIONS } from '../../shared/auth/policies.js'
 import {
   canAddContentToPlaylist,
@@ -29,6 +30,7 @@ const scheduleStore = useScheduleStore()
 const contentStore = useContentStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const toast = useToastStore()
 
 const playlistId = computed(() => route.params.id)
 const playlist = ref(null)
@@ -38,8 +40,6 @@ const editLoop = ref(true)
 const editPriority = ref(0)
 const contentSearch = ref('')
 const saved = ref(false)
-const playlistNotice = ref('')
-let noticeTimer = null
 let savedTimer = null
 const canManage = computed(() => userStore.can(PERMISSIONS.PLAYLISTS_MANAGE))
 
@@ -55,7 +55,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (noticeTimer) clearTimeout(noticeTimer)
   if (savedTimer) clearTimeout(savedTimer)
 })
 
@@ -108,21 +107,16 @@ function getItemIssue(item) {
   return getPlaylistItemIssue(item, contentStore.getById(item.contentId))
 }
 
-function showNotice(message) {
-  playlistNotice.value = message
-  if (noticeTimer) clearTimeout(noticeTimer)
-  noticeTimer = setTimeout(() => {
-    playlistNotice.value = ''
-    noticeTimer = null
-  }, 2500)
-}
-
 function addToPlaylist(contentId) {
   if (!canManage.value) return
   const content = contentStore.getById(contentId)
+  if (!content) {
+    toast.error('Inhalt nicht gefunden')
+    return
+  }
   const addState = getAddState(content)
   if (!addState.allowed) {
-    showNotice(addState.reason)
+    toast.info(addState.reason)
     return
   }
   playlistStore.addItem(playlistId.value, contentId, 15)
@@ -268,7 +262,6 @@ function openPreview() {
         <!-- Left: Content Library -->
         <div class="panel-card content-panel">
           <h3 class="panel-title">Verfügbare Inhalte</h3>
-          <p v-if="playlistNotice" class="playlist-notice">{{ playlistNotice }}</p>
           <input
             v-model="contentSearch"
             type="text"
@@ -510,16 +503,6 @@ function openPreview() {
   color: var(--blickle-navy);
   font-weight: 800;
   text-decoration: none;
-}
-
-.playlist-notice {
-  color: var(--color-warning);
-  background: var(--color-warning-light);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  margin: 0 0 12px;
-  padding: 8px 10px;
 }
 
 .search-input { margin-bottom: 12px; }

@@ -1,14 +1,20 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useLayoutStore } from '../../shared/stores/layoutStore.js'
+import { useLocationStore } from '../../shared/stores/locationStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { useUserStore } from '../../shared/stores/userStore.js'
+import { useToastStore } from '../../shared/stores/toastStore.js'
 import { formatGridLine, getLayoutGridSize, normalizeLayout, parseGridLine, zoneGridStyle } from '../../shared/utils/layoutSchema.js'
+import { getLayoutDeletionBlockers } from '../../shared/layouts/layoutRules.js'
 import { safeAuditLog } from '../../shared/utils/auditLog.js'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const layoutStore = useLayoutStore()
+const locationStore = useLocationStore()
 const auditStore = useAuditStore()
 const userStore = useUserStore()
+const toast = useToastStore()
 
 const selectedLayoutId = ref(null)
 const showNewModal = ref(false)
@@ -23,6 +29,8 @@ const selectedLayout = computed(() => {
 
 const editColumns = ref(2)
 const editRows = ref(2)
+const pendingLayoutDeleteId = ref(null)
+const isDeletingLayout = ref(false)
 
 function selectLayout(id) {
   selectedLayoutId.value = id
@@ -124,12 +132,49 @@ function removeZone(zoneIndex) {
   layoutStore.update(selectedLayoutId.value, { zones })
 }
 
-function deleteLayout(id) {
-  const layout = layoutStore.getById(id)
-  layoutStore.remove(id)
-  safeAuditLog(auditStore, 'layout.deleted', 'layout', id, userStore.currentUser.id, { name: layout?.name })
-  if (selectedLayoutId.value === id) {
-    selectedLayoutId.value = null
+const pendingLayoutDelete = computed(() => {
+  return pendingLayoutDeleteId.value ? layoutStore.getById(pendingLayoutDeleteId.value) : null
+})
+
+const deleteLayoutConfirmMessage = computed(() => {
+  return pendingLayoutDelete.value
+    ? `"${pendingLayoutDelete.value.name}" wirklich löschen?`
+    : 'Dieses Layout wirklich löschen?'
+})
+
+function requestDeleteLayout(id) {
+  if (isDeletingLayout.value) return
+  pendingLayoutDeleteId.value = id
+}
+
+function cancelDeleteLayout() {
+  if (isDeletingLayout.value) return
+  pendingLayoutDeleteId.value = null
+}
+
+function confirmDeleteLayout() {
+  const id = pendingLayoutDeleteId.value
+  if (!id || isDeletingLayout.value) return
+  isDeletingLayout.value = true
+  try {
+    const layout = layoutStore.getById(id)
+    const blockers = getLayoutDeletionBlockers(id, locationStore.items)
+    if (blockers.length) {
+      toast.error(`Layout kann nicht gelöscht werden: ${blockers.join(', ')}`)
+      pendingLayoutDeleteId.value = null
+      return
+    }
+    layoutStore.remove(id)
+    safeAuditLog(auditStore, 'layout.deleted', 'layout', id, userStore.currentUser?.id, { name: layout?.name })
+    if (selectedLayoutId.value === id) {
+      selectedLayoutId.value = null
+    }
+    toast.success('Layout gelöscht')
+    pendingLayoutDeleteId.value = null
+  } catch (error) {
+    toast.error(error?.message || 'Layout konnte nicht gelöscht werden')
+  } finally {
+    isDeletingLayout.value = false
   }
 }
 
@@ -154,7 +199,7 @@ const zoneColors = ['#163A6C', '#B5CC18', '#2563EB', '#DC2626', '#059669', '#D97
         >
           <div class="card-header-row">
             <h4 class="card-title">{{ layout.name }}</h4>
-            <button class="btn-sm btn-danger" @click.stop="deleteLayout(layout.id)">&#128465;</button>
+            <button class="btn-sm btn-danger" :disabled="isDeletingLayout" @click.stop="requestDeleteLayout(layout.id)">&#128465;</button>
           </div>
           <!-- Mini Preview -->
           <div class="mini-preview" :style="{ gridTemplateColumns: `repeat(${getLayoutGridSize(layout).columns || 2}, 1fr)`, gridTemplateRows: `repeat(${getLayoutGridSize(layout).rows || 2}, 1fr)` }">
@@ -244,6 +289,16 @@ const zoneColors = ['#163A6C', '#B5CC18', '#2563EB', '#DC2626', '#059669', '#D97
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      :open="Boolean(pendingLayoutDeleteId)"
+      title="Layout löschen"
+      :message="deleteLayoutConfirmMessage"
+      confirm-label="Löschen"
+      confirm-variant="danger"
+      @confirm="confirmDeleteLayout"
+      @cancel="cancelDeleteLayout"
+    />
 
     <!-- New Layout Modal -->
     <div v-if="showNewModal" class="modal-overlay" @click.self="showNewModal = false">

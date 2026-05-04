@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -54,10 +54,12 @@ const templateParams = ref({})
 const previewLocationId = ref('')
 const targetMode = ref('all')
 const saving = ref(false)
+const BUSY_RELEASE_MS = 250
 const completedSteps = ref([])
 const previewOpened = ref(false)
 const previewCheckedAt = ref('')
 const reviewNote = ref('')
+const wizardMainRef = ref(null)
 
 const draft = ref({
   title: '',
@@ -92,7 +94,11 @@ const filteredTemplates = computed(() => {
   if (query) {
     list = list.filter(template =>
       (template.name || '').toLowerCase().includes(query) ||
-      (template.description || '').toLowerCase().includes(query)
+      (template.description || '').toLowerCase().includes(query) ||
+      (template.recommendedFor || '').toLowerCase().includes(query) ||
+      (template.thumbnailKicker || '').toLowerCase().includes(query) ||
+      (template.thumbnailTitle || '').toLowerCase().includes(query) ||
+      categoryLabel(template.category).toLowerCase().includes(query)
     )
   }
   return list
@@ -133,9 +139,12 @@ const validityLabel = computed(() => {
 const createsDisplaySchedule = computed(() => Boolean(draft.value.validFrom && draft.value.validUntil && !hasDateError.value))
 const scheduleLabel = computed(() => {
   if (createsDisplaySchedule.value) {
-    return `Display-Zeitplan: ${validityLabel.value}${targetMode.value === 'all' ? ' · alle Standorte' : ` · ${locationLabel.value}`}`
+    return `Automatische Ausspielung: ${validityLabel.value}${targetMode.value === 'all' ? ' · alle Standorte' : ` · ${locationLabel.value}`}`
   }
-  return 'Kein separater Display-Zeitplan. Die Inhalts-Gültigkeit steuert die Sichtbarkeit direkt.'
+  if (!draft.value.validFrom && !draft.value.validUntil) {
+    return 'Nach Freigabe sofort sichtbar, ohne automatisches Ablaufdatum.'
+  }
+  return 'Der unvollständige Zeitraum dient als Inhalts-Gültigkeit; für eine klare Ausspielungsregel Start und Ende setzen.'
 })
 
 const templateValidationIssues = computed(() => validateTemplateParams(selectedTemplate.value, templateParams.value))
@@ -172,6 +181,54 @@ const readyForSubmission = computed(() => finalChecklist.value.every(item => ite
 const canFinishWizard = computed(() => {
   if (canSubmitForReview.value) return readyForSubmission.value
   return !!selectedTemplate.value && isContentValid.value
+})
+
+const canOpenRequiredPreview = computed(() => (
+  !!selectedTemplate.value &&
+  !!draft.value.title.trim() &&
+  isContentValid.value &&
+  isTargetValid.value &&
+  !hasDateError.value
+))
+
+const canUseFinalPrimary = computed(() => {
+  if (saving.value) return false
+  if (canSubmitForReview.value && !previewOpened.value) return canOpenRequiredPreview.value
+  return canFinishWizard.value
+})
+
+const finalPrimaryLabel = computed(() => {
+  if (saving.value) return canSubmitForReview.value ? 'Wird eingereicht...' : 'Speichert...'
+  if (canSubmitForReview.value && !previewOpened.value) return 'Display-Vorschau prüfen'
+  return canSubmitForReview.value ? 'Zur Prüfung einreichen' : 'Entwurf speichern'
+})
+
+const previewCheckedLabel = computed(() => {
+  if (!previewCheckedAt.value) return ''
+  return new Intl.DateTimeFormat('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(previewCheckedAt.value))
+})
+
+const actionHint = computed(() => {
+  if (saving.value) return ''
+  if (currentStep.value === 0 && !selectedTemplate.value) {
+    return 'Wähle zuerst eine Vorlage aus.'
+  }
+  if (currentStep.value === 1 && !isContentValid.value) {
+    return contentValidationIssues.value[0]?.message || 'Ergänze die offenen Pflichtangaben.'
+  }
+  if (currentStep.value === 2) {
+    if (hasDateError.value) return 'Das Enddatum muss nach dem Startdatum liegen.'
+    if (targetMode.value === 'specific' && !draft.value.locationIds.length) {
+      return 'Wähle mindestens einen Standort aus oder nutze alle Standorte.'
+    }
+  }
+  if (currentStep.value === 3 && canSubmitForReview.value && !previewOpened.value) {
+    return 'Öffnet die echte Display-Ansicht in einem neuen Tab.'
+  }
+  return ''
 })
 
 const hasWizardWork = computed(() => {
@@ -284,6 +341,17 @@ watch(previewFingerprint, () => {
   previewCheckedAt.value = ''
 })
 
+watch(currentStep, () => {
+  nextTick(() => {
+    const scroller = document.querySelector('.admin-content')
+    if (scroller) {
+      scroller.scrollTo({ top: 0, behavior: 'auto' })
+      return
+    }
+    wizardMainRef.value?.scrollIntoView({ block: 'start', behavior: 'auto' })
+  })
+})
+
 watch(
   () => ({
     completedSteps: completedSteps.value,
@@ -311,7 +379,6 @@ function categoryLabel(category) {
 function selectTemplate(template) {
   selectedTemplateId.value = template.id
   completedSteps.value = ['template']
-  currentStep.value = 1
 }
 
 function nextStep() {
@@ -419,11 +486,11 @@ function openDisplayPreview() {
   if (!selectedTemplate.value || !draft.value.title.trim()) return
   try {
     const token = saveDisplayPreview(displayPreviewPayload())
-    const previewWindow = window.open(displayPreviewUrl(token), '_blank', 'noopener,noreferrer')
-    previewOpened.value = true
-    previewCheckedAt.value = new Date().toISOString()
-    flushAutosave()
+    const previewWindow = window.open(displayPreviewUrl(token), '_blank')
     if (previewWindow) {
+      previewOpened.value = true
+      previewCheckedAt.value = new Date().toISOString()
+      flushAutosave()
       try {
         previewWindow.opener = null
       } catch {
@@ -431,12 +498,20 @@ function openDisplayPreview() {
       }
     } else {
       markResumeOnPreviewFallback()
-      window.location.href = displayPreviewHref(token)
+      toast.error('Display-Vorschau wurde blockiert. Bitte Pop-ups für diese Demo erlauben.')
     }
   } catch (error) {
     console.error('[PublishWizard] Display-Vorschau fehlgeschlagen:', error)
     toast.error('Display-Vorschau konnte nicht geöffnet werden')
   }
+}
+
+function handleFinalPrimaryAction() {
+  if (canSubmitForReview.value && !previewOpened.value) {
+    openDisplayPreview()
+    return
+  }
+  saveContent(true)
 }
 
 async function saveContent(submitForReview = false) {
@@ -452,9 +527,9 @@ async function saveContent(submitForReview = false) {
 
   saving.value = true
   try {
-	    const content = contentStore.createFromTemplate(selectedTemplate.value.id, contentPayload())
-	    if (!content) throw new Error('Vorlage konnte nicht geladen werden')
-	    createContentSchedule(content)
+    const content = contentStore.createFromTemplate(selectedTemplate.value.id, contentPayload())
+    if (!content) throw new Error('Vorlage konnte nicht geladen werden')
+    createContentSchedule(content)
 
     safeAuditLog(auditStore, 'content.created_wizard', 'content', content.id, userStore.currentUser?.id, {
       templateId: selectedTemplate.value.id,
@@ -480,7 +555,9 @@ async function saveContent(submitForReview = false) {
     console.error('[PublishWizard] Speichern fehlgeschlagen:', error)
     toast.error(error?.message || 'Inhalt konnte nicht gespeichert werden')
   } finally {
-    saving.value = false
+    setTimeout(() => {
+      saving.value = false
+    }, BUSY_RELEASE_MS)
   }
 }
 </script>
@@ -514,7 +591,7 @@ async function saveContent(submitForReview = false) {
         @go-to-step="goToStep"
       />
 
-      <main class="wizard-main">
+      <main ref="wizardMainRef" class="wizard-main">
         <PublishTemplateStep
           v-if="currentStep === 0"
           v-model:search-query="searchQuery"
@@ -565,8 +642,10 @@ async function saveContent(submitForReview = false) {
           :final-checklist="finalChecklist"
           :html-preview="htmlPreview"
           :location-label="locationLabel"
+          :preview-checked-label="previewCheckedLabel"
           :preview-location-label="previewLocationLabel"
           :preview-location-options="previewLocationOptions"
+          :preview-opened="previewOpened"
           :ready-for-submission="readyForSubmission"
           :schedule-label="scheduleLabel"
           :selected-template="selectedTemplate"
@@ -577,21 +656,36 @@ async function saveContent(submitForReview = false) {
         />
 
         <footer class="wizard-actions">
-          <button type="button" class="btn-secondary" :disabled="currentStep === 0" @click="previousStep">
+          <button type="button" class="btn-secondary" :disabled="saving || currentStep === 0" @click="previousStep">
             <ArrowLeft :size="16" />
             <span>Zurück</span>
           </button>
           <div class="action-spacer"></div>
+          <p v-if="actionHint" class="action-hint" aria-live="polite">{{ actionHint }}</p>
           <button type="button" class="btn-secondary" :disabled="saving || !selectedTemplate" @click="saveContent(false)">
-            Als Entwurf speichern
+            {{ saving ? 'Speichert...' : 'Als Entwurf speichern' }}
           </button>
-          <button v-if="currentStep < steps.length - 1" type="button" class="btn-primary" :disabled="!canGoNext" @click="nextStep">
+          <button
+            v-if="currentStep < steps.length - 1"
+            type="button"
+            class="btn-primary"
+            :disabled="saving || !canGoNext"
+            :title="actionHint"
+            @click="nextStep"
+          >
             <span>Weiter</span>
             <ArrowRight :size="16" />
           </button>
-          <button v-else type="button" class="btn-primary" :disabled="saving || !canFinishWizard" @click="saveContent(true)">
-            <Send :size="16" />
-            <span>{{ canSubmitForReview ? 'Zur Prüfung einreichen' : 'Entwurf speichern' }}</span>
+          <button
+            v-else
+            type="button"
+            class="btn-primary"
+            :disabled="!canUseFinalPrimary"
+            :title="actionHint"
+            @click="handleFinalPrimaryAction"
+          >
+            <component :is="canSubmitForReview && !previewOpened ? Monitor : Send" :size="16" />
+            <span>{{ finalPrimaryLabel }}</span>
           </button>
         </footer>
       </main>
@@ -673,10 +767,15 @@ async function saveContent(submitForReview = false) {
 }
 
 .wizard-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 12px;
+  padding: 12px 0 0;
+  background: var(--color-background);
 }
 
 .action-spacer {
@@ -703,7 +802,17 @@ async function saveContent(submitForReview = false) {
   cursor: not-allowed;
 }
 
-@media (max-width: 1180px) {
+.action-hint {
+  max-width: 320px;
+  margin: 0;
+  color: var(--gray-600);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: right;
+}
+
+@media (max-width: 1380px) {
   .wizard-shell {
     grid-template-columns: 1fr;
   }
@@ -718,6 +827,11 @@ async function saveContent(submitForReview = false) {
 
   .action-spacer {
     display: none;
+  }
+
+  .action-hint {
+    max-width: none;
+    text-align: left;
   }
 }
 </style>

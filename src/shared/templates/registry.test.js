@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import {
   CATALOG_TEMPLATE_ORDER,
   DESIGNER_TEMPLATES,
+  buildTemplateCardMeta,
   filterCatalogTemplates,
   getCatalogTemplates,
   sortTemplatesForCatalog,
@@ -51,6 +52,37 @@ describe('template registry catalog curation', () => {
       category: 'kommunikation',
       renderer: 'component',
       editorComponent: 'ProjectShowcaseEditor',
+    })
+  })
+
+  it('derives rich card metadata for curated designer templates', () => {
+    const projectTemplate = DESIGNER_TEMPLATES.find(template => template.id === 'designer-project-showcase')
+    const meta = buildTemplateCardMeta(projectTemplate, category => ({ kommunikation: 'Kommunikation' })[category] || category)
+
+    expect(meta).toMatchObject({
+      title: 'Frida Hochbeet',
+      kicker: 'PROJEKT-SHOWCASE',
+      recommendedFor: 'Projekt-Erfolge, Nachhaltigkeit und interne Success-Stories',
+      theme: 'dark',
+    })
+  })
+
+  it('falls back to safe card metadata for templates without optional catalog fields', () => {
+    const meta = buildTemplateCardMeta({
+      id: 'legacy-custom',
+      name: 'Eigene Vorlage',
+      description: 'Kurze Beschreibung',
+      category: 'sonstiges',
+      renderer: 'html-params',
+      thumbnailAccent: '#123456',
+    }, category => ({ sonstiges: 'Sonstiges' })[category] || category)
+
+    expect(meta).toMatchObject({
+      title: 'Eigene Vorlage',
+      kicker: 'Sonstiges',
+      recommendedFor: 'Kurze Beschreibung',
+      accent: '#123456',
+      theme: 'dark',
     })
   })
 })

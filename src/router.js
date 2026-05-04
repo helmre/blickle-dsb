@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHashHistory } from 'vue-router'
 import { PERMISSIONS, can } from './shared/auth/policies.js'
 import { useUserStore } from './shared/stores/userStore.js'
 
@@ -29,6 +29,15 @@ const routes = [
       { path: 'emergency', name: 'admin-emergency', component: () => import('./admin/pages/EmergencyPage.vue'), meta: { permission: PERMISSIONS.EMERGENCY_TRIGGER } },
       { path: 'locations', name: 'admin-locations', component: () => import('./admin/pages/LocationListPage.vue'), meta: { permission: PERMISSIONS.LOCATIONS_MANAGE } },
       { path: 'layouts', name: 'admin-layouts', component: () => import('./admin/pages/LayoutEditorPage.vue'), meta: { permission: PERMISSIONS.LAYOUTS_MANAGE } },
+      {
+        path: 'templates/:id/edit',
+        name: 'admin-template-editor-legacy',
+        redirect: to => ({
+          name: 'admin-templates',
+          query: { template: to.params.id },
+        }),
+        meta: { permission: PERMISSIONS.CONTENT_CREATE },
+      },
       { path: 'templates', name: 'admin-templates', component: () => import('./admin/pages/TemplateCatalogPage.vue'), meta: { permission: PERMISSIONS.CONTENT_CREATE } },
       { path: 'shopfloor-demo', name: 'admin-shopfloor-demo', component: () => import('./admin/pages/ShopfloorBoardDemoPage.vue'), meta: { permission: PERMISSIONS.SHOPFLOOR_READ } },
       { path: 'approvals', name: 'admin-approvals', component: () => import('./admin/pages/ApprovalQueuePage.vue'), meta: { permission: PERMISSIONS.CONTENT_APPROVE } },
@@ -40,7 +49,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: import.meta.env.MODE === 'test' ? createMemoryHistory() : createWebHashHistory(),
   routes
 })
 

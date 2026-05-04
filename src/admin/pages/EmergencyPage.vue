@@ -7,6 +7,7 @@ import { useUserStore } from '../../shared/stores/userStore.js'
 import { useToastStore } from '../../shared/stores/toastStore.js'
 import { PERMISSIONS } from '../../shared/auth/policies.js'
 import { safeAuditLog } from '../../shared/utils/auditLog.js'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const emergencyStore = useEmergencyStore()
 const locationStore = useLocationStore()
@@ -19,8 +20,11 @@ const severity = ref('warning')
 const duration = ref(60)
 const selectedLocations = ref([])
 const showConfirm = ref(false)
+const dismissConfirmOpen = ref(false)
+const isDismissingEmergency = ref(false)
 const canTriggerEmergency = computed(() => userStore.can(PERMISSIONS.EMERGENCY_TRIGGER))
 const activeEmergency = computed(() => emergencyStore.activeEmergency)
+const BUSY_RELEASE_MS = 250
 
 function toggleLocation(locId) {
   const idx = selectedLocations.value.indexOf(locId)
@@ -77,18 +81,29 @@ function sendEmergency() {
 
 function dismissActiveEmergency() {
   if (!activeEmergency.value || !canTriggerEmergency.value) return
-  if (!confirm('Aktiven Notfall wirklich beenden?')) return
+  dismissConfirmOpen.value = true
+}
+
+async function confirmDismissActiveEmergency() {
+  if (!activeEmergency.value || !canTriggerEmergency.value || isDismissingEmergency.value) return
+  isDismissingEmergency.value = true
   const emergency = activeEmergency.value
   try {
-    emergencyStore.dismiss(emergency.id, userStore.currentUser.id)
-  } catch (error) {
-    toast.error(error?.message || 'Notfall konnte nicht beendet werden')
-    return
+    try {
+      emergencyStore.dismiss(emergency.id, userStore.currentUser.id)
+    } catch (error) {
+      toast.error(error?.message || 'Notfall konnte nicht beendet werden')
+      return
+    }
+    logAudit('emergency.dismissed', emergency.id, {
+      message: emergency.message,
+      severity: emergency.severity,
+    })
+  } finally {
+    setTimeout(() => {
+      isDismissingEmergency.value = false
+    }, BUSY_RELEASE_MS)
   }
-  logAudit('emergency.dismissed', emergency.id, {
-    message: emergency.message,
-    severity: emergency.severity,
-  })
 }
 
 function getUserName(userId) {
@@ -124,8 +139,8 @@ const historyItems = computed(() => emergencyStore.history)
       <div class="active-info">
         <strong>Aktiver Notfall:</strong> {{ activeEmergency.message }}
       </div>
-      <button class="btn-dismiss-emergency" @click="dismissActiveEmergency" :disabled="!canTriggerEmergency">
-        Entwarnen
+      <button class="btn-dismiss-emergency" @click="dismissActiveEmergency" :disabled="!canTriggerEmergency || isDismissingEmergency">
+        {{ isDismissingEmergency ? 'Beendet...' : 'Entwarnen' }}
       </button>
     </div>
 
@@ -253,6 +268,15 @@ const historyItems = computed(() => emergencyStore.history)
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      v-model:open="dismissConfirmOpen"
+      title="Notfall beenden"
+      message="Aktiven Notfall wirklich beenden?"
+      confirm-label="Entwarnen"
+      confirm-variant="danger"
+      @confirm="confirmDismissActiveEmergency"
+    />
   </div>
 </template>
 

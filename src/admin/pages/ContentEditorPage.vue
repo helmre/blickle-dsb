@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useContentStore } from '../../shared/stores/contentStore.js'
 import { useScheduleStore } from '../../shared/stores/scheduleStore.js'
@@ -9,6 +9,7 @@ import { useToastStore } from '../../shared/stores/toastStore.js'
 import { useAuditStore } from '../../shared/stores/auditStore.js'
 import { getTemplateById } from '../../shared/templates/registry.js'
 import ContentMetaPanel from '../components/ContentMetaPanel.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 import LegacyTemplatePreview from '../components/LegacyTemplatePreview.vue'
 import PdfContentEditor from '../components/PdfContentEditor.vue'
 import ReviewTimeline from '../components/ReviewTimeline.vue'
@@ -25,6 +26,7 @@ const locationStore = useLocationStore()
 const userStore = useUserStore()
 const toast = useToastStore()
 const auditStore = useAuditStore()
+const BUSY_RELEASE_MS = 250
 
 const content = computed(() => contentStore.getById(route.params.id))
 const template = computed(() => content.value?.templateId ? getTemplateById(content.value.templateId) : null)
@@ -49,7 +51,12 @@ const {
   canDelete,
   canSubmit,
   canUpload,
+  cancelDeleteRequest,
+  confirmDeleteRequest,
   createRevision,
+  deleteConfirmMessage,
+  deleteConfirmOpen,
+  isDeleting,
   latestRejection,
   lockText,
   lockTitle,
@@ -70,16 +77,36 @@ const {
   userStore,
 })
 
+const isSavingDraft = ref(false)
+const isSubmitting = ref(false)
+
+async function runWithBusy(flag, action) {
+  if (flag.value) return
+  flag.value = true
+  try {
+    await Promise.resolve(action())
+  } finally {
+    setTimeout(() => {
+      flag.value = false
+    }, BUSY_RELEASE_MS)
+  }
+}
+
 function goBackToCatalog() {
   router.push({ name: 'admin-templates' })
 }
 
 function saveCurrentDraft() {
-  saveDraft(isReadOnly.value)
+  runWithBusy(isSavingDraft, () => saveDraft(isReadOnly.value))
 }
 
 function removeCurrentContent() {
+  if (isDeleting.value) return
   remove(isReadOnly.value)
+}
+
+function submitCurrentContent() {
+  runWithBusy(isSubmitting, submitForReview)
 }
 
 function replaceCurrentPdfFile(payload) {
@@ -96,13 +123,26 @@ function replaceCurrentPdfFile(payload) {
       :content="content"
       :is-publishable="isPublishable"
       :is-read-only="isReadOnly"
+      :is-deleting="isDeleting"
+      :is-saving-draft="isSavingDraft"
+      :is-submitting="isSubmitting"
       :status-labels="statusLabels"
       :template="template"
       @back="goBackToCatalog"
       @create-revision="createRevision"
       @remove="removeCurrentContent"
       @save-draft="saveCurrentDraft"
-      @submit="submitForReview"
+      @submit="submitCurrentContent"
+    />
+
+    <ConfirmDialog
+      v-model:open="deleteConfirmOpen"
+      title="Inhalt löschen"
+      :message="deleteConfirmMessage"
+      confirm-label="Löschen"
+      confirm-variant="danger"
+      @confirm="confirmDeleteRequest"
+      @cancel="cancelDeleteRequest"
     />
 
     <ContentEditorAlerts

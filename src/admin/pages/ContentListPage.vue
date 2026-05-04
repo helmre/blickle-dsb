@@ -8,6 +8,7 @@ import { useUserStore } from '../../shared/stores/userStore.js'
 import { useToastStore } from '../../shared/stores/toastStore.js'
 import { PERMISSIONS } from '../../shared/auth/policies.js'
 import { safeAuditLog } from '../../shared/utils/auditLog.js'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const router = useRouter()
 const contentStore = useContentStore()
@@ -24,6 +25,8 @@ const canRead = computed(() => userStore.can(PERMISSIONS.CONTENT_READ))
 const canEdit = computed(() => userStore.can(PERMISSIONS.CONTENT_EDIT))
 const canDelete = computed(() => userStore.can(PERMISSIONS.CONTENT_DELETE))
 const canSubmit = computed(() => userStore.can(PERMISSIONS.CONTENT_SUBMIT))
+const pendingContentDeleteId = ref(null)
+const isDeletingContent = ref(false)
 
 const allTags = computed(() => {
   const tags = new Set()
@@ -42,23 +45,50 @@ const filtered = computed(() => {
   })
 })
 
-function deleteContent(id) {
-  if (!canDelete.value) return
+const pendingContentDelete = computed(() => {
+  return pendingContentDeleteId.value ? contentStore.getById(pendingContentDeleteId.value) : null
+})
+
+const deleteConfirmMessage = computed(() => {
+  return pendingContentDelete.value
+    ? `"${pendingContentDelete.value.title}" wirklich löschen?`
+    : 'Diesen Inhalt wirklich löschen?'
+})
+
+function requestDeleteContent(id) {
+  if (!canDelete.value || isDeletingContent.value) return
+  pendingContentDeleteId.value = id
+}
+
+function cancelDeleteContent() {
+  if (isDeletingContent.value) return
+  pendingContentDeleteId.value = null
+}
+
+function confirmDeleteContent() {
+  const id = pendingContentDeleteId.value
+  if (!id || !canDelete.value || isDeletingContent.value) return
+  isDeletingContent.value = true
   let removedSchedules = 0
   try {
-    contentStore.remove(id)
-  } catch (error) {
-    toast.error(error?.message || 'Inhalt konnte nicht gelöscht werden')
-    return
+    try {
+      contentStore.remove(id)
+    } catch (error) {
+      toast.error(error?.message || 'Inhalt konnte nicht gelöscht werden')
+      return
+    }
+    try {
+      removedSchedules = scheduleStore.removeForTarget('content', id)
+    } catch (error) {
+      console.warn('[ContentList] Zeitplan-Bereinigung fehlgeschlagen:', error)
+      toast.warning('Inhalt gelöscht, aber abhängige Zeitpläne konnten nicht bereinigt werden')
+    }
+    safeAuditLog(auditStore, 'content.deleted', 'content', id, userStore.currentUser?.id, { removedSchedules }, { toast })
+    toast.success(removedSchedules ? `Inhalt und ${removedSchedules} Zeitplan-Regeln gelöscht` : 'Inhalt gelöscht')
+    pendingContentDeleteId.value = null
+  } finally {
+    isDeletingContent.value = false
   }
-  try {
-    removedSchedules = scheduleStore.removeForTarget('content', id)
-  } catch (error) {
-    console.warn('[ContentList] Zeitplan-Bereinigung fehlgeschlagen:', error)
-    toast.warning('Inhalt gelöscht, aber abhängige Zeitpläne konnten nicht bereinigt werden')
-  }
-  safeAuditLog(auditStore, 'content.deleted', 'content', id, userStore.currentUser.id, { removedSchedules }, { toast })
-  toast.success(removedSchedules ? `Inhalt und ${removedSchedules} Zeitplan-Regeln gelöscht` : 'Inhalt gelöscht')
 }
 
 function submitForReview(id) {
@@ -226,7 +256,8 @@ function formatSize(bytes) {
           <button
             v-if="canDelete && !contentStore.isLocked(content)"
             class="btn-action btn-delete"
-            @click.stop="deleteContent(content.id)"
+            :disabled="isDeletingContent"
+            @click.stop="requestDeleteContent(content.id)"
             title="Löschen"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -250,6 +281,15 @@ function formatSize(bytes) {
       </div>
     </div>
 
+    <ConfirmDialog
+      :open="Boolean(pendingContentDeleteId)"
+      title="Inhalt löschen"
+      :message="deleteConfirmMessage"
+      confirm-label="Löschen"
+      confirm-variant="danger"
+      @confirm="confirmDeleteContent"
+      @cancel="cancelDeleteContent"
+    />
   </div>
 </template>
 

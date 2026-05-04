@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 import { useContentEditorWorkflow } from './useContentEditorWorkflow.js'
 
@@ -28,6 +28,9 @@ function setupWorkflow({ contentPatch = {} } = {}) {
     submitForReview: vi.fn(),
     update: vi.fn(),
   }
+  const scheduleStore = {
+    removeForTarget: vi.fn(() => 2),
+  }
   const auditStore = { log: vi.fn() }
   const router = { push: vi.fn() }
   const toast = {
@@ -43,6 +46,7 @@ function setupWorkflow({ contentPatch = {} } = {}) {
     contentStore,
     flushPendingParams,
     router,
+    scheduleStore,
     template,
     toast,
     userStore,
@@ -54,6 +58,7 @@ function setupWorkflow({ contentPatch = {} } = {}) {
     contentStore,
     flushPendingParams,
     router,
+    scheduleStore,
     toast,
     user,
     workflow,
@@ -61,6 +66,10 @@ function setupWorkflow({ contentPatch = {} } = {}) {
 }
 
 describe('useContentEditorWorkflow', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('submits valid content for review and navigates back to the content list', () => {
     const { auditStore, contentStore, flushPendingParams, router, toast, user, workflow } = setupWorkflow()
 
@@ -119,5 +128,54 @@ describe('useContentEditorWorkflow', () => {
       name: 'admin-content-detail',
       params: { id: 'content-2' },
     })
+  })
+
+  it('opens the delete confirmation and cancels without removing content', async () => {
+    const { contentStore, router, workflow } = setupWorkflow()
+
+    const deletion = workflow.remove(false)
+
+    expect(workflow.deleteConfirmOpen.value).toBe(true)
+    expect(workflow.deleteConfirmMessage.value).toBe('Diesen Inhalt wirklich löschen?')
+
+    workflow.cancelDeleteRequest()
+
+    await expect(deletion).resolves.toBe(false)
+    expect(workflow.deleteConfirmOpen.value).toBe(false)
+    expect(contentStore.remove).not.toHaveBeenCalled()
+    expect(router.push).not.toHaveBeenCalled()
+  })
+
+  it('removes content after the delete confirmation is accepted', async () => {
+    vi.useFakeTimers()
+    const { auditStore, contentStore, router, scheduleStore, toast, workflow } = setupWorkflow()
+
+    const deletion = workflow.remove(false)
+    workflow.confirmDeleteRequest()
+    await Promise.resolve()
+
+    expect(workflow.isDeleting.value).toBe(true)
+    await vi.advanceTimersByTimeAsync(250)
+
+    await expect(deletion).resolves.toBe(true)
+    expect(contentStore.remove).toHaveBeenCalledWith('content-1')
+    expect(scheduleStore.removeForTarget).toHaveBeenCalledWith('content', 'content-1')
+    expect(auditStore.log).toHaveBeenCalledWith('content.delete', 'content', 'content-1', 'user-1', {
+      title: 'Sicherheitsinfo',
+      removedSchedules: 2,
+    })
+    expect(toast.success).toHaveBeenCalledWith('Inhalt gelöscht')
+    expect(router.push).toHaveBeenCalledWith({ name: 'admin-templates' })
+    expect(workflow.isDeleting.value).toBe(false)
+  })
+
+  it('does not open delete confirmation for read-only content', async () => {
+    const { contentStore, toast, workflow } = setupWorkflow()
+
+    await expect(workflow.remove(true)).resolves.toBe(false)
+
+    expect(workflow.deleteConfirmOpen.value).toBe(false)
+    expect(toast.info).toHaveBeenCalledWith('Diese Version ist schreibgeschützt und kann nicht direkt gelöscht werden.')
+    expect(contentStore.remove).not.toHaveBeenCalled()
   })
 })

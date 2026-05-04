@@ -67,7 +67,7 @@ const canvasStyle = computed(() => ({
       <section class="fs"><h4 class="fs-title">Inhalt</h4>
         <label class="fld"><span class="fld-label">Kicker</span><input v-model="kicker" type="text" class="fld-input" /></label>
         <label class="fld"><span class="fld-label">Überschrift</span><textarea v-model="headline" class="fld-input fld-small" rows="2" /></label>
-        <label class="fld"><span class="fld-label">Fliesstext</span><textarea v-model="body" class="fld-input" rows="6" /></label>
+        <label class="fld"><span class="fld-label">Fließtext</span><textarea v-model="body" class="fld-input" rows="6" /></label>
       </section>
       <section class="fs"><h4 class="fs-title">Formale Angaben</h4>
         <div class="row-2">

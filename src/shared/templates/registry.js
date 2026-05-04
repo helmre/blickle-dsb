@@ -78,6 +78,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'LegalNoticeEditor',
     thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
     thumbnailAccent: '#3B82F6',
+    thumbnailKicker: 'MITTEILUNG',
+    thumbnailTitle: 'Neue Information',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Allgemeine Hinweise, Bereichsinfos und interne Updates',
     requiredFields: [
       { key: 'headline', label: 'Titel' },
       { key: 'body', label: 'Mitteilungstext' },
@@ -105,6 +109,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'DkmsHeroEditor',
     thumbnailBg: 'linear-gradient(135deg, #F8F9FB 0%, #F1F5F9 58%, #E9F1D6 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'ANKÜNDIGUNG',
+    thumbnailTitle: 'Held des Alltags',
+    thumbnailTheme: 'light',
+    recommendedFor: 'Emotionale Ankündigungen, Engagement und soziale Aktionen',
     requiredFields: [
       { key: 'headline', label: 'Titel' },
       { key: 'leadText', label: 'Lead' },
@@ -139,6 +147,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'DemoEditor',
     thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'FEEDBACK',
+    thumbnailTitle: 'Umfrage starten',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Umfragen, Feedback-Aktionen und QR-basierte Beteiligung',
     requiredFields: [
       { key: 'headline', label: 'Headline' },
       { key: 'body', label: 'Begleittext' },
@@ -197,6 +209,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'JobPostingEditor',
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'KARRIERE',
+    thumbnailTitle: 'Offene Stelle',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Stellenanzeigen, interne Wechsel und Recruiting-Hinweise',
     defaultParams: {
       kicker: 'KARRIERE · BLICKLE',
       jobTitle: 'Produktionsmitarbeiter (m/w/d)',
@@ -228,6 +244,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'MeetingCalloutEditor',
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'TERMIN',
+    thumbnailTitle: 'Veranstaltung',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Einladungen, Betriebsversammlungen und Schulungstermine',
     status: 'in-migration',
     legacyRoute: '/admin/designer-meeting-callout',
     requiredFields: [
@@ -257,6 +277,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'AcademyGuestEditor',
     thumbnailBg: 'linear-gradient(135deg, #F8FAFC 0%, #EEF3F7 62%, #DCE6EF 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'ACADEMY',
+    thumbnailTitle: 'Gast bei Blickle',
+    thumbnailTheme: 'light',
+    recommendedFor: 'Academy-News, Speaker, Impulse und Führungskräfteentwicklung',
     requiredFields: [
       { key: 'headline', label: 'Titel' },
       { key: 'body', label: 'Beschreibung' },
@@ -290,6 +314,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'LegalNoticeEditor',
     thumbnailBg: 'linear-gradient(135deg, #7C2D12 0%, #78350F 100%)',
     thumbnailAccent: '#F59E0B',
+    thumbnailKicker: 'HINWEIS',
+    thumbnailTitle: 'Wichtige Mitteilung',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Formale Hinweise, Regeln und dringende Informationen',
     status: 'in-migration',
     legacyRoute: '/admin/designer-legal-notice',
     requiredFields: [
@@ -375,6 +403,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'CeoQuoteEditor',
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'STATEMENT',
+    thumbnailTitle: 'Botschaft der GL',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Geschäftsleitungs-Statements und strategische Botschaften',
     requiredFields: [
       { key: 'quote', label: 'Botschaft' },
       { key: 'authorName', label: 'Name' },
@@ -400,7 +432,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'VisitorAlertEditor',
     thumbnailBg: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)',
     thumbnailAccent: '#163A6C',
+    thumbnailKicker: 'EMPFANG',
+    thumbnailTitle: 'Gäste heute',
     thumbnailTheme: 'light',
+    recommendedFor: 'Besucherhinweise, Empfangsinfos und öffentliche Bereiche',
     status: 'in-migration',
     legacyRoute: '/admin/designer-visitor-alert',
     requiredFields: [
@@ -449,6 +484,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'ProjectShowcaseEditor',
     thumbnailBg: 'linear-gradient(135deg, #064E3B 0%, #10B981 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'PROJEKT-SHOWCASE',
+    thumbnailTitle: 'Frida Hochbeet',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Projekt-Erfolge, Nachhaltigkeit und interne Success-Stories',
     defaultParams: {
       kicker: 'PROJEKT-SHOWCASE',
       kategorie: 'NACHHALTIGKEIT',
@@ -470,6 +509,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'KpiDashboardEditor',
     thumbnailBg: 'linear-gradient(135deg, #0A1A33 0%, #0B2442 50%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'DASHBOARD',
+    thumbnailTitle: 'Produktionskennzahlen',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Kennzahlen, Shopfloor-Status und Produktionsüberblick',
     requiredFields: [
       { key: 'titel', label: 'Titel' },
       { key: 'wert1', label: 'Wert 1' },
@@ -500,6 +543,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'SafetyPsaEditor',
     thumbnailBg: 'linear-gradient(135deg, #F8FAFC 0%, #E5EDF5 54%, #C8D6E4 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'SICHERHEIT',
+    thumbnailTitle: 'PSA-Pflicht',
+    thumbnailTheme: 'light',
+    recommendedFor: 'Sicherheitsunterweisungen, PSA-Regeln und Pflichtinformationen',
     requiredFields: [
       { key: 'headline', label: 'Titel' },
       { key: 'body', label: 'Sicherheitshinweis' },
@@ -531,6 +578,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'LegalNoticeEditor',
     thumbnailBg: 'linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%)',
     thumbnailAccent: '#EF4444',
+    thumbnailKicker: 'STÖRUNG',
+    thumbnailTitle: 'Wartung melden',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Anlagenstatus, Sperrungen, Wartungen und akute Störungen',
     requiredFields: [
       { key: 'headline', label: 'Titel' },
       { key: 'body', label: 'Statusmeldung' },
@@ -558,6 +609,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'DemoEditor',
     thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'DOKUMENT',
+    thumbnailTitle: 'PDF mit QR',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'PDFs, Intranet-Links, Dokumente und Rückfragen per QR',
     requiredFields: [
       { key: 'headline', label: 'Headline' },
       { key: 'body', label: 'Begleittext' },
@@ -589,6 +644,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'DemoEditor',
     thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'S’RÄDLE',
+    thumbnailTitle: 'Speiseplan',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Speiseplan, Snackplan und kurzfristige Kantinen-Updates',
     requiredFields: [
       { key: 'headline', label: 'Headline' },
       { key: 'body', label: 'Begleittext' },
@@ -620,6 +679,10 @@ export const DESIGNER_TEMPLATES = [
     displayComponent: 'LegalNoticeEditor',
     thumbnailBg: 'linear-gradient(135deg, #0B1F3A 0%, #163A6C 100%)',
     thumbnailAccent: '#B5CC18',
+    thumbnailKicker: 'MENSCHEN',
+    thumbnailTitle: 'Mitarbeiter-Anlass',
+    thumbnailTheme: 'dark',
+    recommendedFor: 'Jubiläen, Willkommen, Dankeschön und interne Glückwünsche',
     requiredFields: [
       { key: 'headline', label: 'Titel' },
       { key: 'body', label: 'Text' },
@@ -913,6 +976,42 @@ export function sortTemplatesForCatalog(templates = []) {
   })
 }
 
+function firstText(values = []) {
+  return values
+    .map(value => String(value ?? '').trim())
+    .find(Boolean) || ''
+}
+
+export function buildTemplateCardMeta(template = {}, categoryLabel = category => category) {
+  const category = template.category || 'allgemein'
+  const categoryName = categoryLabel(category)
+  const params = template.defaultParams || {}
+  const design = template.design || {}
+  const theme = firstText([template.thumbnailTheme, params.theme, design.theme])
+
+  return {
+    accent: firstText([template.thumbnailAccent, params.accent, design.accent]) || '#B5CC18',
+    background: firstText([template.thumbnailBg]) || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
+    category,
+    categoryName,
+    description: firstText([template.description, template.recommendedFor]) || 'Vorlage für 16:9 Display-Inhalte.',
+    kicker: firstText([template.thumbnailKicker, params.kicker, categoryName]) || 'Vorlage',
+    recommendedFor: firstText([template.recommendedFor, template.description]) || `${categoryName} im Display`,
+    rendererLabel: template.renderer === 'component' ? 'Designer-Vorlage' : 'Klassische Vorlage',
+    theme: theme === 'light' ? 'light' : 'dark',
+    title: firstText([
+      template.thumbnailTitle,
+      params.projektname,
+      params.headline,
+      params.topic,
+      params.titel,
+      params.jobTitle,
+      params.name,
+      template.name,
+    ]) || 'Vorlage',
+  }
+}
+
 export function filterCatalogTemplates(templates = []) {
   return sortTemplatesForCatalog(templates.filter(template => template.catalogHidden !== true))
 }
@@ -935,6 +1034,10 @@ export function getAllTemplates() {
     parameters: t.parameters || [],
     thumbnailBg: t.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
     thumbnailAccent: t.thumbnailAccent || '#B5CC18',
+    thumbnailKicker: t.thumbnailKicker || '',
+    thumbnailTitle: t.thumbnailTitle || '',
+    thumbnailTheme: t.thumbnailTheme || t.design?.theme || 'dark',
+    recommendedFor: t.recommendedFor || '',
     defaultParams: (t.parameters || []).reduce((acc, p) => {
       const key = p.key || p.name
       acc[key] = p.defaultValue !== undefined ? p.defaultValue : (p.default || '')
@@ -971,6 +1074,12 @@ export function getTemplateById(id) {
     isActive: legacy.isActive !== false,
     catalogHidden: legacy.catalogHidden === true || legacy.isActive === false,
     design: legacy.design || null,
+    thumbnailBg: legacy.thumbnailBg || 'linear-gradient(135deg, #163A6C 0%, #0B1F3A 100%)',
+    thumbnailAccent: legacy.thumbnailAccent || '#B5CC18',
+    thumbnailKicker: legacy.thumbnailKicker || '',
+    thumbnailTitle: legacy.thumbnailTitle || '',
+    thumbnailTheme: legacy.thumbnailTheme || legacy.design?.theme || 'dark',
+    recommendedFor: legacy.recommendedFor || '',
     defaultParams,
   }
 }
